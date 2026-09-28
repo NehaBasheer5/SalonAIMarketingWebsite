@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --salon-bg: #fcfaf7;
+  --salon-bg-soft: #f5f0e9;
+  --salon-ink: #1a1a1a;
+  --salon-muted: #6b6560;
+  --salon-gold: #a68b67;
+  --salon-gold-soft: #c4a882;
+  --salon-border: #e8e0d5;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--salon-bg);
+  color: var(--salon-ink);
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-playfair), Georgia, serif;
+}
