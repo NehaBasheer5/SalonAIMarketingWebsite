@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs/promises";
 import { getPool, ResultSetHeader, RowDataPacket } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { ALLOWED_KINDS, isVideoMime, maxBytesFor, resolveMediaType } from "@/lib/media";
 
 export async function GET() {
   const session = await getSession();
@@ -27,12 +28,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
   }
 
-  if (!file.type.startsWith("image/")) {
-    return NextResponse.json({ error: "Only image uploads are allowed" }, { status: 400 });
+  const resolvedType = resolveMediaType(file.type, file.name);
+  if (!resolvedType) {
+    return NextResponse.json(
+      { error: `Unsupported file type. Upload ${ALLOWED_KINDS}.` },
+      { status: 400 }
+    );
+  }
+
+  const { mime, ext } = resolvedType;
+  const maxBytes = maxBytesFor(mime);
+  const kind = isVideoMime(mime) ? "Video" : "Image";
+  const maxMb = Math.round(maxBytes / (1024 * 1024));
+
+  if (file.size > maxBytes) {
+    return NextResponse.json({ error: `${kind} is larger than ${maxMb} MB` }, { status: 400 });
   }
 
   const bytes = Buffer.from(await file.arrayBuffer());
-  const ext = path.extname(file.name) || ".png";
+  if (bytes.length > maxBytes) {
+    return NextResponse.json({ error: `${kind} is larger than ${maxMb} MB` }, { status: 400 });
+  }
+
   const storedName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
 
   const uploadDir = path.join(process.cwd(), "public", "uploads");
@@ -44,7 +61,7 @@ export async function POST(request: Request) {
   const [result] = await pool.query<ResultSetHeader>(
     `INSERT INTO media (filename, original_name, url, alt_text, mime_type, size_bytes)
      VALUES (?, ?, ?, ?, ?, ?)`,
-    [storedName, file.name, url, altText || null, file.type, bytes.length]
+    [storedName, file.name, url, altText || null, mime, bytes.length]
   );
 
   return NextResponse.json({
@@ -54,7 +71,7 @@ export async function POST(request: Request) {
       original_name: file.name,
       url,
       alt_text: altText,
-      mime_type: file.type,
+      mime_type: mime,
       size_bytes: bytes.length,
     },
   });

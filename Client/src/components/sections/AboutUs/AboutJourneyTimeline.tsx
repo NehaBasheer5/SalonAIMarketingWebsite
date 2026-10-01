@@ -1,39 +1,51 @@
 "use client";
 
 import React from "react";
-import { Sparkles, Rocket, BarChart2, Globe, Star } from "lucide-react";
+import CmsIcon from "@/components/ui/CmsIcon";
+import { defaultAboutContent, type AboutContent } from "@/lib/content";
 
-const milestones = [
-  { icon: Sparkles, title: "The Beginning", desc: "SalonAI was founded with a vision to modernize salon operations with technology and innovation." },
-  { icon: Rocket, title: "Early Growth", desc: "We launched our platform and onboarded our first 1,000+ salons, improving bookings and operations." },
-  { icon: BarChart2, title: "Expanding Features", desc: "AI features, analytics, loyalty programs, and mobile apps were introduced to empower salons even more." },
-  { icon: Globe, title: "Global Reach", desc: "We reached 10,000+ salons worldwide and continue to grow our global community every day." },
-  { icon: Star, title: "What's Next", desc: "We're building the future of salon management with smarter AI, more integrations, and limitless possibilities." },
-];
+type Props = {
+  content?: AboutContent["journey"];
+};
 
-export default function AboutJourneyTimeline() {
+export default function AboutJourneyTimeline({
+  content = defaultAboutContent.journey,
+}: Props) {
+  if (!content.milestones.length) return null;
+
   return (
-    <section className="py-16 bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 text-center mb-16">
-          Our Journey
-        </h2>
+    <section className="w-full overflow-hidden bg-salon-bg py-14 lg:py-16">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mb-10 flex flex-col items-center text-center">
+          {content.eyebrow ? (
+            <div className="mb-4 flex items-center gap-3">
+              <span className="h-px w-8 bg-salon-rule" />
+              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+                {content.eyebrow}
+              </span>
+              <span className="h-px w-8 bg-salon-rule" />
+            </div>
+          ) : null}
+          <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl">
+            {content.heading} <span className="text-salon-accent">{content.heading_accent}</span>
+          </h2>
+        </div>
 
         <div className="relative">
-          <div className="hidden md:block absolute top-7 left-[8%] right-[8%] h-0.5 bg-[#8B5E34]/30 -z-0" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 relative z-10">
-            {milestones.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <div key={index} className="flex flex-col items-center text-center space-y-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#8B5E34] text-white shadow-md">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-900 pt-1">{item.title}</h3>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">{item.desc}</p>
-                </div>
-              );
-            })}
+          <div className="absolute left-[8%] right-[8%] top-7 hidden h-px bg-salon-rule/40 md:block" />
+          <div className="relative z-10 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-5">
+            {content.milestones.map((item, index) => (
+              <div key={item.title} className="flex flex-col items-center gap-3 text-center">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-salon-brand text-white shadow-[0_6px_18px_rgba(133,89,47,0.22)]">
+                  <CmsIcon name={item.icon} className="h-6 w-6" strokeWidth={1.7} />
+                </span>
+                <p className="font-display text-[10px] font-light text-salon-gold-soft/70">
+                  {String(index + 1).padStart(2, "0")}
+                </p>
+                <h3 className="text-sm font-semibold text-salon-ink">{item.title}</h3>
+                <p className="text-[11px] leading-relaxed text-salon-muted">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -9,16 +9,19 @@ export const metadata: Metadata = {
 
 export default function RequestDemoPage() {
   return (
-    <main className="min-h-screen bg-slate-50/50">
-      <section className="mx-auto max-w-7xl px-6 pt-12 pb-4">
-        <div className="max-w-2xl space-y-3">
-          <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-            Book a Demo
-          </span>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-            See SalonAI in action
+    <main className="min-h-screen bg-salon-bg">
+      <section className="mx-auto max-w-7xl px-5 pb-10 pt-14 sm:px-8 lg:pt-16">
+        <div className="max-w-2xl space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="h-px w-9 bg-salon-rule" />
+            <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+              Book a Demo
+            </span>
+          </div>
+          <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl">
+            See SalonAI <span className="block text-salon-accent">in Action</span>
           </h1>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm leading-relaxed text-salon-muted">
             Tell us a bit about your salon and we&apos;ll schedule a personalized walkthrough.
           </p>
         </div>

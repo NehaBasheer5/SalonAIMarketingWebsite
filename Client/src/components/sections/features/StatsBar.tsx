@@ -1,31 +1,33 @@
 import React from "react";
-import { Users, Smile, CalendarCheck, TrendingUp, Headset } from "lucide-react";
+import CmsIcon from "@/components/ui/CmsIcon";
+import { defaultFeaturesContent, type FeaturesContent } from "@/lib/content";
 
-const stats = [
-  { icon: Users, value: "10,000+", label: "Salons Worldwide" },
-  { icon: Smile, value: "500K+", label: "Happy Customers" },
-  { icon: CalendarCheck, value: "1M+", label: "Appointments Managed" },
-  { icon: TrendingUp, value: "95%", label: "Customer Satisfaction" },
-  { icon: Headset, value: "24/7", label: "Customer Support" },
-];
+type Props = {
+  content?: FeaturesContent["stats_bar"];
+};
 
-export default function StatsBar() {
+export default function StatsBar({ content = defaultFeaturesContent.stats_bar }: Props) {
+  if (!content.stats.length) return null;
+
   return (
-    <section className="border-y border-slate-100 bg-slate-50/50 py-10">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-5">
-          {stats.map((stat, idx) => {
-            const Icon = stat.icon;
-            return (
-              <div key={idx} className="flex flex-col items-center text-center">
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100/60 text-blue-700">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <span className="text-2xl font-extrabold text-slate-900">{stat.value}</span>
-                <span className="mt-1 text-xs font-medium text-slate-500">{stat.label}</span>
-              </div>
-            );
-          })}
+    <section className="border-y border-salon-card bg-salon-shell-soft py-12">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div
+          className={`grid grid-cols-2 gap-6 ${
+            content.stats.length >= 5 ? "md:grid-cols-5" : "md:grid-cols-3"
+          }`}
+        >
+          {content.stats.map((stat) => (
+            <div key={stat.label} className="flex flex-col items-center text-center">
+              <span className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-salon-tile text-salon-brand-dark">
+                <CmsIcon name={stat.icon} className="h-5 w-5" />
+              </span>
+              <span className="font-display text-2xl font-semibold text-salon-ink">
+                {stat.value}
+              </span>
+              <span className="mt-1 text-xs font-medium text-salon-muted">{stat.label}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>

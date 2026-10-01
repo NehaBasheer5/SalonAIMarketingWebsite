@@ -1,48 +1,78 @@
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { images } from "@/assets";
+import { ArrowRight } from "lucide-react";
+import CmsImage from "@/components/ui/CmsImage";
+import { defaultFeaturesContent, fallbackImages, type FeaturesContent } from "@/lib/content";
 
-export default function FeaturesCta() {
+type Props = {
+  content?: FeaturesContent["cta_banner"];
+};
+
+export default function FeaturesCta({ content = defaultFeaturesContent.cta_banner }: Props) {
   return (
-    <section className="py-16 bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-blue-950 px-6 py-12 sm:px-12 sm:py-16 text-white shadow-xl">
+    <section className="w-full overflow-hidden bg-salon-bg py-14 lg:py-16">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="relative overflow-hidden rounded-3xl border border-salon-brand bg-salon-brand px-6 py-12 text-white shadow-[0_16px_40px_rgba(133,89,47,0.24)] sm:px-12 sm:py-16">
           <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
-            
-            <div className="lg:col-span-8">
-              <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-                Ready to Experience All Features?
+            <div className="lg:col-span-7">
+              {content.eyebrow ? (
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="h-px w-9 bg-white/40" />
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-white/75">
+                    {content.eyebrow}
+                  </span>
+                </div>
+              ) : null}
+
+              <h2 className="font-display text-3xl leading-[1.08] tracking-tight text-white sm:text-4xl">
+                {content.heading}
+                {content.heading_accent ? (
+                  <span className="italic text-white/85"> {content.heading_accent}</span>
+                ) : null}
               </h2>
-              <p className="mt-3 text-base text-blue-200 max-w-xl">
-                Join thousands of salon owners who are running their business smarter with SalonAI.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link
-                  href="/request-demo"
-                  className="rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-blue-950 transition-all hover:bg-blue-50"
-                >
-                  Book a Demo
-                </Link>
-                <Link
-                  href="/contact"
-                  className="rounded-xl border border-blue-400/40 bg-blue-900/40 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-blue-800/50"
-                >
-                  Contact Sales
-                </Link>
+
+              {content.body ? (
+                <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/80">
+                  {content.body}
+                </p>
+              ) : null}
+
+              {content.cta_label || content.secondary_cta_label ? (
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  {content.cta_label ? (
+                    <Link
+                      href={content.cta_href || "/request-demo"}
+                      className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-salon-brand transition hover:bg-salon-chip"
+                    >
+                      {content.cta_label}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  ) : null}
+
+                  {content.secondary_cta_label ? (
+                    <Link
+                      href={content.secondary_cta_href || "/contact"}
+                      className="inline-flex items-center rounded-lg border border-white/45 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                    >
+                      {content.secondary_cta_label}
+                    </Link>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="hidden justify-end lg:col-span-5 lg:flex">
+              <div className="relative h-[200px] w-[300px]">
+                <CmsImage
+                  value={content.image_url}
+                  fallback={fallbackImages.features_cta}
+                  alt={content.image_alt}
+                  fill
+                  className="object-contain"
+                  sizes="300px"
+                />
               </div>
             </div>
-
-            <div className="lg:col-span-4 hidden lg:flex justify-end">
-              <Image
-                src={images.dashboardFeatures}
-                alt="SalonAI Dashboard"
-                width={300}
-                height={200}
-                className="w-auto h-auto object-contain"
-              />
-            </div>
-
           </div>
         </div>
       </div>

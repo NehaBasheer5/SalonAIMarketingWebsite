@@ -1,12 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
-import { images } from "@/assets";
+import CmsImage from "@/components/ui/CmsImage";
+import { defaultHomeContent, fallbackImages, type HomeContent } from "@/lib/content";
 
-const AppStoreBadge = () => (
+type Props = {
+  content?: HomeContent["mobile_app"];
+};
+
+const AppStoreBadge = ({ href }: { href: string }) => (
   <a
-    href="#"
+    href={href || "#"}
     aria-label="Download on the App Store"
     className="inline-flex h-11 min-w-[132px] items-center gap-2.5 rounded-[7px] bg-black px-3 text-white transition hover:bg-[#171717]"
   >
@@ -20,9 +24,9 @@ const AppStoreBadge = () => (
   </a>
 );
 
-const GooglePlayBadge = () => (
+const GooglePlayBadge = ({ href }: { href: string }) => (
   <a
-    href="#"
+    href={href || "#"}
     aria-label="Get it on Google Play"
     className="inline-flex h-11 min-w-[142px] items-center gap-2.5 rounded-[7px] bg-black px-3 text-white transition hover:bg-[#171717]"
   >
@@ -39,14 +43,15 @@ const GooglePlayBadge = () => (
   </a>
 );
 
-export default function MobileAppShowcase() {
+export default function MobileAppShowcase({ content = defaultHomeContent.mobile_app }: Props) {
   return (
     <section className="w-full overflow-hidden bg-salon-bg">
       <div className="relative min-h-[440px] lg:min-h-[520px]">
         <div className="relative h-[340px] w-full overflow-hidden sm:h-[420px] lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[54%]">
-          <Image
-            src={images.apps2}
-            alt="SalonAI mobile apps for owners and customers"
+          <CmsImage
+            value={content.image_url}
+            fallback={fallbackImages.mobile_app}
+            alt={content.image_alt}
             fill
             priority
             className="object-cover object-center"
@@ -64,25 +69,28 @@ export default function MobileAppShowcase() {
         >
           <div className="w-full max-w-md">
             <div className="mb-5 flex items-center gap-3">
-              <span className="h-px w-12 bg-[#a98a65]" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#7f6448]">
-                Mobile App
+              <span className="h-px w-12 bg-salon-rule" />
+              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+                {content.eyebrow}
               </span>
             </div>
 
             <h2 className="font-display text-4xl leading-[1.02] tracking-tight text-salon-ink sm:text-5xl lg:text-[3rem]">
-              On the Go,
-              <span className="block text-[#91663f]">Always in Control</span>
+              {content.heading}
+              {content.heading_accent ? (
+                <span className="block text-salon-accent">{content.heading_accent}</span>
+              ) : null}
             </h2>
 
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-salon-muted">
-              Manage your salon anytime, anywhere with our beautiful mobile apps for you and your
-              customers.
-            </p>
+            {content.subheading ? (
+              <p className="mt-5 max-w-sm text-sm leading-relaxed text-salon-muted">
+                {content.subheading}
+              </p>
+            ) : null}
 
             <div className="mt-7 flex flex-wrap gap-3">
-              <AppStoreBadge />
-              <GooglePlayBadge />
+              <AppStoreBadge href={content.app_store_url} />
+              <GooglePlayBadge href={content.play_store_url} />
             </div>
           </div>
         </motion.div>

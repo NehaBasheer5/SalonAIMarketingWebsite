@@ -1,49 +1,93 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import CmsIcon from "@/components/ui/CmsIcon";
+import CmsImage from "@/components/ui/CmsImage";
+import { defaultAboutContent, fallbackImages, type AboutContent } from "@/lib/content";
 
-export default function AboutHero() {
+type Props = {
+  content?: AboutContent["hero"];
+};
+
+export default function AboutHero({ content = defaultAboutContent.hero }: Props) {
   return (
-    <section className="bg-white py-12 lg:py-20 overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 items-center">
-          
-          {/* Left Side: Content */}
-          <div className="lg:col-span-6 space-y-6">
-            <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl leading-[1.15]">
-              Building Intelligent <br />
-              Solutions for <span className="text-[#8B5E34]">Modern <br />Salons</span>
+    <section className="relative w-full overflow-hidden bg-salon-bg py-14 lg:py-16">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-6">
+            {content.eyebrow ? (
+              <div className="mb-4 flex items-center gap-3">
+                <span className="h-px w-9 bg-salon-rule" />
+                <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+                  {content.eyebrow}
+                </span>
+              </div>
+            ) : null}
+
+            <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl lg:text-[4rem]">
+              {content.heading}
+              {content.heading_accent ? (
+                <span className="block text-salon-accent">{content.heading_accent}</span>
+              ) : null}
             </h1>
 
-            <p className="max-w-xl text-sm sm:text-base text-slate-600 leading-relaxed">
-              SalonAI is more than just software — it&apos;s our commitment to empower salon and beauty businesses with AI-powered tools that simplify operations, delight customers, and drive growth.
-            </p>
+            {content.subheading ? (
+              <p className="mt-5 max-w-lg text-base leading-relaxed text-salon-muted">
+                {content.subheading}
+              </p>
+            ) : null}
 
-            <div className="flex items-center gap-4 pt-2">
-              <button className="rounded-xl bg-black px-6 py-3 text-xs font-bold text-white hover:bg-slate-800 transition-colors shadow-sm">
-                Book a Demo
-              </button>
-              <button className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-xs font-bold text-slate-800 hover:bg-slate-50 transition-colors">
-                Our Story
-              </button>
-            </div>
+            {content.cta_label || content.secondary_cta_label ? (
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                {content.cta_label ? (
+                  <Link
+                    href={content.cta_href || "/request-demo"}
+                    className="inline-flex items-center gap-2 rounded-lg bg-salon-brand px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-salon-brand-dark"
+                  >
+                    {content.cta_label}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                ) : null}
+
+                {content.secondary_cta_label ? (
+                  <Link
+                    href={content.secondary_cta_href || "/features"}
+                    className="inline-flex items-center rounded-lg border border-salon-brand px-7 py-3.5 text-sm font-semibold text-salon-brand transition hover:bg-salon-tile/40"
+                  >
+                    {content.secondary_cta_label}
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
+
+            {content.highlights.length ? (
+              <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-6 border-t border-salon-border/80 pt-8 sm:grid-cols-4">
+                {content.highlights.map((item) => (
+                  <div key={item.title} className="min-w-0 text-center">
+                    <span className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-salon-tile text-salon-brand-dark">
+                      <CmsIcon name={item.icon} className="h-5 w-5" strokeWidth={1.7} />
+                    </span>
+                    <p className="text-xs font-semibold text-salon-ink">{item.title}</p>
+                    <p className="mt-0.5 text-[10px] leading-snug text-salon-muted">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
 
-          {/* Right Side: Phone Mockup Image */}
-          <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-lg aspect-[4/3] flex items-center justify-center">
-              <Image
-                src="assets/images/about-hero.png"
-                alt="about-hero"
-                width={600}
-                height={450}
-                className="w-full h-auto object-contain drop-shadow-xl"
+          <div className="lg:col-span-6">
+            <div className="relative -mt-14 w-full lg:-ml-16 lg:-mt-32">
+              <CmsImage
+                value={content.image_url}
+                fallback={fallbackImages.about_hero}
+                alt={content.image_alt}
+                className="h-auto w-full scale-110 object-contain lg:scale-125"
                 priority
               />
             </div>
           </div>
-
         </div>
       </div>
     </section>

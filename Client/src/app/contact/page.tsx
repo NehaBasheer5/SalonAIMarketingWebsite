@@ -5,7 +5,7 @@ import ContactCtaBanner from "@/components/sections/contact/ContactCtaBanner";
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-slate-50/50">
+    <main className="min-h-screen bg-salon-bg">
       <ContactHero />
       <ContactFormSection />
       <LocationMapSection />

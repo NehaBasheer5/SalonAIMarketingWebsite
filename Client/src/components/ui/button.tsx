@@ -4,14 +4,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-salon-brand disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "bg-[#0D1140] text-white hover:bg-[#1A205C] shadow-sm",
-        outline: "border border-slate-300 bg-transparent text-[#0D1140] hover:bg-slate-50",
-        ghost: "text-slate-700 hover:bg-slate-100 hover:text-slate-900",
-        link: "text-[#0D1140] underline-offset-4 hover:underline",
+        default: "bg-salon-brand text-white hover:bg-salon-brand-dark shadow-sm",
+        outline: "border border-salon-brand bg-transparent text-salon-brand hover:bg-salon-tile/40",
+        ghost: "text-salon-ink hover:bg-salon-shell-soft",
+        link: "text-salon-brand underline-offset-4 hover:underline",
       },
       size: {
         default: "h-11 px-6 py-2.5",

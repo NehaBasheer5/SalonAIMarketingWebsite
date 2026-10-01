@@ -9,34 +9,44 @@ interface PricingHeroProps {
 
 export default function PricingHero({ billingCycle, setBillingCycle }: PricingHeroProps) {
   return (
-    <section className="bg-white pt-12 pb-8 text-center">
-      <div className="mx-auto max-w-4xl px-4">
-        <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-          Simple, Transparent <span className="text-blue-900">Pricing</span>
+    <section className="w-full overflow-hidden bg-salon-bg pt-14 lg:pt-16">
+      <div className="mx-auto max-w-4xl px-5 text-center sm:px-8">
+        <div className="mb-4 flex items-center justify-center gap-3">
+          <span className="h-px w-8 bg-salon-rule" />
+          <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+            Pricing
+          </span>
+          <span className="h-px w-8 bg-salon-rule" />
+        </div>
+
+        <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl">
+          Simple, Transparent{" "}
+          <span className="block text-salon-accent">Pricing for Every Salon</span>
         </h1>
-        <p className="mt-4 text-slate-600 text-sm sm:text-base">
+        <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-salon-muted sm:text-base">
           Choose the perfect plan for your salon. Upgrade, downgrade or cancel anytime.
         </p>
 
-        {/* Toggle Switch */}
         <div className="mt-8 flex justify-center">
-          <div className="inline-flex rounded-full bg-slate-100 p-1.5 shadow-inner">
+          <div className="inline-flex rounded-full border border-salon-card bg-salon-shell-soft p-1.5">
             <button
+              type="button"
               onClick={() => setBillingCycle("monthly")}
-              className={`rounded-full px-6 py-2 text-sm font-semibold transition-all ${
+              className={`rounded-full px-6 py-2 text-sm font-semibold transition ${
                 billingCycle === "monthly"
-                  ? "bg-blue-950 text-white shadow-md"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-salon-brand text-white shadow-[0_6px_16px_rgba(133,89,47,0.22)]"
+                  : "text-salon-muted hover:text-salon-ink"
               }`}
             >
               Monthly
             </button>
             <button
+              type="button"
               onClick={() => setBillingCycle("annual")}
-              className={`rounded-full px-6 py-2 text-sm font-semibold transition-all ${
+              className={`rounded-full px-6 py-2 text-sm font-semibold transition ${
                 billingCycle === "annual"
-                  ? "bg-blue-950 text-white shadow-md"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-salon-brand text-white shadow-[0_6px_16px_rgba(133,89,47,0.22)]"
+                  : "text-salon-muted hover:text-salon-ink"
               }`}
             >
               Annual

@@ -1,41 +1,17 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  CalendarDays,
-  ChartColumnIncreasing,
-  ShieldCheck,
-  Zap,
-} from "lucide-react";
-import { images } from "@/assets";
+import { ArrowRight } from "lucide-react";
+import CmsIcon from "@/components/ui/CmsIcon";
+import CmsImage from "@/components/ui/CmsImage";
+import { defaultHomeContent, fallbackImages, type HomeContent } from "@/lib/content";
 
-const POINTS = [
-  {
-    icon: CalendarDays,
-    title: "Easy Navigation",
-    desc: "A clean and intuitive interface for everyone.",
-  },
-  {
-    icon: Zap,
-    title: "Real-time Updates",
-    desc: "Stay in sync with bookings, staff and customers.",
-  },
-  {
-    icon: ChartColumnIncreasing,
-    title: "Advanced Analytics",
-    desc: "Track performance and grow with clear insights.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Secure & Cloud Based",
-    desc: "Your salon data stays protected and accessible.",
-  },
-] as const;
+type Props = {
+  content?: HomeContent["product_preview"];
+};
 
-export default function ProductPreview() {
+export default function ProductPreview({ content = defaultHomeContent.product_preview }: Props) {
   return (
     <section className="relative w-full overflow-hidden bg-salon-bg">
       <div className="relative min-h-[440px] lg:min-h-[520px]">
@@ -46,9 +22,10 @@ export default function ProductPreview() {
           transition={{ duration: 0.55 }}
           className="relative h-[340px] w-full overflow-hidden sm:h-[420px] lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[58%]"
         >
-          <Image
-            src={images.salons}
-            alt="Modern salon interior"
+          <CmsImage
+            value={content.image_url}
+            fallback={fallbackImages.product_preview}
+            alt={content.image_alt}
             fill
             priority
             className="object-cover object-center"
@@ -66,46 +43,50 @@ export default function ProductPreview() {
         >
           <div className="w-full max-w-md">
             <div className="mb-4 flex items-center gap-3">
-              <span className="h-px w-9 bg-[#a98a65]" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#7f6448]">
-                Platform
+              <span className="h-px w-9 bg-salon-rule" />
+              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+                {content.eyebrow}
               </span>
             </div>
 
             <h2 className="font-display text-3xl leading-[1.08] tracking-tight text-salon-ink sm:text-4xl lg:text-[2.7rem]">
-              A Powerful Platform{" "}
-              <span className="block text-[#91663f]">Designed for Salons</span>
+              {content.heading}
+              {content.heading_accent ? (
+                <span className="block text-salon-accent">{content.heading_accent}</span>
+              ) : null}
             </h2>
 
-            <p className="mt-3 max-w-sm text-sm leading-relaxed text-salon-muted">
-              SalonAI brings all your business operations together in one beautiful and
-              intelligent platform.
-            </p>
+            {content.subheading ? (
+              <p className="mt-3 max-w-sm text-sm leading-relaxed text-salon-muted">
+                {content.subheading}
+              </p>
+            ) : null}
 
-            <ul className="mt-6 space-y-3.5">
-              {POINTS.map((item) => {
-                const Icon = item.icon;
-                return (
+            {content.points.length ? (
+              <ul className="mt-6 space-y-3.5">
+                {content.points.map((item) => (
                   <li key={item.title} className="flex items-start gap-3.5">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#efe2d4] text-[#6f4929]">
-                      <Icon className="h-4 w-4" strokeWidth={1.8} />
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-salon-tile text-salon-brand-dark">
+                      <CmsIcon name={item.icon} className="h-4 w-4" />
                     </span>
                     <div>
                       <p className="text-xs font-semibold text-salon-ink">{item.title}</p>
                       <p className="mt-0.5 text-[11px] text-salon-muted">{item.desc}</p>
                     </div>
                   </li>
-                );
-              })}
-            </ul>
+                ))}
+              </ul>
+            ) : null}
 
-            <Link
-              href="/request-demo"
-              className="mt-6 inline-flex items-center gap-8 rounded-lg bg-[#85592f] px-6 py-3 text-xs font-semibold text-white transition hover:bg-[#6f4929]"
-            >
-              Book a Demo
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            {content.cta_label ? (
+              <Link
+                href={content.cta_href || "/request-demo"}
+                className="mt-6 inline-flex items-center gap-8 rounded-lg bg-salon-brand px-6 py-3 text-xs font-semibold text-white transition hover:bg-salon-brand-dark"
+              >
+                {content.cta_label}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : null}
           </div>
         </motion.div>
       </div>

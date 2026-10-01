@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-const articles = [
+const ARTICLES = [
   {
     id: 1,
     tag: "Management",
@@ -32,48 +32,61 @@ const articles = [
     date: "May 5, 2024",
     readTime: "5 min read",
   },
-];
+] as const;
 
 export default function LatestArticles() {
   return (
-    <section className="py-8 bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-slate-900">Latest Articles</h2>
-          <Link href="#" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-900 hover:text-blue-700">
+    <section className="w-full overflow-hidden bg-salon-bg py-12 lg:py-14">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mb-8 flex flex-col items-end justify-between gap-4 sm:flex-row">
+          <div className="flex items-center gap-3">
+            <span className="h-px w-9 bg-salon-rule" />
+            <h2 className="font-display text-2xl tracking-tight text-salon-ink sm:text-3xl">
+              Latest <span className="text-salon-accent">Articles</span>
+            </h2>
+          </div>
+          <Link
+            href="#"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-salon-brand underline-offset-4 hover:underline"
+          >
             View All Articles <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {articles.map((item) => (
-            <div key={item.id} className="group flex flex-col rounded-3xl border border-slate-100 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all">
-              <div className="relative aspect-[16/10] bg-slate-200 flex items-center justify-center text-xs text-slate-400">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {ARTICLES.map((item) => (
+            <article
+              key={item.id}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-salon-card bg-white/80 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_14px_34px_rgba(91,64,39,0.1)]"
+            >
+              <div className="relative flex aspect-[16/10] items-center justify-center bg-salon-tile text-xs text-salon-brand-dark">
                 [ Card Image ]
-                <span className="absolute left-3 top-3 rounded-md bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-blue-900 backdrop-blur-sm">
+                <span className="absolute left-3 top-3 rounded-md bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-salon-brand backdrop-blur-sm">
                   {item.tag}
                 </span>
               </div>
 
-              <div className="p-5 flex flex-1 flex-col justify-between space-y-4">
+              <div className="flex flex-1 flex-col justify-between gap-4 p-5">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-900 transition-colors line-clamp-2">
+                  <h3 className="line-clamp-2 text-sm font-semibold text-salon-ink transition group-hover:text-salon-brand">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-2 line-clamp-2">
+                  <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-salon-muted">
                     {item.desc}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[10px] text-slate-400">
+                <div className="flex items-center justify-between border-t border-salon-card pt-3 text-[10px] text-salon-muted">
                   <div className="flex items-center gap-1.5">
-                    <div className="h-5 w-5 rounded-full bg-slate-300" />
-                    <span className="font-semibold text-slate-700">{item.author}</span>
+                    <span className="h-5 w-5 rounded-full bg-salon-tile" />
+                    <span className="font-semibold text-salon-ink">{item.author}</span>
                   </div>
-                  <span>{item.date} • {item.readTime}</span>
+                  <span>
+                    {item.date} • {item.readTime}
+                  </span>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>

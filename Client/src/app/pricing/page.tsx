@@ -11,7 +11,7 @@ export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-salon-bg">
       <PricingHero billingCycle={billingCycle} setBillingCycle={setBillingCycle} />
       <PricingCards billingCycle={billingCycle} />
       <PricingComparison />

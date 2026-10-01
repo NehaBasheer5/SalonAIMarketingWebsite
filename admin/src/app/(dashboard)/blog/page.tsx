@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import ImagePickerField from "@/components/ImagePickerField";
+import MediaPickerField from "@/components/MediaPickerField";
 
 type Post = {
   id?: number;
@@ -84,7 +84,7 @@ export default function BlogAdminPage() {
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           />
         </div>
-        <ImagePickerField
+        <MediaPickerField
           label="Cover image"
           value={form.cover_image}
           onChange={(url) => setForm({ ...form, cover_image: url })}

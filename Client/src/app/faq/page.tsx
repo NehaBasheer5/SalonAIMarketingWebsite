@@ -7,7 +7,7 @@ import FaqSupportCta from "@/components/sections/faq/FaqSupportCta";
 
 export default function FaqPage() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-salon-bg">
       <FaqHero />
       <FaqCategoriesContent />
       <FaqSupportCta />

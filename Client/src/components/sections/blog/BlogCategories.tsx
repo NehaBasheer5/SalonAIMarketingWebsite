@@ -1,53 +1,65 @@
 "use client";
 
 import React, { useState } from "react";
-import { LayoutGrid, Briefcase, Megaphone, Cpu, Smile, Rocket } from "lucide-react";
+import { Briefcase, Cpu, LayoutGrid, Megaphone, Rocket, Smile } from "lucide-react";
 
-const categories = [
+const CATEGORIES = [
   { id: "all", name: "All Posts", count: "24 Articles", icon: LayoutGrid },
   { id: "management", name: "Management", count: "6 Articles", icon: Briefcase },
   { id: "marketing", name: "Marketing", count: "5 Articles", icon: Megaphone },
   { id: "technology", name: "Technology", count: "6 Articles", icon: Cpu },
   { id: "customer-experience", name: "Customer Experience", count: "4 Articles", icon: Smile },
   { id: "product-updates", name: "Product Updates", count: "3 Articles", icon: Rocket },
-];
+] as const;
 
 export default function BlogCategories() {
   const [active, setActive] = useState("all");
 
   return (
-    <section className="py-6 bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h3 className="text-base font-bold text-slate-900 mb-4">Categories</h3>
+    <section className="w-full overflow-hidden border-t border-salon-card bg-salon-soft py-12">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mb-6 flex items-center gap-3">
+          <span className="h-px w-9 bg-salon-rule" />
+          <h3 className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+            Categories
+          </h3>
+        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {categories.map((cat) => {
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {CATEGORIES.map((cat) => {
             const Icon = cat.icon;
             const isActive = active === cat.id;
 
             return (
               <button
                 key={cat.id}
+                type="button"
                 onClick={() => setActive(cat.id)}
-                className={`flex items-center gap-3 rounded-2xl p-3 text-left transition-all ${
+                className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition ${
                   isActive
-                    ? "bg-blue-50 border border-blue-200/80 shadow-sm"
-                    : "bg-slate-50/80 border border-slate-100 hover:bg-slate-100/70"
+                    ? "border-salon-brand bg-salon-shell shadow-[0_8px_24px_rgba(133,89,47,0.1)]"
+                    : "border-salon-card bg-white/70 hover:bg-white"
                 }`}
               >
-                <div
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                    isActive ? "bg-blue-600 text-white" : "bg-white text-slate-500 shadow-sm"
+                <span
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
+                    isActive
+                      ? "bg-salon-brand text-white"
+                      : "bg-salon-tile text-salon-brand-dark"
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className={`text-xs font-bold ${isActive ? "text-blue-950" : "text-slate-800"}`}>
+                  <Icon className="h-4 w-4" strokeWidth={1.8} />
+                </span>
+                <span>
+                  <span
+                    className={`block text-xs font-semibold ${
+                      isActive ? "text-salon-brand" : "text-salon-ink"
+                    }`}
+                  >
                     {cat.name}
-                  </p>
-                  <p className="text-[10px] text-slate-400">{cat.count}</p>
-                </div>
+                  </span>
+                  <span className="mt-0.5 block text-[10px] text-salon-muted">{cat.count}</span>
+                </span>
               </button>
             );
           })}

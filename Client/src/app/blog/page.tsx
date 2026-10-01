@@ -6,7 +6,7 @@ import BlogCtaBanner from "@/components/sections/blog/BlogCtaBanner";
 
 export default function BlogPage() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-salon-bg">
       <BlogHero />
       <BlogCategories />
       <LatestArticles />
