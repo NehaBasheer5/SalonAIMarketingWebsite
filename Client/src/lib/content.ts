@@ -67,6 +67,8 @@ export type HomeContent = {
       period: string;
       description: string;
       features: string[];
+      image_url?: string;
+      image_alt?: string;
       featured: boolean;
       badge: string;
       cta_label: string;
@@ -154,6 +156,7 @@ export const fallbackImages = {
   features_platform: images.dashboardMockup,
   features_cta: images.dashboardFeatures,
   about_hero: images.aboutHero,
+  blog_cover: images.product,
 } as const;
 
 const DEFAULTS: HomeContent = {
@@ -458,20 +461,8 @@ export type FeaturesContent = {
     image_alt: string;
     benefits: Highlight[];
   };
-  stats_bar: {
+stats_bar: {
     stats: { icon: IconName; value: string; label: string }[];
-  };
-  cta_banner: {
-    eyebrow: string;
-    heading: string;
-    heading_accent: string;
-    body: string;
-    cta_label: string;
-    cta_href: string;
-    secondary_cta_label: string;
-    secondary_cta_href: string;
-    image_url: string;
-    image_alt: string;
   };
 };
 
@@ -482,7 +473,6 @@ export const FEATURES_SECTION_ORDER: FeaturesSectionKey[] = [
   "feature_grid",
   "platform_showcase",
   "stats_bar",
-  "cta_banner",
 ];
 
 const FEATURES_DEFAULTS: FeaturesContent = {
@@ -550,7 +540,7 @@ const FEATURES_DEFAULTS: FeaturesContent = {
       { icon: "RefreshCw", title: "Always Improving", desc: "We innovate and ship new features regularly." },
     ],
   },
-  stats_bar: {
+stats_bar: {
     stats: [
       { icon: "Users", value: "10,000+", label: "Salons Worldwide" },
       { icon: "Smile", value: "500K+", label: "Happy Customers" },
@@ -558,18 +548,6 @@ const FEATURES_DEFAULTS: FeaturesContent = {
       { icon: "TrendingUp", value: "95%", label: "Customer Satisfaction" },
       { icon: "Headset", value: "24/7", label: "Customer Support" },
     ],
-  },
-  cta_banner: {
-    eyebrow: "Get Started",
-    heading: "Ready to Experience",
-    heading_accent: "All Features?",
-    body: "Join thousands of salon owners who are running their business smarter with SalonAI.",
-    cta_label: "Book a Demo",
-    cta_href: "/request-demo",
-    secondary_cta_label: "Contact Sales",
-    secondary_cta_href: "/contact",
-    image_url: "",
-    image_alt: "SalonAI Dashboard",
   },
 };
 
@@ -628,6 +606,156 @@ export const ABOUT_SECTION_ORDER: AboutSectionKey[] = [
   "journey",
   "team",
   "why_choose",
+];
+
+export type PricingPlan = {
+  name: string;
+  icon?: IconName;
+  monthly: string;
+  annual: string;
+  billed?: string;
+  billedMonthly?: string;
+  desc?: string;
+  description?: string;
+  features: string[];
+  /** Optional per-plan image or video, uploaded from the admin. */
+  image_url?: string;
+  image_alt?: string;
+  featured: boolean;
+  badge?: string;
+  cta: string;
+  cta_label?: string;
+  href: string;
+  cta_href?: string;
+};
+
+/** One line of the comparison table. Each cell is either text or a tick. */
+export type PricingComparisonValue = {
+  value?: string;
+  yes?: boolean;
+};
+
+export type PricingComparisonRow = {
+  icon?: IconName;
+  name: string;
+  values: PricingComparisonValue[];
+};
+
+export type PricingIncludedItem = {
+  icon?: IconName;
+  title: string;
+  desc?: string;
+};
+
+export type PricingFaq = {
+  question: string;
+  answer: string;
+};
+
+export type PricingContent = {
+  hero: {
+    eyebrow: string;
+    heading: string;
+    heading_accent?: string;
+    subheading: string;
+    monthly_label?: string;
+    annual_label?: string;
+    per_month_suffix?: string;
+    image_url?: string;
+    image_alt?: string;
+  };
+pricing_cards: {
+    plans: PricingPlan[];
+    /** Shown when every package is unpublished or deleted. */
+    empty_message?: string;
+  };
+  comparison: {
+    heading?: string;
+    subheading?: string;
+    feature_column_label?: string;
+    plan_columns?: string[];
+    rows?: PricingComparisonRow[];
+  };
+  banner?: {
+    strip_heading?: string;
+    items?: PricingIncludedItem[];
+    title?: string;
+    subtitle?: string;
+    cta_label?: string;
+    cta_href?: string;
+    secondary_cta_label?: string;
+    secondary_cta_href?: string;
+    image_url?: string;
+    image_alt?: string;
+  };
+  faq_cta?: {
+    heading?: string;
+    subheading?: string;
+    link_label?: string;
+    link_href?: string;
+    faqs?: PricingFaq[];
+    cta_eyebrow?: string;
+    cta_heading?: string;
+    cta_heading_accent?: string;
+    cta_subheading?: string;
+    cta_label?: string;
+    cta_href?: string;
+    cta_secondary_label?: string;
+    cta_secondary_href?: string;
+    image_url?: string;
+    image_alt?: string;
+  };
+};
+
+export type ContactContent = {
+  hero: {
+    eyebrow: string;
+    heading: string;
+    subheading: string;
+    image_url: string;
+    image_alt: string;
+    quick_contacts: { icon: IconName; label: string; value: string }[];
+  };
+  contact_form: {
+    heading: string;
+    subheading: string;
+    submit_label: string;
+    success_message: string;
+    privacy_note: string;
+    details_heading: string;
+    socials_heading: string;
+    details: { icon: IconName; label: string; value: string }[];
+    subjects: string[];
+  };
+  location_map: {
+    heading: string;
+    body: string;
+    address: string;
+    map_query: string;
+    directions_label: string;
+    directions_href: string;
+  };
+  cta_banner: {
+    eyebrow: string;
+    heading: string;
+    heading_accent: string;
+    subheading: string;
+    cta_label: string;
+    cta_href: string;
+    secondary_cta_label: string;
+    secondary_cta_href: string;
+    image_url: string;
+    image_alt: string;
+  };
+};
+
+export type ContactSectionKey = keyof ContactContent;
+
+export const CONTACT_SECTION_ORDER: ContactSectionKey[] = [
+  "hero",
+  "contact_form",
+  "location_map",
+  "cta_banner",
 ];
 
 const ABOUT_DEFAULTS: AboutContent = {
@@ -737,6 +865,636 @@ const ABOUT_DEFAULTS: AboutContent = {
 
 export const defaultAboutContent: AboutContent = ABOUT_DEFAULTS;
 
+const PRICING_DEFAULTS: PricingContent = {
+  hero: {
+    eyebrow: "Pricing",
+    heading: "Simple, Transparent",
+    heading_accent: "Pricing for Every Salon",
+    subheading: "Choose the perfect plan for your salon. Upgrade, downgrade or cancel anytime.",
+    monthly_label: "Monthly",
+    annual_label: "Annual",
+    per_month_suffix: "/month",
+    image_url: "",
+    image_alt: "SalonAI pricing",
+  },
+  pricing_cards: {
+    plans: [
+      {
+        name: "Starter",
+        icon: "Send",
+        monthly: "$25",
+        annual: "$19",
+        billed: "Billed annually $228",
+        billedMonthly: "Billed monthly",
+        desc: "Perfect for small salons just getting started.",
+        features: ["Up to 2 Staff", "Booking Management", "Customer Management", "Email Support"],
+        featured: false,
+        cta: "Get Started",
+        href: "/request-demo",
+      },
+      {
+        name: "Growth",
+        icon: "TrendingUp",
+        monthly: "$49",
+        annual: "$39",
+        billed: "Billed annually $468",
+        billedMonthly: "Billed monthly",
+        desc: "Great for growing salons and beauty businesses.",
+        features: [
+          "Up to 10 Staff",
+          "Everything in Starter",
+          "Advanced Reports",
+          "Loyalty Programs",
+          "SMS & Email Notifications",
+          "Priority Support",
+        ],
+        featured: true,
+        cta: "Get Started",
+        href: "/request-demo",
+      },
+      {
+        name: "Pro",
+        icon: "Crown",
+        monthly: "$89",
+        annual: "$69",
+        billed: "Billed annually $828",
+        billedMonthly: "Billed monthly",
+        desc: "For large salons & multi-branch businesses.",
+        features: [
+          "Unlimited Staff",
+          "Everything in Growth",
+          "Multi-branch Management",
+          "Custom Roles & Permissions",
+          "24/7 Priority Support",
+          "AI Insights & Analytics",
+        ],
+        featured: false,
+        cta: "Get Started",
+        href: "/request-demo",
+      },
+      {
+        name: "Enterprise",
+        icon: "Building2",
+        monthly: "Custom",
+        annual: "Custom",
+        billed: "Let's build the best plan for your business.",
+        billedMonthly: "Let's build the best plan for your business.",
+        desc: "For large enterprises with custom requirements.",
+        features: [
+          "Everything in Pro",
+          "Dedicated Account Manager",
+          "White-label Options",
+          "SLA & Custom Integrations",
+          "Onboarding & Training",
+        ],
+        featured: false,
+        cta: "Contact Sales",
+        href: "/contact",
+      },
+    ],
+  },
+  comparison: {
+    heading: "Compare Plans",
+    subheading: "Find the perfect fit for your salon's size and growth goals.",
+    feature_column_label: "Features",
+    plan_columns: ["Starter", "Growth", "Pro", "Enterprise"],
+    rows: [
+      {
+        icon: "Users",
+        name: "Staff Users",
+        values: [
+          { value: "Up to 2" },
+          { value: "Up to 10" },
+          { value: "Unlimited" },
+          { value: "Unlimited" },
+        ],
+      },
+      { icon: "Calendar", name: "Bookings & Appointments", values: [{ yes: true }, { yes: true }, { yes: true }, { yes: true }] },
+      { icon: "UserCheck", name: "Customer Management", values: [{ yes: true }, { yes: true }, { yes: true }, { yes: true }] },
+      {
+        icon: "BarChart2",
+        name: "Reports & Analytics",
+        values: [{ value: "Basic" }, { value: "Advanced" }, { value: "Advanced" }, { value: "Advanced + Custom" }],
+      },
+      { icon: "Sparkles", name: "AI Insights", values: [{}, { yes: true }, { yes: true }, { yes: true }] },
+      { icon: "Gift", name: "Loyalty Programs", values: [{}, { yes: true }, { yes: true }, { yes: true }] },
+      { icon: "Network", name: "Multi-branch Management", values: [{}, {}, { yes: true }, { yes: true }] },
+      { icon: "ShieldCheck", name: "Custom Roles & Permissions", values: [{}, {}, { yes: true }, { yes: true }] },
+      { icon: "Puzzle", name: "Custom Integrations", values: [{}, {}, {}, { yes: true }] },
+      {
+        icon: "Headphones",
+        name: "Priority Support",
+        values: [{ value: "Email" }, { value: "Priority" }, { value: "24/7 Priority" }, { value: "Dedicated" }],
+      },
+      { icon: "GraduationCap", name: "Onboarding & Training", values: [{}, {}, {}, { yes: true }] },
+      { icon: "ShieldAlert", name: "SLA & Uptime Guarantee", values: [{}, {}, {}, { yes: true }] },
+    ],
+  },
+  banner: {
+    strip_heading: "All plans include",
+    items: [
+      { icon: "Cloud", title: "Cloud Based", desc: "Secure & Reliable" },
+      { icon: "RefreshCw", title: "Automatic Updates", desc: "Always up to date" },
+      { icon: "Database", title: "Data Backup", desc: "Daily backups" },
+      { icon: "Smartphone", title: "Mobile Apps", desc: "iOS & Android" },
+      { icon: "ShieldCheck", title: "GDPR Compliant", desc: "Your data is safe" },
+    ],
+    title: "Still not sure which plan is right for you?",
+    subtitle: "Our team is happy to help you choose the perfect plan for your salon.",
+    cta_label: "Talk to Sales",
+    cta_href: "/contact",
+    secondary_cta_label: "Start Free Trial",
+    secondary_cta_href: "#",
+    image_url: "",
+    image_alt: "SalonAI platform",
+  },
+  faq_cta: {
+    heading: "Frequently Asked Questions",
+    subheading: "Got questions? We've got answers.",
+    link_label: "View All FAQs →",
+    link_href: "/faq",
+    faqs: [
+      {
+        question: "Can I change my plan later?",
+        answer:
+          "Yes, you can upgrade, downgrade, or cancel your subscription at any time directly from your dashboard.",
+      },
+      {
+        question: "Is there a free trial available?",
+        answer: "Yes! We offer a 14-day free trial on all plans with no credit card required.",
+      },
+      {
+        question: "Do you offer refunds?",
+        answer:
+          "We offer a 30-day money-back guarantee if you are not satisfied with our platform.",
+      },
+      {
+        question: "Is my data secure?",
+        answer: "Absolutely. We use enterprise-grade encryption and daily automated backups.",
+      },
+      {
+        question: "Can I manage multiple branches?",
+        answer: "Yes, multi-branch management is supported on our Pro and Enterprise plans.",
+      },
+    ],
+    cta_eyebrow: "Get Started",
+    cta_heading: "Ready to Transform",
+    cta_heading_accent: "Your Salon?",
+    cta_subheading:
+      "Join thousands of salon owners who are streamlining their operations with SalonAI.",
+    cta_label: "Book a Demo →",
+    cta_href: "/request-demo",
+    cta_secondary_label: "Contact Sales",
+    cta_secondary_href: "/contact",
+    image_url: "",
+    image_alt: "SalonAI Dashboard Laptop View",
+  },
+};
+
+const CONTACT_DEFAULTS: ContactContent = {
+  hero: {
+    eyebrow: "Contact Us",
+    heading: "Let’s build a better salon business together",
+    subheading: "Have a question or want a demo? Reach out and we’ll help.",
+    image_url: "",
+    image_alt: "SalonAI support team",
+    quick_contacts: [
+      { icon: "Mail", label: "Email Us", value: "hello@avenque.com" },
+      { icon: "Phone", label: "Call Us", value: "+94 11 234 5678" },
+      { icon: "MapPin", label: "Visit Our Office", value: "Colombo, Sri Lanka" },
+    ],
+  },
+  contact_form: {
+    heading: "Send Us a Message",
+    subheading: "Fill out the form below and we'll get back to you within 24 hours.",
+    submit_label: "Send Message →",
+    success_message: "Thanks! Your message has been sent. We'll get back to you shortly.",
+    privacy_note: "Your information is safe with us.",
+    details_heading: "Contact Information",
+    socials_heading: "Follow Us",
+    details: [
+      { icon: "Mail", label: "Email Us", value: "hello@avenque.com" },
+      { icon: "Phone", label: "Call Us", value: "+94 11 234 5678" },
+      { icon: "MapPin", label: "Visit Our Office", value: "No. 123, Innovation Drive, Colombo 00500" },
+    ],
+    subjects: ["Sales & Pricing", "Technical Support"],
+  },
+  location_map: {
+    heading: "Find Us",
+    body: "Visit our office or get directions to meet with our team.",
+    address: "No. 123, Innovation Drive, Colombo 00500, Sri Lanka",
+    map_query: "Colombo Sri Lanka",
+    directions_label: "Get Directions",
+    directions_href: "https://maps.google.com/?q=Colombo+Sri+Lanka",
+  },
+  cta_banner: {
+    eyebrow: "Get Started",
+    heading: "Ready to Transform",
+    heading_accent: "Your Salon?",
+    subheading: "Let’s discuss how SalonAI can help your salon grow faster.",
+    cta_label: "Book a Demo",
+    cta_href: "/request-demo",
+    secondary_cta_label: "Start Free Trial",
+    secondary_cta_href: "#",
+    image_url: "",
+    image_alt: "SalonAI team",
+  },
+};
+
+export const defaultContactContent: ContactContent = CONTACT_DEFAULTS;
+export const defaultPricingContent: PricingContent = PRICING_DEFAULTS;
+
+/* -------------------------------------------------------------------------- */
+/* Footer                                                                     */
+/* -------------------------------------------------------------------------- */
+
+export type FooterLink = { label: string; href: string };
+export type FooterContact = { label: string; value: string; href: string };
+export type FooterSocial = { label: string; href: string; icon?: string };
+
+export type FooterContent = {
+  footer: {
+    heading: string;
+    subheading: string;
+    explore_heading: string;
+    explore_links: FooterLink[];
+    company_heading: string;
+    company_links: FooterLink[];
+    contact_heading: string;
+    contacts: FooterContact[];
+    socials: FooterSocial[];
+    copyright: string;
+    footer_note: string;
+  };
+  newsletter: {
+    heading: string;
+    subheading: string;
+    email_placeholder: string;
+    submit_label: string;
+    success_message: string;
+  };
+};
+
+export type FooterSectionKey = keyof FooterContent;
+
+export const FOOTER_SECTION_ORDER: FooterSectionKey[] = ["footer", "newsletter"];
+
+const FOOTER_DEFAULTS: FooterContent = {
+  footer: {
+    heading: "Manage. Grow. Shine.",
+    subheading:
+      "Simplify bookings, manage staff, delight your customers and grow your salon — all from one elegant platform.",
+    explore_heading: "Explore",
+    explore_links: [
+      { label: "Features", href: "/features" },
+      { label: "Pricing", href: "/pricing" },
+      { label: "Request a Demo", href: "/request-demo" },
+      { label: "Login", href: "/login" },
+    ],
+    company_heading: "Company",
+    company_links: [
+      { label: "About Us", href: "/about" },
+      { label: "Blog", href: "/blog" },
+      { label: "FAQ", href: "/faq" },
+      { label: "Contact", href: "/contact" },
+    ],
+    contact_heading: "Get in Touch",
+    contacts: [
+      { label: "Email Us", value: "hello@avenque.com", href: "mailto:hello@avenque.com" },
+      { label: "Call Us", value: "+94 11 234 5678", href: "tel:+94112345678" },
+      {
+        label: "Visit Us",
+        value: "No. 123, Innovation Drive, Colombo 00500",
+        href: "https://maps.google.com/?q=Colombo+Sri+Lanka",
+      },
+    ],
+    socials: [],
+    copyright: "Avenque. All rights reserved.",
+    footer_note: "Beauty Meets Technology",
+  },
+  newsletter: {
+    heading: "Stay Updated with the Latest Insights",
+    subheading:
+      "Subscribe to our newsletter and get the latest tips, trends, and product updates straight to your inbox.",
+    email_placeholder: "Enter your email address",
+    submit_label: "Subscribe",
+    success_message: "Thanks for subscribing! Watch your inbox for the next issue.",
+  },
+};
+
+export const defaultFooterContent: FooterContent = FOOTER_DEFAULTS;
+
+/* -------------------------------------------------------------------------- */
+/* Blog                                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * One row of `blog_posts`, shaped for the site.
+ *
+ * `content` is the markdown body and is only present on the single article
+ * endpoint; the list endpoint omits it to keep the blog index light.
+ */
+export type BlogPost = {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content?: string;
+  cover_image: string;
+  cover_video: string;
+category: string;
+  author: string;
+  author_image: string;
+  tags: string[];
+  read_time: string;
+  is_featured: boolean;
+  view_count: number;
+  published_at: string;
+  date_label: string;
+};
+
+export type BlogContent = {
+  hero: {
+    eyebrow: string;
+    heading: string;
+    heading_accent: string;
+    subheading: string;
+    image_url: string;
+    image_alt: string;
+    search_placeholder: string;
+    search_label: string;
+    featured_label: string;
+  };
+  categories: {
+    heading: string;
+    items: { icon: IconName; label: string; slug: string }[];
+  };
+  latest: {
+    heading: string;
+    heading_accent: string;
+    cta_label: string;
+    cta_href: string;
+    empty_message: string;
+  };
+  newsletter: {
+    heading: string;
+    subheading: string;
+    email_placeholder: string;
+    submit_label: string;
+    success_message: string;
+  };
+  popular: {
+    heading: string;
+    subheading: string;
+    empty_message: string;
+  };
+  cta_banner: {
+    eyebrow: string;
+    heading: string;
+    heading_accent: string;
+    subheading: string;
+    cta_label: string;
+    cta_href: string;
+    secondary_cta_label: string;
+    secondary_cta_href: string;
+  };
+};
+
+export type BlogSectionKey = keyof BlogContent;
+
+export const BLOG_SECTION_ORDER: BlogSectionKey[] = [
+  "hero",
+  "categories",
+  "latest",
+  "newsletter",
+  "popular",
+  "cta_banner",
+];
+
+const BLOG_DEFAULTS: BlogContent = {
+  hero: {
+    eyebrow: "Our Blog",
+    heading: "Insights That Help",
+    heading_accent: "Your Salon Grow",
+    subheading:
+      "Expert tips, industry trends, and product updates to help you run a smarter, more profitable salon business.",
+    image_url: "",
+    image_alt: "SalonAI blog",
+    search_placeholder: "Search articles...",
+    search_label: "All Categories",
+    featured_label: "Featured Article",
+  },
+  categories: {
+    heading: "Categories",
+    items: [
+      { icon: "LayoutGrid", label: "All Posts", slug: "" },
+      { icon: "Briefcase", label: "Management", slug: "management" },
+      { icon: "Megaphone", label: "Marketing", slug: "marketing" },
+      { icon: "Cpu", label: "Technology", slug: "technology" },
+      { icon: "Smile", label: "Customer Experience", slug: "customer-experience" },
+      { icon: "Rocket", label: "Product Updates", slug: "product-updates" },
+    ],
+  },
+  latest: {
+    heading: "Latest",
+    heading_accent: "Articles",
+    cta_label: "View All Articles",
+    cta_href: "/blog",
+    empty_message: "No articles have been published yet. Check back soon.",
+  },
+  newsletter: {
+    heading: "Stay Updated with the Latest Insights",
+    subheading:
+      "Subscribe to our newsletter and get the latest tips, trends, and product updates straight to your inbox.",
+    email_placeholder: "Enter your email address",
+    submit_label: "Subscribe",
+    success_message: "Thanks for subscribing! Watch your inbox for the next issue.",
+  },
+  popular: {
+    heading: "Popular Posts",
+    subheading: "Most read articles from the SalonAI blog.",
+    empty_message: "Popular articles will show up here once the blog is live.",
+  },
+  cta_banner: {
+    eyebrow: "Get Started",
+    heading: "Ready to Transform",
+    heading_accent: "Your Salon?",
+    subheading: "See how SalonAI can run your salon smarter, faster and more profitably.",
+    cta_label: "Book a Demo",
+    cta_href: "/request-demo",
+    secondary_cta_label: "Contact Sales",
+    secondary_cta_href: "/contact",
+  },
+};
+
+export const defaultBlogContent: BlogContent = BLOG_DEFAULTS;
+
+/**
+ * Articles shown when the CMS is unreachable, so the blog page is never blank.
+ *
+ * Their markdown bodies are real rather than empty, because the detail page
+ * falls back to these same rows: a card that links to a 404 is worse than no
+ * card at all. These only render while the Admin API cannot be reached.
+ */
+const FALLBACK_POSTS: BlogPost[] = [
+  {
+    id: -1,
+    title: "How AI is Transforming Salon Management",
+    slug: "how-ai-is-transforming-salon-management",
+    excerpt:
+      "Discover how artificial intelligence helps salon owners save time, increase revenue and delight customers.",
+    content: [
+      "Running a salon means juggling bookings, staff schedules, stock and client relationships at the same time. AI takes the repetitive parts off your plate so the team can spend its attention where it actually matters.",
+      "## Where AI saves the most time",
+      "- **Automatic confirmations and reminders.** No-shows usually cost a busy chair more than a quiet one.",
+      "- **Smarter booking.** Clients pick a stylist and a slot that is actually free, without phoning the salon.",
+      "- **Client history in one place.** Preferences, formulas and past visits, ready before the client sits down.",
+      "",
+      "## What it does not replace",
+      "AI does the admin work, not the relationship work. The consultation, the finish, the conversation about a new treatment: that part stays human, and it is the part that brings people back.",
+    ].join("\n"),
+    cover_image: "",
+    cover_video: "",
+    category: "Technology",
+author: "Sarah Johnson",
+    author_image: "",
+    tags: ["AI", "Automation"],
+    read_time: "5 min read",
+    is_featured: true,
+    view_count: 0,
+    published_at: "",
+    date_label: "",
+  },
+  {
+    id: -2,
+    title: "10 Ways to Improve Salon Efficiency and Save Time",
+    slug: "10-ways-to-improve-salon-efficiency",
+    excerpt: "Streamline your daily operations and cut down on no-shows with these proven strategies.",
+    content: [
+      "Efficiency is not about rushing clients. It is about removing the friction that has nothing to do with the work itself.",
+      "## Start with the calendar",
+      "1. Keep one booking calendar for every stylist, not a paper diary alongside a phone.",
+      "2. Block out buffer time so one late appointment does not cascade through the day.",
+      "3. Confirm every booking automatically the moment it is made.",
+      "",
+      "## Then look at the stock",
+      "- Track colour and retail usage per client, so you reorder before you run out.",
+      "- Remove anything that has not sold in three months; the shelf space is worth more.",
+      "",
+      "## Finally, agree the handovers",
+      "A two minute handover between stylists stops a client repeating their history. It is the cheapest efficiency win on this list.",
+    ].join("\n"),
+    cover_image: "",
+    cover_video: "",
+    category: "Management",
+author: "Michael Brown",
+    author_image: "",
+    tags: ["Efficiency", "Workflow"],
+    read_time: "4 min read",
+    is_featured: false,
+    view_count: 0,
+    published_at: "",
+    date_label: "",
+  },
+  {
+    id: -3,
+    title: "Salon Marketing Ideas That Actually Bring in More Clients",
+    slug: "salon-marketing-ideas-that-work",
+    excerpt:
+      "Creative and affordable marketing ideas to help you attract and keep more customers.",
+    content: [
+      "Most salon marketing fails because it is broadcast rather than useful. The campaigns that work give a reason to come back, not just a reason to notice you.",
+      "## Keep the existing clients",
+      "- **A gap offer.** Target the clients you have not seen in eight weeks, with a treatment they already love.",
+      "- **Birthday and anniversary messages.** Small, personal, and far more effective than a blanket discount.",
+      "",
+      "## Win new ones locally",
+      "- **Show the work, not the room.** Before and after photographs travel better than interior shots.",
+      "- **Partner with the businesses nearby.** Gyms, photographers and bridal shops all have clients with money and time.",
+      "",
+      "## Measure it properly",
+      "Track rebooking rate rather than likes. A full chair next month is the only metric that pays the bills.",
+    ].join("\n"),
+    cover_image: "",
+    cover_video: "",
+    category: "Marketing",
+author: "Emily Roberts",
+    author_image: "",
+    tags: ["Marketing", "Retention"],
+    read_time: "6 min read",
+    is_featured: false,
+    view_count: 0,
+    published_at: "",
+    date_label: "",
+  },
+];
+
+/** `MYSQL DATETIME` arrives without a zone, so parse it as UTC then format locally. */
+function formatPostDate(value: unknown): string {
+  if (!value) return "";
+  const raw = String(value);
+  const iso = raw.includes("T") ? raw : `${raw.replace(" ", "T")}Z`;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/**
+ * Normalises a category string so the two sides always compare equal.
+ *
+ * The admin types free text into the category box ("Management"), while the
+ * filter chips configured under Pages > Blog carry a lowercase slug
+ * ("management"). Comparing those two directly is case sensitive and silently
+ * matches nothing, so both sides go through this key first.
+ */
+export function categoryKey(value: string | undefined | null): string {
+  return String(value ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+/** Accepts a comma separated string or an array so either storage shape works. */
+function toTagList(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map((tag) => String(tag).trim()).filter(Boolean);
+  return String(value ?? "")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+/** Normalises one `blog_posts` row into the shape the components render. */
+function toBlogPost(row: Record<string, unknown>): BlogPost {
+  const tags = toTagList(row.tags);
+  const content = String(row.content ?? "");
+  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
+
+  return {
+    id: Number(row.id ?? 0),
+    title: String(row.title ?? ""),
+    slug: String(row.slug ?? ""),
+    excerpt: String(row.excerpt ?? ""),
+    content,
+    cover_image: String(row.cover_image ?? ""),
+    cover_video: String(row.cover_video ?? ""),
+    category: String(row.category ?? ""),
+author: String(row.author ?? ""),
+    author_image: String(row.author_image ?? ""),
+    tags,
+    // Fall back to a rough estimate so a card always shows something sensible.
+    read_time: String(row.read_time ?? "") || (wordCount ? `${Math.max(1, Math.round(wordCount / 200))} min read` : ""),
+    is_featured: Boolean(row.is_featured),
+    view_count: Number(row.view_count ?? 0),
+    published_at: String(row.published_at ?? ""),
+    date_label: formatPostDate(row.published_at),
+  };
+}
+
 type ApiSection = {
   key: string;
   sortOrder?: number;
@@ -827,9 +1585,14 @@ async function fetchPageContent<T extends Record<string, object>>(
   slug: string,
   defaults: T,
   order: readonly string[]
-): Promise<{ content: T; hidden: Set<string>; source: "cms" | "defaults" }> {
+): Promise<{
+  content: T;
+  hidden: Set<string>;
+  source: "cms" | "defaults";
+  sections: ApiSection[];
+}> {
   const base = adminBaseUrl();
-  if (!base) return { content: defaults, hidden: new Set(), source: "defaults" };
+  if (!base) return { content: defaults, hidden: new Set(), source: "defaults", sections: [] };
 
   try {
     const res = await fetch(`${base}/api/public/content/${slug}`, {
@@ -842,10 +1605,10 @@ async function fetchPageContent<T extends Record<string, object>>(
     const sections: ApiSection[] = Array.isArray(data?.sections) ? data.sections : [];
     if (!sections.length) throw new Error("CMS returned no sections");
 
-    return { ...applyApiSections(defaults, order, sections), source: "cms" };
+    return { ...applyApiSections(defaults, order, sections), source: "cms", sections };
   } catch {
     // Never let a CMS outage take the marketing site down.
-    return { content: defaults, hidden: new Set(), source: "defaults" };
+    return { content: defaults, hidden: new Set(), source: "defaults", sections: [] };
   }
 }
 
@@ -855,11 +1618,44 @@ export function getHomeContent(): Promise<{
   hidden: Set<HomeSectionKey>;
   source: "cms" | "defaults";
 }> {
-  return fetchPageContent("home", DEFAULTS, HOME_SECTION_ORDER) as Promise<{
-    content: HomeContent;
-    hidden: Set<HomeSectionKey>;
-    source: "cms" | "defaults";
-  }>;
+  // The home teaser reuses the pricing packages, so the packages are the single
+  // source of truth: an edit under Admin -> Pricing is reflected here too. The
+  // home section owns only its own heading/CTA fields. Both requests are
+  // independent, so they run together instead of one after the other.
+  return Promise.all([
+    fetchPageContent<HomeContent>("home", DEFAULTS, HOME_SECTION_ORDER),
+    getPricingPlans(),
+  ]).then(([page, plans]) => {
+    if (plans.length > 0) {
+      page.content.pricing = {
+        ...page.content.pricing,
+        plans: plans.map(toHomePlan),
+      };
+    }
+    return {
+      content: page.content,
+      hidden: page.hidden as Set<HomeSectionKey>,
+      source: page.source,
+    };
+  });
+}
+
+/** Narrows a full pricing page plan down to the fields the home cards render. */
+function toHomePlan(plan: PricingPlan): HomeContent["pricing"]["plans"][number] {
+  return {
+    name: plan.name,
+    // The home teaser shows the cheaper annual figure, matching the pricing page default.
+    price: plan.annual || plan.monthly,
+    period: "",
+    description: plan.desc || plan.description || "",
+    features: plan.features || [],
+    image_url: plan.image_url ?? "",
+    image_alt: plan.image_alt ?? "",
+    featured: Boolean(plan.featured),
+    badge: plan.badge ?? "",
+    cta_label: plan.cta || plan.cta_label || "Get Started",
+    cta_href: plan.href || plan.cta_href || "/request-demo",
+  };
 }
 
 /** Server side only: reads the features page content from the Admin CMS. */
@@ -886,4 +1682,302 @@ export function getAboutContent(): Promise<{
     hidden: Set<AboutSectionKey>;
     source: "cms" | "defaults";
   }>;
+}
+
+/**
+ * Server side only: reads the published pricing packages from the Admin CMS.
+ *
+ * Packages are managed under Admin -> Pricing and live in their own table, so
+ * they arrive from `/api/public/pricing` rather than from the pricing page's
+ * sections. The built-in defaults are used if the CMS is unreachable.
+ */
+export async function getPricingPlans(): Promise<PricingPlan[]> {
+  const base = adminBaseUrl();
+  if (!base) return PRICING_DEFAULTS.pricing_cards.plans;
+
+  try {
+    const res = await fetch(`${base}/api/public/pricing`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) throw new Error(`CMS responded ${res.status}`);
+
+    const data = await res.json();
+    const plans: unknown = data?.plans;
+    if (!Array.isArray(plans) || plans.length === 0) throw new Error("CMS returned no plans");
+
+    return plans as PricingPlan[];
+  } catch {
+    return PRICING_DEFAULTS.pricing_cards.plans;
+  }
+}
+
+/** Server side only: reads the pricing page content from the Admin CMS. */
+export function getPricingContent(): Promise<{
+  content: PricingContent;
+  hidden: Set<string>;
+  source: "cms" | "defaults";
+}> {
+  // The page copy and the packages are independent requests, so fetch them
+  // together rather than waiting on one before starting the other.
+  return Promise.all([
+    fetchPageContent("pricing", PRICING_DEFAULTS, [
+      "hero",
+      "pricing_cards",
+      "comparison",
+      "banner",
+      "faq_cta",
+    ] as readonly string[]),
+    getPricingPlans(),
+  ]).then(([page, plans]) => {
+    const comparison = page.content.comparison;
+
+    // Packages are managed separately from the comparison section, so the
+    // column headers can drift out of step when one is added or removed. Fall
+    // back to the package names whenever the counts disagree.
+    const planColumns =
+      comparison.plan_columns && comparison.plan_columns.length === plans.length
+        ? comparison.plan_columns
+        : plans.map((plan) => plan.name);
+
+    const content: PricingContent = {
+      ...page.content,
+      pricing_cards: { ...page.content.pricing_cards, plans },
+      comparison: { ...comparison, plan_columns: planColumns },
+    };
+    return { content, hidden: page.hidden, source: page.source };
+  });
+}
+
+/** Server side only: reads the contact page content from the Admin CMS. */
+export function getContactContent(): Promise<{
+  content: ContactContent;
+  hidden: Set<ContactSectionKey>;
+  source: "cms" | "defaults";
+}> {
+  return fetchPageContent("contact", CONTACT_DEFAULTS, CONTACT_SECTION_ORDER) as Promise<{
+    content: ContactContent;
+    hidden: Set<ContactSectionKey>;
+    source: "cms" | "defaults";
+  }>;
+}
+
+/** Server side only: reads the blog page copy from the Admin CMS. */
+export function getBlogContent(): Promise<{
+  content: BlogContent;
+  hidden: Set<BlogSectionKey>;
+  source: "cms" | "defaults";
+}> {
+  return fetchPageContent("blog", BLOG_DEFAULTS, BLOG_SECTION_ORDER) as Promise<{
+    content: BlogContent;
+    hidden: Set<BlogSectionKey>;
+    source: "cms" | "defaults";
+  }>;
+}
+
+/** Server side only: reads the site-wide footer from the Admin CMS. */
+export function getFooterContent(): Promise<{
+  content: FooterContent;
+  hidden: Set<FooterSectionKey>;
+  source: "cms" | "defaults";
+}> {
+  return fetchPageContent("footer", FOOTER_DEFAULTS, FOOTER_SECTION_ORDER) as Promise<{
+    content: FooterContent;
+    hidden: Set<FooterSectionKey>;
+    source: "cms" | "defaults";
+  }>;
+}
+
+export type BlogFeed = {
+  posts: BlogPost[];
+  /** Category names with counts, generated by the CMS from published posts. */
+  categories: { name: string; count: number }[];
+};
+
+/**
+ * Server side only: reads published articles from the Admin CMS.
+ *
+ * Deliberately uncached: `Cache-Control: no-store` on the CMS response means an
+ * admin edit should be visible on the next page load, so nothing is memoised
+ * here beyond the lifetime of a single request.
+ */
+async function fetchBlogFeed(endpoint: string, fallback: BlogPost[]): Promise<BlogFeed> {
+  const base = adminBaseUrl();
+  if (!base) return { posts: fallback, categories: [] };
+
+  try {
+    const res = await fetch(`${base}${endpoint}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) throw new Error(`CMS responded ${res.status}`);
+
+    const data = await res.json();
+    const rows: unknown[] = Array.isArray(data?.posts) ? data.posts : [];
+
+    // An empty list from a reachable CMS is a real answer: the admin deleted
+    // every post. Only an unreachable CMS falls back to the built-in articles,
+    // whose detail pages would not exist.
+    return {
+      posts: (rows as Record<string, unknown>[]).map(toBlogPost),
+      categories: Array.isArray(data?.categories)
+        ? data.categories
+            .map((item: Record<string, unknown>) => ({
+              name: String(item?.name ?? ""),
+              count: Number(item?.count ?? 0),
+            }))
+            .filter((item: { name: string }) => item.name)
+        : [],
+    };
+  } catch {
+    // Never let a CMS outage take the marketing site down.
+    return { posts: fallback, categories: [] };
+  }
+}
+
+/**
+ * Published articles plus the CMS category counts, in one request.
+ *
+ * The blog index needs both to build its filters, so they are fetched together
+ * rather than making the page call the feed twice.
+ */
+export function getBlogFeed(limit = 50): Promise<BlogFeed> {
+  const suffix = limit > 0 ? `?limit=${limit}` : "";
+  return fetchBlogFeed(`/api/public/blog${suffix}`, FALLBACK_POSTS);
+}
+
+/** All published articles, newest first, with the featured one first. */
+export function getBlogPosts(limit = 50): Promise<BlogPost[]> {
+  return getBlogFeed(limit).then((feed) => feed.posts);
+}
+
+/** Category names and counts, used to label the filter chips. */
+export function getBlogCategories(): Promise<{ name: string; count: number }[]> {
+  return getBlogFeed().then((feed) => feed.categories);
+}
+
+/** One published article plus its related reads, for the detail page. */
+export async function getBlogPost(
+  slug: string
+): Promise<{ post: BlogPost; related: BlogPost[]; source: "cms" | "defaults" } | null> {
+  const base = adminBaseUrl();
+  if (!slug) return null;
+
+  // Only an unreachable CMS falls back. A reachable CMS that answers 404 really
+  // has no such article, and saying so is the honest answer.
+  const fromDefaults = (): { post: BlogPost; related: BlogPost[]; source: "defaults" } | null => {
+    const post = FALLBACK_POSTS.find((item) => item.slug === slug);
+    if (!post) return null;
+    return {
+      post,
+      related: FALLBACK_POSTS.filter((item) => item.slug !== slug),
+      source: "defaults",
+    };
+  };
+
+  if (!base) return fromDefaults();
+
+  try {
+    const res = await fetch(`${base}/api/public/blog/${encodeURIComponent(slug)}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`CMS responded ${res.status}`);
+
+    const data = await res.json();
+    if (!data?.post) return null;
+
+    return {
+      post: toBlogPost(data.post),
+      related: Array.isArray(data.related)
+        ? (data.related as Record<string, unknown>[]).map(toBlogPost)
+        : [],
+      source: "cms",
+    };
+  } catch {
+    return fromDefaults();
+  }
+}
+
+/** The article the blog hero should showcase, if one is flagged in the CMS. */
+export function pickFeaturedPost(posts: BlogPost[]): BlogPost | undefined {
+  return posts.find((post) => post.is_featured) ?? posts[0];
+}
+
+/** One filter option, resolved from the CMS chip list and the published posts. */
+export type BlogCategoryOption = {
+  /** Text shown on the chip and in the dropdown. */
+  label: string;
+  /** Value written to the shared filter state; empty means "no filter". */
+  value: string;
+  /** Every key a post's `category` may normalise to and still match this option. */
+  keys: string[];
+  /** Lucide icon name from the CMS, when the chip has one. */
+  icon: string;
+  /** Number of articles behind this option. */
+  count: number;
+};
+
+/**
+ * Builds the category filters shown on the blog page.
+ *
+ * The chip labels and icons come from Pages > Blog > Categories, but only the
+ * categories that actually have published articles behind them are worth
+ * offering, and the counts come from the CMS `GROUP BY` on `blog_posts`. A chip
+ * matches a post when either its label or its slug normalises to the same key,
+ * so both "Management" and "management" resolve to the same option. Anything
+ * the CMS list does not cover is appended, so no article is ever unreachable
+ * behind the filters.
+ */
+export function resolveBlogCategories(
+  items: BlogContent["categories"]["items"] = [],
+  posts: BlogPost[] = [],
+  counts: { name: string; count: number }[] = []
+): BlogCategoryOption[] {
+  const countByKey = new Map<string, number>();
+  for (const post of posts) {
+    const key = categoryKey(post.category);
+    if (!key) continue;
+    countByKey.set(key, (countByKey.get(key) ?? 0) + 1);
+  }
+
+  const cmsByKey = new Map<string, number>();
+  for (const entry of counts) {
+    const key = categoryKey(entry.name);
+    if (!key) continue;
+    cmsByKey.set(key, (cmsByKey.get(key) ?? 0) + Number(entry.count ?? 0));
+  }
+
+  const options: BlogCategoryOption[] = [];
+  const claimed = new Set<string>();
+
+  for (const item of items) {
+    const label = String(item?.label ?? "").trim();
+    const keys = [categoryKey(label), categoryKey(item?.slug)].filter(
+      (key, index, all) => key && all.indexOf(key) === index
+    );
+    if (!label || !keys.length) continue;
+
+    const count = keys.reduce((sum, key) => sum + (cmsByKey.get(key) ?? countByKey.get(key) ?? 0), 0);
+    // A chip nobody can filter to is just noise, so drop it.
+    if (!count) continue;
+
+    for (const key of keys) claimed.add(key);
+    options.push({ label, value: keys[0], keys, icon: String(item?.icon ?? ""), count });
+  }
+
+  for (const [key, count] of countByKey) {
+    if (claimed.has(key)) continue;
+    const post = posts.find((item) => categoryKey(item.category) === key);
+    options.push({
+      label: post?.category || key,
+      value: key,
+      keys: [key],
+      icon: "",
+      count: cmsByKey.get(key) ?? count,
+    });
+  }
+
+  return options;
 }

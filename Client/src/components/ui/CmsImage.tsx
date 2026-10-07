@@ -9,6 +9,9 @@ type Props = {
   alt: string;
   className?: string;
   fill?: boolean;
+  /** Intrinsic size for CMS uploads, which are bare URLs with no dimensions. */
+  width?: number;
+  height?: number;
   sizes?: string;
   priority?: boolean;
 };
@@ -26,6 +29,8 @@ export default function CmsImage({
   alt,
   className,
   fill,
+  width: widthProp,
+  height: heightProp,
   sizes,
   priority,
 }: Props) {
@@ -50,25 +55,29 @@ export default function CmsImage({
         controls
         preload="metadata"
         aria-label={alt}
+        width={fill ? undefined : widthProp}
+        height={fill ? undefined : heightProp}
         style={fill ? { position: "absolute", inset: 0, width: "100%", height: "100%" } : undefined}
       />
     );
   }
 
   // A CMS upload is a bare URL string, so `next/image` has no intrinsic size to
-  // read. Reuse the fallback's dimensions to preserve the original layout.
-  const width = fallback ? fallback.width : undefined;
-  const height = fallback ? fallback.height : undefined;
+  // read. Use the explicit size, then the fallback's, and only resort to `fill`
+  // when the caller gave us nothing to size the box with.
+  const width = widthProp ?? fallback?.width;
+  const height = heightProp ?? fallback?.height;
+  const useFill = fill || !width || !height;
 
   return (
     <Image
       src={resolved}
       alt={alt}
       className={className}
-      fill={fill}
-      sizes={sizes}
-      width={fill ? undefined : width}
-      height={fill ? undefined : height}
+      fill={useFill}
+      sizes={useFill ? sizes ?? "100vw" : sizes}
+      width={useFill ? undefined : width}
+      height={useFill ? undefined : height}
       priority={priority}
     />
   );

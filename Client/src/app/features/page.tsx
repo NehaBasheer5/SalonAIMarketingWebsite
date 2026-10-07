@@ -4,7 +4,6 @@ import FeaturesHero from "@/components/sections/features/FeaturesHero";
 import FeaturesGrid from "@/components/sections/features/FeaturesGrid";
 import PlatformShowcase from "@/components/sections/features/PlatformShowcase";
 import StatsBar from "@/components/sections/features/StatsBar";
-import FeaturesCta from "@/components/sections/features/FeaturesCta";
 import { getFeaturesContent, type FeaturesContent } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -25,7 +24,6 @@ export default async function FeaturesPage() {
         <PlatformShowcase content={content.platform_showcase} />
       ) : null}
       {show("stats_bar") ? <StatsBar content={content.stats_bar} /> : null}
-      {show("cta_banner") ? <FeaturesCta content={content.cta_banner} /> : null}
     </main>
   );
 }

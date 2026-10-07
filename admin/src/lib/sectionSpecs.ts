@@ -60,7 +60,7 @@ const headingPair = (secondLineLabel = "Highlighted line", secondLineHelp?: stri
   },
 ];
 
-const iconField = (label = "Icon"): FieldSpec => ({
+export const iconField = (label = "Icon"): FieldSpec => ({
   kind: "text",
   key: "icon",
   label,
@@ -183,29 +183,13 @@ export const SECTION_SPECS: SectionSpec[] = [
   {
     key: "pricing",
     label: "Pricing Preview",
-    description: "Compact pricing cards shown on the home page.",
+    description:
+      "Compact pricing cards shown on the home page. Plans are managed under the Pricing page.",
     fields: [
       eyebrowField,
       ...headingPair("Highlighted line"),
       { kind: "text", key: "cta_label", column: "cta_label", label: "Header link label" },
       { kind: "url", key: "cta_href", column: "cta_href", label: "Header link URL" },
-      {
-        kind: "list",
-        key: "plans",
-        label: "Plans",
-        itemLabel: "Plan",
-        fields: [
-          { kind: "text", key: "name", label: "Plan name" },
-          { kind: "text", key: "price", label: "Price", help: "Text, e.g. $19 or Custom." },
-          { kind: "text", key: "period", label: "Period", placeholder: "/month" },
-          { kind: "textarea", key: "description", label: "Description", rows: 2 },
-          { kind: "string-list", key: "features", label: "Included features", itemLabel: "Feature" },
-          { kind: "toggle", key: "featured", label: "Highlight as most popular" },
-          { kind: "text", key: "badge", label: "Badge text", placeholder: "Most Popular" },
-          { kind: "text", key: "cta_label", label: "Button label" },
-          { kind: "url", key: "cta_href", label: "Button URL" },
-        ],
-      },
     ],
   },
   {
@@ -432,19 +416,6 @@ export const FEATURES_SECTION_SPECS: SectionSpec[] = [
       },
     ],
   },
-  {
-    key: "cta_banner",
-    label: "CTA Banner",
-    description: "Closing call to action with the image and both buttons.",
-    fields: [
-      eyebrowField,
-      ...headingPair("Highlighted line"),
-      { kind: "textarea", key: "body", column: "body", label: "Paragraph", rows: 2, full: true },
-      ...ctaPair("Primary button label"),
-      { kind: "image", key: "image_url", column: "image_url", label: "Image or video", full: true },
-      imageAltField,
-    ],
-  },
 ];
 
 /**
@@ -571,14 +542,497 @@ export const ABOUT_SECTION_SPECS: SectionSpec[] = [
   },
 ];
 
+export const PRICING_SECTION_SPECS: SectionSpec[] = [
+  {
+    key: "hero",
+    label: "Pricing Hero",
+    description: "Title, subtitle, billing toggle text and optional hero media.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      subheadingField,
+      { kind: "text", key: "monthly_label", label: "Toggle label: monthly", placeholder: "Monthly" },
+      { kind: "text", key: "annual_label", label: "Toggle label: annual", placeholder: "Annual" },
+      {
+        kind: "text",
+        key: "per_month_suffix",
+        label: "Price suffix",
+        help: "Shown after the price, e.g. /month.",
+        placeholder: "/month",
+      },
+      { kind: "image", key: "image_url", column: "image_url", label: "Hero media", full: true },
+      imageAltField,
+    ],
+  },
+  {
+    key: "pricing_cards",
+    label: "Plans Grid",
+    description:
+      "Wraps the pricing packages. The packages themselves are managed under Pricing in the sidebar; this section only controls whether the grid is shown.",
+    fields: [
+      { kind: "text", key: "empty_message", label: "Message shown when there are no packages", full: true, placeholder: "Pricing packages are on the way." },
+    ],
+  },
+  {
+    key: "comparison",
+    label: "Comparison Table",
+    description:
+      "Heading plus every comparison row. Each value is either text (e.g. 'Up to 10') or true/false for a tick or a dash.",
+    fields: [
+      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
+      { kind: "text", key: "subheading", column: "subheading", label: "Subheading", full: true },
+      { kind: "text", key: "feature_column_label", label: "First column header", placeholder: "Features" },
+      {
+        kind: "string-list",
+        key: "plan_columns",
+        label: "Plan column headers",
+        itemLabel: "Plan",
+        help: "Left to right. Keep these in the same order as the packages under Pricing.",
+      },
+      {
+        kind: "list",
+        key: "rows",
+        label: "Comparison rows",
+        itemLabel: "Row",
+        fields: [
+          iconField(),
+          { kind: "text", key: "name", label: "Row label" },
+          {
+            kind: "list",
+            key: "values",
+            label: "Value per plan",
+            itemLabel: "Value",
+            fields: [
+              {
+                kind: "text",
+                key: "value",
+                label: "Value",
+                help: "Leave empty for a dash. Any other text is shown as written.",
+              },
+              { kind: "toggle", key: "yes", label: "Show a tick" },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    key: "banner",
+    label: "Pricing Banner",
+    description: "The 'all plans include' strip plus the closing CTA.",
+    fields: [
+      { kind: "text", key: "strip_heading", label: "Strip heading", placeholder: "All plans include" },
+      {
+        kind: "list",
+        key: "items",
+        label: "Included items",
+        itemLabel: "Item",
+        fields: [
+          iconField(),
+          { kind: "text", key: "title", label: "Title" },
+          { kind: "text", key: "desc", label: "Short description" },
+        ],
+      },
+      { kind: "text", key: "title", label: "Title" },
+      { kind: "textarea", key: "subtitle", label: "Subtitle", rows: 2 },
+      { kind: "text", key: "cta_label", label: "CTA label" },
+      { kind: "url", key: "cta_href", label: "CTA href" },
+      { kind: "text", key: "secondary_cta_label", label: "Secondary CTA label" },
+      { kind: "url", key: "secondary_cta_href", label: "Secondary CTA href" },
+      { kind: "image", key: "image_url", column: "image_url", label: "Banner media", full: true },
+      imageAltField,
+    ],
+  },
+  {
+    key: "faq_cta",
+    label: "FAQ & CTA",
+    description: "Pricing FAQs plus the closing 'get started' card.",
+    fields: [
+      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
+      { kind: "text", key: "subheading", column: "subheading", label: "Subheading", full: true },
+      { kind: "text", key: "link_label", label: "Link under the FAQs" },
+      { kind: "url", key: "link_href", label: "Link under the FAQs URL" },
+      {
+        kind: "list",
+        key: "faqs",
+        label: "FAQs",
+        itemLabel: "FAQ",
+        fields: [
+          { kind: "textarea", key: "question", label: "Question", rows: 2 },
+          { kind: "textarea", key: "answer", label: "Answer", rows: 3 },
+        ],
+      },
+      { kind: "text", key: "cta_eyebrow", label: "CTA card eyebrow" },
+      { kind: "text", key: "cta_heading", label: "CTA card heading" },
+      { kind: "text", key: "cta_heading_accent", label: "CTA card highlighted line" },
+      { kind: "textarea", key: "cta_subheading", label: "CTA card sub-copy", rows: 2 },
+      { kind: "text", key: "cta_label", label: "CTA card button label" },
+      { kind: "url", key: "cta_href", label: "CTA card button URL" },
+      { kind: "text", key: "cta_secondary_label", label: "CTA card secondary button label" },
+      { kind: "url", key: "cta_secondary_href", label: "CTA card secondary button URL" },
+      { kind: "image", key: "image_url", column: "image_url", label: "CTA card media", full: true },
+      imageAltField,
+    ],
+  },
+];
+
+export const CONTACT_SECTION_SPECS: SectionSpec[] = [
+  {
+    key: "hero",
+    label: "Contact Hero",
+    description: "Top of the contact page: headline, the photo and the three quick contact rows.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      subheadingField,
+      { kind: "image", key: "image_url", column: "image_url", label: "Hero media", full: true },
+      imageAltField,
+      { kind: "text", key: "badge", label: "Floating badge text", placeholder: "We're here to help!" },
+      {
+        kind: "list",
+        key: "quick_contacts",
+        label: "Quick contact rows",
+        itemLabel: "Row",
+        fields: [
+          iconField(),
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "text", key: "value", label: "Value" },
+        ],
+      },
+    ],
+  },
+  {
+    key: "contact_form",
+    label: "Contact Form",
+    description:
+      "The form itself. Anything a visitor submits is saved to the database and shows up under Enquiries.",
+    fields: [
+      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
+      { kind: "text", key: "subheading", column: "subheading", label: "Sub-copy", full: true },
+      { kind: "text", key: "submit_label", label: "Submit button label" },
+      { kind: "textarea", key: "success_message", label: "Message shown after sending", rows: 2 },
+      { kind: "text", key: "privacy_note", label: "Small note under the button" },
+      { kind: "text", key: "details_heading", label: "Contact info panel heading" },
+      { kind: "text", key: "socials_heading", label: "Social panel heading" },
+      {
+        kind: "list",
+        key: "details",
+        label: "Contact details",
+        itemLabel: "Detail",
+        fields: [
+          iconField(),
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "text", key: "value", label: "Value" },
+        ],
+      },
+      {
+        kind: "string-list",
+        key: "subjects",
+        label: "Subject dropdown options",
+        itemLabel: "Subject option",
+        help: "The choices in the subject dropdown. Each one is stored on the enquiry.",
+      },
+    ],
+  },
+  {
+    key: "location_map",
+    label: "Location & Map",
+    description: "The address, directions link and the embedded map.",
+    fields: [
+      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
+      { kind: "textarea", key: "body", column: "body", label: "Description", rows: 2, full: true },
+      { kind: "text", key: "address", label: "Address" },
+      { kind: "text", key: "map_query", label: "Map search query", help: "e.g. Colombo Sri Lanka" },
+      { kind: "text", key: "directions_label", label: "Directions link label" },
+      { kind: "url", key: "directions_href", label: "Directions link" },
+    ],
+  },
+  {
+    key: "cta_banner",
+    label: "CTA Banner",
+    description: "Closing band with both buttons.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      ...ctaPair("Primary button label"),
+    ],
+  },
+];
+
+/**
+ * Blog page sections.
+ *
+ * The articles themselves are edited on the dedicated Blog screen, which talks
+ * to `blog_posts` rather than `page_sections`. These specs cover the copy and
+ * layout wrapped around that list.
+ */
+export const BLOG_SECTION_SPECS: SectionSpec[] = [
+  {
+    key: "hero",
+    label: "Blog Hero",
+    description:
+      "Headline, intro copy, search box and the featured article card. The card content comes from whichever post is marked featured on the Blog screen.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      subheadingField,
+      { kind: "text", key: "search_placeholder", label: "Search box placeholder" },
+      { kind: "text", key: "search_label", label: "Category dropdown default option" },
+      { kind: "text", key: "featured_label", label: "Featured article badge text" },
+      { kind: "image", key: "image_url", column: "image_url", label: "Hero media", full: true },
+      imageAltField,
+    ],
+  },
+  {
+    key: "categories",
+    label: "Categories",
+    description:
+      "Category filter buttons. Counts are generated from published posts, so only the labels and icons are editable here.",
+    fields: [
+      { kind: "text", key: "heading", column: "heading", label: "Section label", full: true },
+      {
+        kind: "list",
+        key: "items",
+        label: "Categories",
+        itemLabel: "Category",
+        full: true,
+        help: "Leave the slug blank to show every category.",
+        fields: [
+          iconField(),
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "text", key: "slug", label: "Slug", placeholder: "management" },
+        ],
+      },
+    ],
+  },
+  {
+    key: "latest",
+    label: "Latest Articles",
+    description: "Heading above the article grid, its filter bar and the empty state message.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      { kind: "text", key: "cta_label", column: "cta_label", label: "Link label" },
+      { kind: "url", key: "cta_href", column: "cta_href", label: "Link target" },
+      { kind: "text", key: "empty_message", label: "Shown when no articles match", full: true },
+    ],
+  },
+  {
+    key: "newsletter",
+    label: "Newsletter Signup",
+    description:
+      "Copy and button text for the newsletter box. Subscribers are saved to the Enquiries list as source 'newsletter'.",
+    fields: [
+      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
+      subheadingField,
+      { kind: "text", key: "email_placeholder", label: "Email field placeholder" },
+      { kind: "text", key: "submit_label", label: "Button label" },
+      { kind: "text", key: "success_message", label: "Success message", full: true },
+    ],
+  },
+  {
+    key: "popular",
+    label: "Popular Posts",
+    description:
+      "Side panel listing the most read articles. The list itself is generated from published posts ordered by views.",
+    fields: [
+      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
+      subheadingField,
+      { kind: "text", key: "empty_message", label: "Empty state message", full: true },
+    ],
+  },
+  {
+    key: "cta_banner",
+    label: "CTA Banner",
+    description: "Closing band with both buttons.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      ...ctaPair("Primary button label"),
+    ],
+  },
+];
+
+/**
+ * FAQ page sections.
+ *
+ * The questions themselves come from the `faqs` table via the CMS FAQ API; the
+ * articles/cards around them are edited here. Split into its own list (not the
+ * home page `faq` section) because the layouts are completely different.
+ */
+export const FAQ_SECTION_SPECS: SectionSpec[] = [
+  {
+    key: "hero",
+    label: "FAQ Hero",
+    description: "Top of the FAQ page: eyebrow, headline, intro copy and the media on the right.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      subheadingField,
+      { kind: "text", key: "search_placeholder", label: "Search box placeholder", placeholder: "Search for answers..." },
+      { kind: "text", key: "search_label", label: "Search button label", placeholder: "Search" },
+      { kind: "image", key: "image_url", column: "image_url", label: "Hero image or video", full: true },
+      imageAltField,
+    ],
+  },
+  {
+    key: "categories",
+    label: "Categories & Questions",
+    description:
+      "Category sidebar plus the intro copy above it. Categories added here appear as the filter tabs under Content → FAQs, where you pick a category and add its questions.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      subheadingField,
+      {
+        kind: "list",
+        key: "categories",
+        label: "Categories",
+        itemLabel: "Category",
+        help: "Add a category here with + Add category. Then open Content → FAQs, select this category and add its questions — each FAQ's category must match the Label or Slug above.",
+        fields: [
+          { kind: "text", key: "id", label: "ID", help: "Unique short name, used for filtering. Use general for the default tab." },
+          iconField(),
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "text", key: "slug", label: "Slug", help: "Optional. Match an FAQ's category to this to group it under this tab." },
+        ],
+      },
+    ],
+  },
+  {
+    key: "cta_banner",
+    label: "Support CTA",
+    description: "The closing call to action with the support team message and both buttons.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      subheadingField,
+      ...ctaPair("Primary button label"),
+    ],
+  },
+];
+
+export const FOOTER_SECTION_SPECS: SectionSpec[] = [
+  {
+    key: "footer",
+    label: "Footer",
+    description:
+      "Site-wide footer: brand block, link columns, contact details, socials and the bottom bar.",
+    fields: [
+      {
+        kind: "text",
+        key: "heading",
+        column: "heading",
+        label: "Brand tagline",
+        help: "Small line under the SalonAI wordmark.",
+        full: true,
+      },
+      {
+        kind: "textarea",
+        key: "subheading",
+        column: "subheading",
+        label: "Brand description",
+        rows: 2,
+        full: true,
+      },
+      { kind: "text", key: "explore_heading", label: "Explore column title", full: true },
+      {
+        kind: "list",
+        key: "explore_links",
+        label: "Explore links",
+        itemLabel: "Link",
+        full: true,
+        fields: [
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "url", key: "href", label: "Link" },
+        ],
+      },
+      { kind: "text", key: "company_heading", label: "Company column title", full: true },
+      {
+        kind: "list",
+        key: "company_links",
+        label: "Company links",
+        itemLabel: "Link",
+        full: true,
+        fields: [
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "url", key: "href", label: "Link" },
+        ],
+      },
+      { kind: "text", key: "contact_heading", label: "Contact column title", full: true },
+      {
+        kind: "list",
+        key: "contacts",
+        label: "Contact details",
+        itemLabel: "Contact",
+        full: true,
+        fields: [
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "text", key: "value", label: "Value" },
+          { kind: "url", key: "href", label: "Link" },
+        ],
+      },
+      {
+        kind: "list",
+        key: "socials",
+        label: "Social links",
+        itemLabel: "Social",
+        full: true,
+        help: "The icon is picked from the profile URL (instagram.com, facebook.com, linkedin.com, youtube.com, x.com, tiktok.com, whatsapp, telegram, pinterest).",
+        fields: [
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "url", key: "href", label: "Profile URL" },
+          {
+            kind: "text",
+            key: "icon",
+            label: "Icon override",
+            help: "Instagram, Facebook, LinkedIn, YouTube, X, TikTok, WhatsApp, Telegram, Pinterest. Blank = auto from URL.",
+          },
+        ],
+      },
+      {
+        kind: "text",
+        key: "copyright",
+        label: "Copyright text",
+        help: "Rendered after © and the current year.",
+        full: true,
+      },
+      { kind: "text", key: "footer_note", label: "Bottom-right tagline", full: true },
+    ],
+  },
+  {
+    key: "newsletter",
+    label: "Newsletter Band",
+    description:
+      "Subscribe strip above the bottom bar. Turn Visible off to remove it from the site.",
+    fields: [
+      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
+      subheadingField,
+      { kind: "text", key: "email_placeholder", label: "Email field placeholder" },
+      { kind: "text", key: "submit_label", label: "Button label" },
+      { kind: "text", key: "success_message", label: "Success message", full: true },
+    ],
+  },
+];
+
 const BY_KEY = new Map(SECTION_SPECS.map((s) => [s.key, s]));
 const FEATURES_BY_KEY = new Map(FEATURES_SECTION_SPECS.map((s) => [s.key, s]));
 const ABOUT_BY_KEY = new Map(ABOUT_SECTION_SPECS.map((s) => [s.key, s]));
+const CONTACT_BY_KEY = new Map(CONTACT_SECTION_SPECS.map((s) => [s.key, s]));
+const PRICING_BY_KEY = new Map(PRICING_SECTION_SPECS.map((s) => [s.key, s]));
+const BLOG_BY_KEY = new Map(BLOG_SECTION_SPECS.map((s) => [s.key, s]));
+const FAQ_BY_KEY = new Map(FAQ_SECTION_SPECS.map((s) => [s.key, s]));
+const FOOTER_BY_KEY = new Map(FOOTER_SECTION_SPECS.map((s) => [s.key, s]));
 
-/** Specs are page aware: `features`, `about` and `home` all have their own `hero`. */
+/** Specs are page aware: each page with its own `hero` gets its own spec list. */
 export function getSectionSpec(slug: string, key: string): SectionSpec | undefined {
   if (slug === "features") return FEATURES_BY_KEY.get(key);
   if (slug === "about") return ABOUT_BY_KEY.get(key);
+  if (slug === "contact") return CONTACT_BY_KEY.get(key);
+  if (slug === "pricing") return PRICING_BY_KEY.get(key);
+  if (slug === "blog") return BLOG_BY_KEY.get(key);
+  if (slug === "faq") return FAQ_BY_KEY.get(key);
+  if (slug === "footer") return FOOTER_BY_KEY.get(key);
   return BY_KEY.get(key);
 }
 

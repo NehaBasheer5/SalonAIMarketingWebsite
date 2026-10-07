@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import MediaPickerField from "./MediaPickerField";
 import type { FieldSpec } from "@/lib/sectionSpecs";
 

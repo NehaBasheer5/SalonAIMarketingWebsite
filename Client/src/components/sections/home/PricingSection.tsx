@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
+import CmsImage from "@/components/ui/CmsImage";
 import { defaultHomeContent, type HomeContent } from "@/lib/content";
 
 type Props = {
@@ -58,6 +59,18 @@ export default function PricingSection({ content = defaultHomeContent.pricing }:
                 </span>
               ) : null}
 
+              {plan.image_url ? (
+                <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-xl bg-salon-tile/40">
+                  <CmsImage
+                    value={plan.image_url}
+                    alt={plan.image_alt || `${plan.name} plan`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
+                </div>
+              ) : null}
+
               <h3 className="text-base font-semibold text-salon-ink">{plan.name}</h3>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="font-display text-3xl font-semibold text-salon-ink">
@@ -73,7 +86,7 @@ export default function PricingSection({ content = defaultHomeContent.pricing }:
                 <ul className="mt-5 space-y-2.5">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2 text-xs text-salon-ink">
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-salon-tile text-salon-brand">
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-salon-tile text-salon-brand">
                         <Check className="h-2.5 w-2.5" strokeWidth={3} />
                       </span>
                       {feature}

@@ -3,8 +3,13 @@
 import React from "react";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
+import { defaultBlogContent, type BlogContent } from "@/lib/content";
 
-export default function BlogCtaBanner() {
+export default function BlogCtaBanner({
+  content = defaultBlogContent.cta_banner,
+}: {
+  content?: BlogContent["cta_banner"];
+}) {
   return (
     <section className="w-full overflow-hidden bg-salon-bg py-12">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
@@ -15,27 +20,32 @@ export default function BlogCtaBanner() {
             </span>
             <div>
               <h2 className="font-display text-xl text-white sm:text-2xl">
-                Ready to Take Your Salon to the Next Level?
+                {content.heading}
+                {content.heading_accent ? (
+                  <span className="block text-white/90">{content.heading_accent}</span>
+                ) : null}
               </h2>
-              <p className="mt-1 text-xs text-white/80">
-                Join thousands of salon owners who are growing their business with SalonAI.
-              </p>
+              {content.subheading ? (
+                <p className="mt-1 text-xs text-white/80">{content.subheading}</p>
+              ) : null}
             </div>
           </div>
 
           <div className="flex w-full items-center gap-3 sm:w-auto">
             <Link
-              href="/request-demo"
+              href={content.cta_href || "/request-demo"}
               className="flex-1 rounded-lg bg-white px-5 py-2.5 text-center text-xs font-semibold text-salon-brand transition hover:bg-salon-chip sm:flex-none"
             >
-              Book a Demo &rarr;
+              {content.cta_label || "Book a Demo"} &rarr;
             </Link>
-            <Link
-              href="/contact"
-              className="flex-1 rounded-lg border border-white/45 px-5 py-2.5 text-center text-xs font-semibold text-white transition hover:bg-white/10 sm:flex-none"
-            >
-              Contact Sales
-            </Link>
+            {content.secondary_cta_label ? (
+              <Link
+                href={content.secondary_cta_href || "/contact"}
+                className="flex-1 rounded-lg border border-white/45 px-5 py-2.5 text-center text-xs font-semibold text-white transition hover:bg-white/10 sm:flex-none"
+              >
+                {content.secondary_cta_label}
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>

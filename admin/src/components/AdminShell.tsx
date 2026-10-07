@@ -2,15 +2,47 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  BadgeDollarSign,
+  FileText,
+  HelpCircle,
+  Image as ImageIcon,
+  Inbox,
+  LayoutDashboard,
+  LogOut,
+  Newspaper,
+} from "lucide-react";
 
-const NAV = [
-  { href: "/", label: "Dashboard" },
-  { href: "/pages", label: "Pages" },
-  { href: "/media", label: "Media" },
-  { href: "/blog", label: "Blog" },
-  { href: "/faqs", label: "FAQs" },
-  { href: "/pricing", label: "Pricing" },
+const NAV_SECTIONS: {
+  title: string;
+  items: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[];
+}[] = [
+  {
+    title: "Overview",
+    items: [{ href: "/", label: "Dashboard", icon: LayoutDashboard }],
+  },
+  {
+    title: "Engagement",
+    items: [{ href: "/enquiries", label: "Enquiries", icon: Inbox }],
+  },
+  {
+    title: "Content",
+    items: [
+      { href: "/pages", label: "Pages", icon: FileText },
+      { href: "/media", label: "Media", icon: ImageIcon },
+      { href: "/blog", label: "Blog", icon: Newspaper },
+      { href: "/faqs", label: "FAQs", icon: HelpCircle },
+    ],
+  },
+  {
+    title: "Monetization",
+    items: [{ href: "/pricing", label: "Pricing", icon: BadgeDollarSign }],
+  },
 ];
+
+function isActive(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export default function AdminShell({
   children,
@@ -28,45 +60,87 @@ export default function AdminShell({
     router.refresh();
   }
 
+  const initials = adminName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900">
-      <div className="mx-auto flex min-h-screen max-w-7xl">
-        <aside className="w-60 shrink-0 border-r border-slate-200 bg-white px-4 py-6">
-          <div className="mb-8 px-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">SalonAI</p>
-            <h1 className="text-lg font-bold text-[#0D1140]">Admin CMS</h1>
+    <div className="flex min-h-screen bg-slate-100 text-slate-900">
+      <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-salon-border/70 px-5">
+          <Link href="/" className="group flex flex-col leading-none">
+            <span className="font-display text-[1.75rem] font-medium tracking-[-0.045em] text-salon-ink">
+              Salon <span className="text-salon-gold">AI</span>
+            </span>
+            <span className="mt-1 pl-0.5 text-[8px] font-medium uppercase tracking-[0.24em] text-salon-muted">
+              Manage. Grow. Shine.
+            </span>
+          </Link>
+          <span className="rounded-full bg-slate-100 px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-slate-500">
+            Admin
+          </span>
+        </div>
+
+        <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.title}>
+              <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                {section.title}
+              </p>
+              <ul className="space-y-1">
+                {section.items.map((item) => {
+                  const active = isActive(pathname, item.href);
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        aria-current={active ? "page" : undefined}
+                        className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                          active
+                            ? "bg-[#0D1140] text-white shadow-sm"
+                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                        }`}
+                      >
+                        <Icon
+                          className={`h-[18px] w-[18px] shrink-0 ${
+                            active ? "text-white" : "text-slate-400 group-hover:text-slate-600"
+                          }`}
+                        />
+                        {item.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </nav>
+
+        <div className="border-t border-slate-100 p-3">
+          <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0D1140]/10 text-xs font-bold text-[#0D1140]">
+              {initials || "A"}
+            </div>
+            <div className="min-w-0 flex-1 leading-tight">
+              <p className="truncate text-sm font-semibold text-slate-800">{adminName}</p>
+              <p className="truncate text-xs text-slate-400">Administrator</p>
+            </div>
           </div>
-          <nav className="space-y-1">
-            {NAV.map((item) => {
-              const active =
-                item.href === "/"
-                  ? pathname === "/"
-                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`block rounded-lg px-3 py-2 text-sm font-medium transition ${
-                    active ? "bg-[#0D1140] text-white" : "text-slate-700 hover:bg-slate-100"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-          <div className="mt-10 border-t border-slate-100 px-2 pt-4">
-            <p className="truncate text-xs text-slate-500">{adminName}</p>
-            <button
-              onClick={logout}
-              className="mt-2 text-sm font-semibold text-red-600 hover:underline"
-            >
-              Log out
-            </button>
-          </div>
-        </aside>
-        <main className="flex-1 px-6 py-8">{children}</main>
-      </div>
+          <button
+            onClick={logout}
+            className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600"
+          >
+            <LogOut className="h-[18px] w-[18px]" />
+            Log out
+          </button>
+        </div>
+      </aside>
+
+      <main className="min-w-0 flex-1 px-8 py-8">{children}</main>
     </div>
   );
 }

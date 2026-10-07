@@ -9,6 +9,11 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-admin-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), Georgia, serif;
+  --color-salon-ink: #1a1a1a;
+  --color-salon-gold: #a68b67;
+  --color-salon-muted: #6b6560;
+  --color-salon-border: #e8e0d5;
 }
 
 body {

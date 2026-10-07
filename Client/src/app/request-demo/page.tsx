@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ContactFormSection from "@/components/sections/contact/ContactFormSection";
 import ContactCtaBanner from "@/components/sections/contact/ContactCtaBanner";
+import { defaultContactContent } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Book a Demo | Avenque SalonAI",
@@ -8,6 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function RequestDemoPage() {
+  const form = defaultContactContent.contact_form;
+  const cta = defaultContactContent.cta_banner;
+
   return (
     <main className="min-h-screen bg-salon-bg">
       <section className="mx-auto max-w-7xl px-5 pb-10 pt-14 sm:px-8 lg:pt-16">
@@ -26,8 +30,8 @@ export default function RequestDemoPage() {
           </p>
         </div>
       </section>
-      <ContactFormSection />
-      <ContactCtaBanner />
+      <ContactFormSection {...form} />
+      <ContactCtaBanner {...cta} />
     </main>
   );
 }

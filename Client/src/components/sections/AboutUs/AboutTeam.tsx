@@ -44,7 +44,7 @@ export default function AboutTeam({ content = defaultAboutContent.team }: Props)
     
     // Y position - creates the arc curve
     // Cards further from center are positioned lower
-    const yOffset = Math.pow(distanceFromCenter, 1.8) * 35;
+    const yOffset = Math.pow(distanceFromCenter, 1.8) * 18;
     
     // Overlap - each card overlaps the previous one
     const overlapAmount = -50;
@@ -64,10 +64,10 @@ export default function AboutTeam({ content = defaultAboutContent.team }: Props)
   };
 
   return (
-    <section className="w-full overflow-hidden bg-gradient-to-b from-gray-50 to-white py-16 lg:py-24">
+    <section className="w-full overflow-hidden bg-gradient-to-b from-gray-50 to-white py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         {/* Header */}
-        <div className="mb-20 flex flex-col items-center text-center">
+        <div className="mb-10 flex flex-col items-center text-center">
           {content.eyebrow ? (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -85,7 +85,7 @@ export default function AboutTeam({ content = defaultAboutContent.team }: Props)
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-display text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl"
+            className="font-display text-3xl font-medium tracking-tight text-gray-900 sm:text-4xl lg:text-5xl"
           >
             {content.heading}{" "}
             <span className="text-salon-accent">{content.heading_accent}</span>

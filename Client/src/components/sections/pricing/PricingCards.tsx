@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Building2, Check, Crown, Send, TrendingUp } from "lucide-react";
 
 interface PricingCardsProps {
-  billingCycle: "monthly" | "annual";
+  billingCycle?: "monthly" | "annual";
+  plans?: any[];
 }
 
 const PLANS = [

@@ -6,10 +6,12 @@ import TestimonialsSection from "@/components/sections/home/TestimonialsSection"
 import MobileAppShowcase from "@/components/sections/home/MobileAppShowcase";
 import FaqSection from "@/components/sections/home/FaqSection";
 import CtaBanner from "@/components/sections/home/CtaBanner";
-import { getHomeContent, type HomeContent } from "@/lib/content";
+import LatestPostsSection from "@/components/sections/home/LatestPostsSection";
+import { getHomeContent, getBlogPosts, type HomeContent } from "@/lib/content";
 
 export default async function Home() {
-  const { content, hidden } = await getHomeContent();
+  // The blog teaser is independent of the home sections, so both load at once.
+  const [{ content, hidden }, posts] = await Promise.all([getHomeContent(), getBlogPosts(3)]);
 
   const show = (key: keyof HomeContent) => !hidden.has(key);
 
@@ -22,6 +24,7 @@ export default async function Home() {
       {show("testimonials") ? <TestimonialsSection content={content.testimonials} /> : null}
       {show("mobile_app") ? <MobileAppShowcase content={content.mobile_app} /> : null}
       {show("faq") ? <FaqSection content={content.faq} /> : null}
+      <LatestPostsSection posts={posts} />
       {show("cta_banner") ? <CtaBanner content={content.cta_banner} /> : null}
     </main>
   );
