@@ -22,10 +22,29 @@ export default function ContactHero({
   quick_contacts,
 }: ContactHeroProps) {
   return (
-    <section className="relative w-full overflow-hidden bg-salon-bg py-14 lg:py-16">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
-          <div className="space-y-6 lg:col-span-7">
+    <section className="relative min-h-[560px] w-full overflow-hidden bg-salon-bg lg:min-h-[min(480px,100svh)]">
+      {/* On desktop the photo fills the right half, same as the home hero. */}
+      {image_url ? (
+        <div className="relative h-[35vh] min-h-[260px] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]">
+          <CmsImage
+            value={image_url}
+            alt={image_alt || "Contact hero"}
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="(max-width: 1024px) 100vw, 52vw"
+          />
+          <div className="absolute inset-y-0 left-0 hidden w-20 bg-gradient-to-r from-salon-bg to-transparent lg:block" />
+        </div>
+      ) : null}
+
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
+        <div
+          className={`flex py-12 lg:min-h-[400px] lg:items-center lg:pb-20 lg:pt-16 ${
+            image_url ? "lg:w-[47%]" : "lg:w-3/4"
+          }`}
+        >
+          <div className="w-full max-w-xl space-y-6">
             <div className="mb-4 flex items-center gap-3">
               <span className="h-px w-9 bg-salon-rule" />
               <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
@@ -33,7 +52,7 @@ export default function ContactHero({
               </span>
             </div>
 
-            <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl">
+            <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl lg:text-[4rem]">
               {heading}
             </h1>
 
@@ -46,11 +65,7 @@ export default function ContactHero({
                   className="flex items-center gap-3 rounded-2xl border border-salon-card bg-white/80 p-3"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-salon-tile text-salon-brand-dark">
-                    <CmsIcon
-                    name={item.icon}
-                    className="h-4 w-4"
-                    strokeWidth={1.8}
-                  />
+                    <CmsIcon name={item.icon} className="h-4 w-4" strokeWidth={1.8} />
                   </span>
                   <div className="min-w-0">
                     <p className="text-[10px] font-medium text-salon-muted">{item.label}</p>
@@ -59,20 +74,6 @@ export default function ContactHero({
                 </div>
               ))}
             </div>
-          </div>
-
-          <div className="relative flex justify-center lg:col-span-5">
-            {image_url ? (
-              <div className="relative w-full max-w-md">
-                <CmsImage
-                  value={image_url}
-                  alt={image_alt || "Contact hero"}
-                  width={500}
-                  height={400}
-                  className="h-auto w-full object-contain"
-                />
-              </div>
-            ) : null}
           </div>
         </div>
       </div>

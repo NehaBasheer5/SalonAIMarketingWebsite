@@ -384,6 +384,7 @@ async function main() {
     { slug: "blog", title: "Blog" },
     { slug: "faq", title: "FAQ" },
     { slug: "contact", title: "Contact" },
+    { slug: "request-demo", title: "Request Demo" },
     { slug: "footer", title: "Footer" },
   ];
 
@@ -1273,6 +1274,53 @@ async function main() {
         secondary_cta_href: "#",
       },
       sort: 4,
+    },
+    {
+      slug: "request-demo",
+      key: "demo_hero",
+      heading: "See SalonAI",
+      subheading:
+        "Tell us a bit about your salon and we'll schedule a personalized walkthrough.",
+      extra: {
+        eyebrow: "Book a Demo",
+        heading_accent: "in Action",
+      },
+      sort: 1,
+    },
+    {
+      slug: "request-demo",
+      key: "contact_form",
+      heading: "Send Us a Message",
+      subheading: "Fill out the form below and we'll get back to you within 24 hours.",
+      extra: {
+        submit_label: "Send Message →",
+        success_message: "Thanks! Your message has been sent. We'll get back to you shortly.",
+        privacy_note: "Your information is safe with us.",
+        details_heading: "Contact Information",
+        socials_heading: "Follow Us",
+        details: [
+          { icon: "Mail", label: "Email Us", value: "hello@avenque.com" },
+          { icon: "Phone", label: "Call Us", value: "+94 11 234 5678" },
+          { icon: "MapPin", label: "Visit Our Office", value: "No. 123, Innovation Drive, Colombo 00500" },
+        ],
+        subjects: ["Book a Demo", "Sales & Pricing", "Technical Support", "General Enquiry"],
+      },
+      sort: 2,
+    },
+    {
+      slug: "request-demo",
+      key: "cta_banner",
+      heading: "Ready to Transform",
+      subheading: "Let’s discuss how SalonAI can help your salon grow faster.",
+      cta_label: "Book a Demo",
+      cta_href: "/request-demo",
+      extra: {
+        eyebrow: "Get Started",
+        heading_accent: "Your Salon?",
+        secondary_cta_label: "Start Free Trial",
+        secondary_cta_href: "#",
+      },
+      sort: 3,
     },
     {
       slug: "footer",

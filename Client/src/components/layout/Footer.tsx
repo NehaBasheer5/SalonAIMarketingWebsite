@@ -54,6 +54,12 @@ function socialBrand(social: FooterSocial): string {
   return "";
 }
 
+function socialHref(social: FooterSocial): string {
+  const href = (social.href || "").trim();
+  if (!href) return "#";
+  return /^https?:\/\//i.test(href) || href.startsWith("//") ? href : `https://${href}`;
+}
+
 function SocialGlyph({ social }: { social: FooterSocial }) {
   const brand = socialBrand(social);
   if (hasBrandIcon(brand)) return <BrandIcon brand={brand} className="h-4 w-4" />;
@@ -138,7 +144,7 @@ export default function Footer({
                 {content.socials.map((social) => (
                   <a
                     key={`${social.label}-${social.href}`}
-                    href={social.href}
+                    href={socialHref(social)}
                     target="_blank"
                     rel="noreferrer"
                     aria-label={social.label}

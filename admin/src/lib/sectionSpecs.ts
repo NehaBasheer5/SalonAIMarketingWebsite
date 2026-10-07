@@ -760,6 +760,70 @@ export const CONTACT_SECTION_SPECS: SectionSpec[] = [
 ];
 
 /**
+ * Request Demo page sections.
+ *
+ * Separate from the contact specs even though the layout reuses the same form
+ * and closing banner: the copy, the subject options and the enquiry source all
+ * differ, so the two pages must not share an editor schema.
+ */
+export const REQUEST_DEMO_SECTION_SPECS: SectionSpec[] = [
+  {
+    key: "demo_hero",
+    label: "Demo Hero",
+    description: "Top of the request demo page: eyebrow, headline and the intro line.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      subheadingField,
+    ],
+  },
+  {
+    key: "contact_form",
+    label: "Demo Request Form",
+    description:
+      "The form itself. Anything a visitor submits is saved to the database and shows up under Enquiries with source 'request-demo'.",
+    fields: [
+      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
+      { kind: "text", key: "subheading", column: "subheading", label: "Sub-copy", full: true },
+      { kind: "text", key: "submit_label", label: "Submit button label" },
+      { kind: "textarea", key: "success_message", label: "Message shown after sending", rows: 2 },
+      { kind: "text", key: "privacy_note", label: "Small note under the button" },
+      { kind: "text", key: "details_heading", label: "Contact info panel heading" },
+      { kind: "text", key: "socials_heading", label: "Social panel heading" },
+      {
+        kind: "list",
+        key: "details",
+        label: "Contact details",
+        itemLabel: "Detail",
+        fields: [
+          iconField(),
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "text", key: "value", label: "Value" },
+        ],
+      },
+      {
+        kind: "string-list",
+        key: "subjects",
+        label: "Subject dropdown options",
+        itemLabel: "Subject option",
+        help: "The choices in the subject dropdown. Each one is stored on the enquiry.",
+      },
+    ],
+  },
+  {
+    key: "cta_banner",
+    label: "CTA Banner",
+    description: "Closing band with both buttons.",
+    fields: [
+      eyebrowField,
+      ...headingPair("Highlighted line"),
+      subheadingField,
+      ...ctaPair("Primary button label"),
+    ],
+  },
+];
+
+/**
  * Blog page sections.
  *
  * The articles themselves are edited on the dedicated Blog screen, which talks
@@ -1019,6 +1083,7 @@ const BY_KEY = new Map(SECTION_SPECS.map((s) => [s.key, s]));
 const FEATURES_BY_KEY = new Map(FEATURES_SECTION_SPECS.map((s) => [s.key, s]));
 const ABOUT_BY_KEY = new Map(ABOUT_SECTION_SPECS.map((s) => [s.key, s]));
 const CONTACT_BY_KEY = new Map(CONTACT_SECTION_SPECS.map((s) => [s.key, s]));
+const REQUEST_DEMO_BY_KEY = new Map(REQUEST_DEMO_SECTION_SPECS.map((s) => [s.key, s]));
 const PRICING_BY_KEY = new Map(PRICING_SECTION_SPECS.map((s) => [s.key, s]));
 const BLOG_BY_KEY = new Map(BLOG_SECTION_SPECS.map((s) => [s.key, s]));
 const FAQ_BY_KEY = new Map(FAQ_SECTION_SPECS.map((s) => [s.key, s]));
@@ -1029,6 +1094,7 @@ export function getSectionSpec(slug: string, key: string): SectionSpec | undefin
   if (slug === "features") return FEATURES_BY_KEY.get(key);
   if (slug === "about") return ABOUT_BY_KEY.get(key);
   if (slug === "contact") return CONTACT_BY_KEY.get(key);
+  if (slug === "request-demo") return REQUEST_DEMO_BY_KEY.get(key);
   if (slug === "pricing") return PRICING_BY_KEY.get(key);
   if (slug === "blog") return BLOG_BY_KEY.get(key);
   if (slug === "faq") return FAQ_BY_KEY.get(key);

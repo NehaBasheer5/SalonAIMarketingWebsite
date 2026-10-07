@@ -1105,6 +1105,68 @@ export const defaultContactContent: ContactContent = CONTACT_DEFAULTS;
 export const defaultPricingContent: PricingContent = PRICING_DEFAULTS;
 
 /* -------------------------------------------------------------------------- */
+/* Request Demo                                                               */
+/* -------------------------------------------------------------------------- */
+
+export type RequestDemoContent = {
+  demo_hero: {
+    eyebrow: string;
+    heading: string;
+    heading_accent: string;
+    subheading: string;
+  };
+  contact_form: ContactContent["contact_form"];
+  cta_banner: ContactContent["cta_banner"];
+};
+
+export type RequestDemoSectionKey = keyof RequestDemoContent;
+
+export const REQUEST_DEMO_SECTION_ORDER: RequestDemoSectionKey[] = [
+  "demo_hero",
+  "contact_form",
+  "cta_banner",
+];
+
+const REQUEST_DEMO_DEFAULTS: RequestDemoContent = {
+  demo_hero: {
+    eyebrow: "Book a Demo",
+    heading: "See SalonAI",
+    heading_accent: "in Action",
+    subheading:
+      "Tell us a bit about your salon and we'll schedule a personalized walkthrough.",
+  },
+  contact_form: {
+    heading: "Send Us a Message",
+    subheading: "Fill out the form below and we'll get back to you within 24 hours.",
+    submit_label: "Send Message →",
+    success_message: "Thanks! Your message has been sent. We'll get back to you shortly.",
+    privacy_note: "Your information is safe with us.",
+    details_heading: "Contact Information",
+    socials_heading: "Follow Us",
+    details: [
+      { icon: "Mail", label: "Email Us", value: "hello@avenque.com" },
+      { icon: "Phone", label: "Call Us", value: "+94 11 234 5678" },
+      { icon: "MapPin", label: "Visit Our Office", value: "No. 123, Innovation Drive, Colombo 00500" },
+    ],
+    subjects: ["Book a Demo", "Sales & Pricing", "Technical Support", "General Enquiry"],
+  },
+  cta_banner: {
+    eyebrow: "Get Started",
+    heading: "Ready to Transform",
+    heading_accent: "Your Salon?",
+    subheading: "Let’s discuss how SalonAI can help your salon grow faster.",
+    cta_label: "Book a Demo",
+    cta_href: "/request-demo",
+    secondary_cta_label: "Start Free Trial",
+    secondary_cta_href: "#",
+    image_url: "",
+    image_alt: "SalonAI team",
+  },
+};
+
+export const defaultRequestDemoContent: RequestDemoContent = REQUEST_DEMO_DEFAULTS;
+
+/* -------------------------------------------------------------------------- */
 /* Footer                                                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -1758,6 +1820,19 @@ export function getContactContent(): Promise<{
   return fetchPageContent("contact", CONTACT_DEFAULTS, CONTACT_SECTION_ORDER) as Promise<{
     content: ContactContent;
     hidden: Set<ContactSectionKey>;
+    source: "cms" | "defaults";
+  }>;
+}
+
+/** Server side only: reads the request demo page content from the Admin CMS. */
+export function getRequestDemoContent(): Promise<{
+  content: RequestDemoContent;
+  hidden: Set<RequestDemoSectionKey>;
+  source: "cms" | "defaults";
+}> {
+  return fetchPageContent("request-demo", REQUEST_DEMO_DEFAULTS, REQUEST_DEMO_SECTION_ORDER) as Promise<{
+    content: RequestDemoContent;
+    hidden: Set<RequestDemoSectionKey>;
     source: "cms" | "defaults";
   }>;
 }

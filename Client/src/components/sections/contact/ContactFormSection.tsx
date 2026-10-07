@@ -41,6 +41,8 @@ export type ContactFormSectionProps = {
   socials_heading: string;
   details: { icon: IconName; label: string; value: string }[];
   subjects: string[];
+  /** Enquiry source stored in the admin database. Defaults to "contact". */
+  source?: string;
 };
 
 export default function ContactFormSection({
@@ -53,6 +55,7 @@ export default function ContactFormSection({
   socials_heading,
   details,
   subjects,
+  source = "contact",
 }: ContactFormSectionProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState<string>("");
@@ -76,7 +79,7 @@ export default function ContactFormSection({
             phone: formData.get("phone"),
             subject: formData.get("subject"),
             message: formData.get("message"),
-            source: "contact",
+            source,
             website: formData.get("website"),
           }),
         }

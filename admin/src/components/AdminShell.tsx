@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import {
   BadgeDollarSign,
   FileText,
@@ -15,7 +16,13 @@ import {
 
 const NAV_SECTIONS: {
   title: string;
-  items: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[];
+  items: {
+    href: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    /** Show the unread-enquiry count next to this item. */
+    liveBadge?: "enquiries";
+  }[];
 }[] = [
   {
     title: "Overview",
@@ -23,7 +30,7 @@ const NAV_SECTIONS: {
   },
   {
     title: "Engagement",
-    items: [{ href: "/enquiries", label: "Enquiries", icon: Inbox }],
+    items: [{ href: "/enquiries", label: "Enquiries", icon: Inbox, liveBadge: "enquiries" }],
   },
   {
     title: "Content",
@@ -53,6 +60,30 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [newCount, setNewCount] = useState(0);
+
+  const loadNewCount = useCallback(async () => {
+    try {
+      const res = await fetch("/api/enquiries/count", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      setNewCount(Math.max(0, Number(data.new ?? 0)));
+    } catch {
+      // Best-effort: a failed poll just keeps the last known number.
+    }
+  }, []);
+
+  useEffect(() => {
+    // Deferred so the effect body only schedules work, it never sets state.
+    const initial = setTimeout(loadNewCount, 0);
+    const id = setInterval(loadNewCount, 30_000);
+    window.addEventListener("focus", loadNewCount);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(id);
+      window.removeEventListener("focus", loadNewCount);
+    };
+  }, [loadNewCount, pathname]);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -111,6 +142,18 @@ export default function AdminShell({
                           }`}
                         />
                         {item.label}
+                        {item.liveBadge === "enquiries" && newCount > 0 ? (
+                          <span
+                            aria-label={`${newCount} new enquiries`}
+                            className={`ml-auto rounded-full px-1.5 py-0.5 text-[11px] font-bold leading-none tabular-nums transition ${
+                              active
+                                ? "bg-white/20 text-white"
+                                : "bg-red-500 text-white shadow-sm"
+                            }`}
+                          >
+                            {newCount > 99 ? "99+" : newCount}
+                          </span>
+                        ) : null}
                       </Link>
                     </li>
                   );
