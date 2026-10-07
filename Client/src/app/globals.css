@@ -10,6 +10,17 @@
   --salon-gold: #a68b67;
   --salon-gold-soft: #c4a882;
   --salon-border: #e8e0d5;
+  --salon-accent: #91663f;
+  --salon-brand: #85592f;
+  --salon-brand-dark: #6f4929;
+  --salon-deep: #60472f;
+  --salon-eyebrow: #7f6448;
+  --salon-rule: #a98a65;
+  --salon-tile: #efe2d4;
+  --salon-card: #eadfce;
+  --salon-shell: #f3ebe2;
+  --salon-shell-soft: #f8f1ea;
+  --salon-chip: #f1e9df;
 }
 
 body {

@@ -1,76 +1,80 @@
 "use client";
 
-import React from "react";
-import { Mail, Phone, Clock } from "lucide-react";
+import CmsImage from "@/components/ui/CmsImage";
+import CmsIcon from "@/components/ui/CmsIcon";
+import type { IconName } from "@/lib/content";
 
-export default function ContactHero() {
+export type ContactHeroProps = {
+  eyebrow?: string;
+  heading: string;
+  subheading: string;
+  image_url?: string;
+  image_alt?: string;
+  quick_contacts: { icon: IconName; label: string; value: string }[];
+};
+
+export default function ContactHero({
+  eyebrow = "Get in Touch",
+  heading,
+  subheading,
+  image_url,
+  image_alt,
+  quick_contacts,
+}: ContactHeroProps) {
   return (
-    <section className="relative overflow-hidden bg-white py-12 lg:py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
-          
-          {/* Left Text */}
-          <div className="lg:col-span-7 space-y-6">
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
-              Get in Touch
-            </span>
+    <section className="relative min-h-[560px] w-full overflow-hidden bg-salon-bg lg:min-h-[min(480px,100svh)]">
+      {/* On desktop the photo fills the right half, same as the home hero. */}
+      {image_url ? (
+        <div className="relative h-[35vh] min-h-[260px] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]">
+          <CmsImage
+            value={image_url}
+            alt={image_alt || "Contact hero"}
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="(max-width: 1024px) 100vw, 52vw"
+          />
+          <div className="absolute inset-y-0 left-0 hidden w-20 bg-gradient-to-r from-salon-bg to-transparent lg:block" />
+        </div>
+      ) : null}
 
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-              Let’s Build a Better <br className="hidden sm:inline" />
-              Salon Business <span className="text-blue-900">Together</span>
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
+        <div
+          className={`flex py-12 lg:min-h-[400px] lg:items-center lg:pb-20 lg:pt-16 ${
+            image_url ? "lg:w-[47%]" : "lg:w-3/4"
+          }`}
+        >
+          <div className="w-full max-w-xl space-y-6">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="h-px w-9 bg-salon-rule" />
+              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+                {eyebrow}
+              </span>
+            </div>
+
+            <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl lg:text-[4rem]">
+              {heading}
             </h1>
 
-            <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-500">
-              Have a question, need support, or want to learn more about SalonAI? We're here to help. Reach out to us and our team will get back to you as soon as possible.
-            </p>
+            <p className="max-w-2xl text-sm leading-relaxed text-salon-muted">{subheading}</p>
 
-            {/* 3 Pills */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-              <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100/70 text-blue-600">
-                  <Mail className="h-4 w-4" />
+            <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-3">
+              {quick_contacts.map((item, idx) => (
+                <div
+                  key={`${item.label}-${idx}`}
+                  className="flex items-center gap-3 rounded-2xl border border-salon-card bg-white/80 p-3"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-salon-tile text-salon-brand-dark">
+                    <CmsIcon name={item.icon} className="h-4 w-4" strokeWidth={1.8} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-medium text-salon-muted">{item.label}</p>
+                    <p className="truncate text-xs font-semibold text-salon-ink">{item.value}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[10px] font-medium text-slate-400">Email Us</p>
-                  <p className="text-xs font-semibold text-slate-800">hello@avenque.com</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100/70 text-blue-600">
-                  <Phone className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-medium text-slate-400">Call Us</p>
-                  <p className="text-xs font-semibold text-slate-800">+94 11 234 5678</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100/70 text-blue-600">
-                  <Clock className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-medium text-slate-400">Working Hours</p>
-                  <p className="text-[10px] font-semibold text-slate-800">Mon - Fri: 9:00 AM - 6:00 PM</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
-
-          {/* Right Image Container */}
-          <div className="lg:col-span-5 relative flex justify-center">
-            <div className="relative w-full max-w-md rounded-3xl bg-blue-50/60 p-6">
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-200 flex items-center justify-center text-xs text-slate-400">
-                [ Support Rep Hero Image ]
-              </div>
-              <div className="absolute -top-3 left-2 rounded-2xl bg-white px-4 py-2 shadow-lg border border-slate-100">
-                <p className="text-[10px] font-bold text-blue-950">We're here</p>
-                <p className="text-[10px] font-bold text-blue-950">to help!</p>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
     </section>

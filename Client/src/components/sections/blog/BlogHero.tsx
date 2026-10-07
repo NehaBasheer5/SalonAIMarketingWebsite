@@ -1,88 +1,154 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
-import { Search, ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, Search } from "lucide-react";
+import CmsImage from "@/components/ui/CmsImage";
+import { BlogPostMeta } from "@/components/sections/blog/BlogPostCard";
+import {
+  defaultBlogContent,
+  fallbackImages,
+  type BlogCategoryOption,
+  type BlogContent,
+  type BlogPost,
+} from "@/lib/content";
 
-export default function BlogHero() {
+type Props = {
+  content?: BlogContent["hero"];
+  featured?: BlogPost;
+  /**
+   * Filter options resolved on the page from the CMS chip list and the published
+   * posts. The blank-value "all" entry is skipped because the dropdown already
+   * carries `content.search_label` as its default option.
+   */
+  categories?: BlogCategoryOption[];
+};
+
+/**
+ * Blog intro with the search box and the featured article.
+ *
+ * The search and category inputs are controlled by the grid below, so this
+ * component is rendered by the client wrapper that owns that state.
+ */
+export default function BlogHero({
+  content = defaultBlogContent.hero,
+  featured,
+  categories = [],
+}: Props) {
   return (
-    <section className="bg-white py-10 lg:py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-center">
-          
-          {/* Left Text & Search */}
-          <div className="lg:col-span-6 space-y-6">
-            <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
-              Our Blog
-            </span>
+    <section className="w-full overflow-hidden bg-salon-bg py-14 lg:py-16">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12">
+          <div className="space-y-6 lg:col-span-6">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="h-px w-9 bg-salon-rule" />
+              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+                {content.eyebrow}
+              </span>
+            </div>
 
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-              Insights That Help <br />
-              Your Salon <span className="text-blue-900">Grow</span>
+            <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl">
+              {content.heading}
+              {content.heading_accent ? (
+                <span className="block text-salon-accent">{content.heading_accent}</span>
+              ) : null}
             </h1>
 
-            <p className="max-w-xl text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Expert tips, industry trends, and product updates to help you run a smarter, more profitable salon business.
-            </p>
+            {content.subheading ? (
+              <p className="max-w-xl text-sm leading-relaxed text-salon-muted">
+                {content.subheading}
+              </p>
+            ) : null}
 
-            {/* Search Inputs */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+            <div className="flex flex-col items-center gap-3 pt-2 sm:flex-row">
               <div className="relative w-full sm:w-2/3">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-salon-muted/60" />
                 <input
-                  type="text"
-                  placeholder="Search articles..."
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-10 pr-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:border-blue-600 focus:outline-none"
+                  id="blog-search"
+                  type="search"
+                  placeholder={content.search_placeholder}
+                  className="w-full rounded-2xl border border-salon-card bg-white/70 py-2.5 pl-10 pr-4 text-xs text-salon-ink placeholder:text-salon-muted/60 focus:border-salon-brand focus:outline-none"
                 />
               </div>
 
               <div className="relative w-full sm:w-1/3">
-                <select className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-xs font-medium text-slate-700 focus:border-blue-600 focus:outline-none">
-                  <option>All Categories</option>
-                  <option>Management</option>
-                  <option>Marketing</option>
-                  <option>Technology</option>
+                <select
+                  id="blog-category"
+                  defaultValue=""
+                  aria-label={content.search_label}
+                  className="w-full appearance-none rounded-2xl border border-salon-card bg-white/70 px-4 py-2.5 text-xs font-medium text-salon-ink focus:border-salon-brand focus:outline-none"
+                >
+                  <option value="">{content.search_label}</option>
+                  {categories
+                    .filter((option) => option.value)
+                    .map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                 </select>
-                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-salon-muted/60" />
               </div>
             </div>
           </div>
 
-          {/* Right Featured Article Card */}
           <div className="lg:col-span-6">
-            <div className="group overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition-all hover:shadow-md">
-              <div className="relative aspect-[16/9] w-full bg-slate-100 overflow-hidden">
-                <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 bg-slate-200">
-                  [ Featured Article Image ]
+            {featured ? (
+              <article className="group overflow-hidden rounded-2xl border border-salon-card bg-white/80 shadow-sm transition hover:bg-white">
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-salon-shell">
+                  <CmsImage
+                    value={featured.cover_video || featured.cover_image}
+                    fallback={fallbackImages.blog_cover}
+                    alt={featured.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 560px"
+                    className="object-cover"
+                  />
                 </div>
-              </div>
 
-              <div className="p-6 space-y-3">
-                <span className="inline-block rounded-md bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-600">
-                  Featured Article
-                </span>
+                <div className="space-y-3 p-6">
+                  <span className="inline-block rounded-md bg-salon-tile px-2.5 py-1 text-[10px] font-semibold text-salon-brand-dark">
+                    {content.featured_label}
+                  </span>
 
-                <h2 className="text-lg font-bold text-slate-900 group-hover:text-blue-900 transition-colors">
-                  How AI is Transforming Salon Management in 2024
-                </h2>
+                  <h2 className="font-display text-2xl leading-tight text-salon-ink transition group-hover:text-salon-brand">
+                    <Link href={`/blog/${featured.slug}`}>{featured.title}</Link>
+                  </h2>
 
-                <p className="text-xs text-slate-500 line-clamp-2">
-                  Discover how artificial intelligence is helping salon owners save time, increase revenue, and delight customers.
-                </p>
+                  {featured.excerpt ? (
+                    <p className="line-clamp-2 text-xs leading-relaxed text-salon-muted">
+                      {featured.excerpt}
+                    </p>
+                  ) : null}
 
-                <div className="flex items-center justify-between pt-2 text-[11px] text-slate-400 border-t border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-slate-300" />
-                    <span className="font-medium text-slate-700">By Sarah Johnson</span>
-                    <span>•</span>
-                    <span>May 12, 2024</span>
+                  <div className="flex items-center justify-between gap-3 border-t border-salon-card pt-4 text-[11px] text-salon-muted">
+                    <BlogPostMeta post={featured} />
                   </div>
-                  <span>5 min read</span>
+                </div>
+              </article>
+            ) : (
+              <div className="overflow-hidden rounded-2xl border border-salon-card bg-white/80 shadow-sm">
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-salon-shell">
+                  <CmsImage
+                    value={content.image_url}
+                    fallback={fallbackImages.blog_cover}
+                    alt={content.image_alt}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 560px"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="space-y-2 p-6">
+                  <h2 className="font-display text-2xl leading-tight text-salon-ink">
+                    {content.heading}
+                  </h2>
+                  <p className="text-xs leading-relaxed text-salon-muted">
+                    {content.subheading}
+                  </p>
                 </div>
               </div>
-            </div>
+            )}
           </div>
-
         </div>
       </div>
     </section>

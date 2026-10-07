@@ -9,6 +9,7 @@ import apps from "./images/home/apps.png";
 import apps2 from "./images/home/apps2.png";
 import contact from "./images/home/contact.png";
 import featuresBg from "./images/home/features.png";
+import aboutHero from "./images/about/about-hero.png";
 
 export const images = {
   dashboardMockup,
@@ -22,4 +23,5 @@ export const images = {
   apps2,
   contact,
   featuresBg,
+  aboutHero,
 } as const;

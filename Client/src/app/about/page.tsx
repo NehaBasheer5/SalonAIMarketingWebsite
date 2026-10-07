@@ -1,47 +1,30 @@
-import Link from "next/link";
-import type { Metadata } from "next";
+import React from "react";
+import { Metadata } from "next";
+import AboutHero from "@/components/sections/AboutUs/AboutHero";
+import AboutMissionAndStats from "@/components/sections/AboutUs/AboutMissionAndStats";
+import AboutJourneyTimeline from "@/components/sections/AboutUs/AboutJourneyTimeline";
+import AboutTeam from "@/components/sections/AboutUs/AboutTeam";
+import AboutWhyChoose from "@/components/sections/AboutUs/AboutWhyChoose";
+import { getAboutContent, type AboutContent } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "About Us | Avenque SalonAI",
+  title: "About Us | Avenque SalonAI - Building Intelligent Salon Solutions",
   description:
-    "Learn about Avenque SalonAI — the AI-powered platform helping salons manage bookings, staff, and growth.",
+    "Learn about SalonAI's mission, our journey and the team building intelligent software solutions for modern salons.",
 };
 
-export default function AboutPage() {
+export default async function ClientAboutPage() {
+  const { content, hidden } = await getAboutContent();
+
+  const show = (key: keyof AboutContent) => !hidden.has(key);
+
   return (
-    <main className="min-h-screen bg-white">
-      <section className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
-        <div className="max-w-3xl space-y-6">
-          <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-            About Avenque
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-            Built for modern salon businesses
-          </h1>
-          <p className="text-base leading-relaxed text-slate-600">
-            SalonAI by Avenque helps salon owners streamline bookings, staff scheduling,
-            customer relationships, and day-to-day operations from one intelligent platform.
-          </p>
-          <p className="text-base leading-relaxed text-slate-600">
-            Our mission is simple: give every salon the tools to save time, delight clients,
-            and grow with confidence — whether you run a single location or a multi-branch brand.
-          </p>
-          <div className="flex flex-wrap gap-4 pt-4">
-            <Link
-              href="/request-demo"
-              className="rounded-lg bg-[#0D1140] px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800"
-            >
-              Book a Demo
-            </Link>
-            <Link
-              href="/features"
-              className="rounded-lg border border-[#0D1140] px-6 py-3 text-sm font-semibold text-[#0D1140] hover:bg-slate-50"
-            >
-              Explore Features
-            </Link>
-          </div>
-        </div>
-      </section>
+    <main className="min-h-screen bg-salon-bg">
+      {show("hero") ? <AboutHero content={content.hero} /> : null}
+      {show("mission_stats") ? <AboutMissionAndStats content={content.mission_stats} /> : null}
+      {show("journey") ? <AboutJourneyTimeline content={content.journey} /> : null}
+      {show("team") ? <AboutTeam content={content.team} /> : null}
+      {show("why_choose") ? <AboutWhyChoose content={content.why_choose} /> : null}
     </main>
   );
 }

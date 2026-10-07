@@ -1,49 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { motion } from "framer-motion";
-import { Testimonial } from "../../../types/testimonials";
+import { defaultHomeContent, resolveImageUrl, type HomeContent } from "@/lib/content";
 
-const testimonialsData: Testimonial[] = [
-  {
-    id: "1",
-    name: "Priya Sharma",
-    role: "Owner",
-    salonName: "Looks Salon",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-    rating: 5,
-    content:
-      "SalonAI has completely transformed the way we manage our salon. Booking, staff, customers — everything is now so easy and automated.",
-  },
-  {
-    id: "2",
-    name: "Ananya Patel",
-    role: "Founder",
-    salonName: "Glow & Shine Studio",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200",
-    rating: 5,
-    content:
-      "Our no-shows dropped by 40% in the first month! The automated reminders alone have been a total game-changer for us.",
-  },
-  {
-    id: "3",
-    name: "Rohan Kapoor",
-    role: "Managing Director",
-    salonName: "Urban Cut Barbers",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200",
-    rating: 5,
-    content:
-      "Managing staff commission and inventory used to take hours every weekend. Now SalonAI handles accounting in real-time.",
-  },
-];
+type Props = {
+  content?: HomeContent["testimonials"];
+};
 
-export default function TestimonialsSection() {
+export default function TestimonialsSection({
+  content = defaultHomeContent.testimonials,
+}: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const items = content.items;
 
   return (
     <section
@@ -55,45 +26,50 @@ export default function TestimonialsSection() {
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="mb-4 flex items-center gap-3">
-              <span className="h-px w-9 bg-[#a98a65]" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-[#7f6448]">
-                Testimonials
+              <span className="h-px w-9 bg-salon-rule" />
+              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+                {content.eyebrow}
               </span>
             </div>
             <h2
               id="testimonials-heading"
               className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl"
             >
-              Loved by <span className="text-[#91663f]">Salon Owners</span>
+              {content.heading}
+              {content.heading_accent ? (
+                <span className="text-salon-accent"> {content.heading_accent}</span>
+              ) : null}
             </h2>
-            <p className="mt-2 max-w-lg text-sm text-salon-muted">
-              Real stories from salon owners who are growing their business with SalonAI.
-            </p>
+            {content.subheading ? (
+              <p className="mt-2 max-w-lg text-sm text-salon-muted">{content.subheading}</p>
+            ) : null}
           </div>
-          <Link
-            href="/#testimonials"
-            className="text-sm font-semibold text-[#85592f] underline-offset-4 hover:underline"
-          >
-            View All Testimonials →
-          </Link>
+          {content.cta_label ? (
+            <Link
+              href={content.cta_href || "/#testimonials"}
+              className="text-sm font-semibold text-salon-brand underline-offset-4 hover:underline"
+            >
+              {content.cta_label}
+            </Link>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {testimonialsData.map((item, index) => (
+          {items.map((item, index) => (
             <motion.article
-              key={item.id}
+              key={`${item.name}-${index}`}
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.06 }}
-              className="flex min-h-[250px] flex-col rounded-2xl border border-[#eadfce] bg-white/80 p-6 shadow-sm"
+              className="flex min-h-[250px] flex-col rounded-2xl border border-salon-card bg-white/80 p-6 shadow-sm"
             >
               <div className="mb-4 flex items-center justify-between">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#efe2d4] font-display text-xl text-[#85592f]">
-                  “
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-salon-tile font-display text-xl text-salon-brand">
+                  &ldquo;
                 </span>
-                <div className="flex text-[#91663f]">
-                  {Array.from({ length: item.rating }).map((_, i) => (
+                <div className="flex text-salon-accent">
+                  {Array.from({ length: Math.max(0, Math.min(5, item.rating || 0)) }).map((_, i) => (
                     <Star key={i} className="h-3.5 w-3.5 fill-current" />
                   ))}
                 </div>
@@ -101,17 +77,19 @@ export default function TestimonialsSection() {
 
               <p className="flex-1 text-sm leading-relaxed text-salon-muted">{item.content}</p>
 
-              <div className="mt-5 flex items-center gap-3 border-t border-[#eadfce] pt-4">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.avatarUrl}
-                  alt={item.name}
-                  className="h-10 w-10 rounded-full object-cover"
-                />
+              <div className="mt-5 flex items-center gap-3 border-t border-salon-card pt-4">
+                {item.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={resolveImageUrl(item.avatar_url)}
+                    alt={item.name}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                ) : null}
                 <div>
                   <p className="text-sm font-semibold text-salon-ink">{item.name}</p>
                   <p className="text-xs text-salon-muted">
-                    {item.role}, {item.salonName}
+                    {[item.role, item.salon].filter(Boolean).join(", ")}
                   </p>
                 </div>
               </div>
@@ -119,41 +97,39 @@ export default function TestimonialsSection() {
           ))}
         </div>
 
-        <div className="mt-8 flex items-center justify-center gap-3">
-          <button
-            type="button"
-            aria-label="Previous testimonials"
-            onClick={() =>
-              setActiveIndex((i) => (i === 0 ? testimonialsData.length - 1 : i - 1))
-            }
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#eadfce] bg-white text-[#85592f]"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <div className="flex gap-2">
-            {testimonialsData.map((item, i) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-label={`Go to slide ${i + 1}`}
-                onClick={() => setActiveIndex(i)}
-                className={`h-2 w-2 rounded-full ${
-                  activeIndex === i ? "bg-[#85592f]" : "bg-[#dbcbb8]"
-                }`}
-              />
-            ))}
+        {items.length > 1 ? (
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              aria-label="Previous testimonials"
+              onClick={() => setActiveIndex((i) => (i === 0 ? items.length - 1 : i - 1))}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-salon-card bg-white text-salon-brand"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <div className="flex gap-2">
+              {items.map((item, i) => (
+                <button
+                  key={`${item.name}-dot-${i}`}
+                  type="button"
+                  aria-label={`Go to slide ${i + 1}`}
+                  onClick={() => setActiveIndex(i)}
+                  className={`h-2 w-2 rounded-full ${
+                    activeIndex === i ? "bg-salon-brand" : "bg-salon-card"
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              aria-label="Next testimonials"
+              onClick={() => setActiveIndex((i) => (i === items.length - 1 ? 0 : i + 1))}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-salon-card bg-white text-salon-brand"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
-          <button
-            type="button"
-            aria-label="Next testimonials"
-            onClick={() =>
-              setActiveIndex((i) => (i === testimonialsData.length - 1 ? 0 : i + 1))
-            }
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#eadfce] bg-white text-[#85592f]"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+        ) : null}
       </div>
     </section>
   );
