@@ -95,7 +95,7 @@ export default function PricingCards({ billingCycle }: PricingCardsProps) {
 
   return (
     <section className="w-full overflow-hidden bg-salon-bg py-12 lg:py-14">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PLANS.map((plan) => {
             const Icon = plan.icon;
@@ -112,7 +112,7 @@ export default function PricingCards({ billingCycle }: PricingCardsProps) {
                 }`}
               >
                 {plan.featured ? (
-                  <span className="absolute -top-3 left-5 rounded-full bg-salon-brand px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                  <span className="absolute -top-3 left-5 rounded-full bg-salon-brand px-3 py-1 text-[12px] font-bold uppercase tracking-wide text-white">
                     Most Popular
                   </span>
                 ) : null}
@@ -132,7 +132,7 @@ export default function PricingCards({ billingCycle }: PricingCardsProps) {
                     <span className="text-xs text-salon-muted">/month</span>
                   ) : null}
                 </div>
-                <p className="mt-1 text-[11px] text-salon-muted/80">{note}</p>
+                <p className="mt-1 text-[13px] text-salon-muted/80">{note}</p>
 
                 <ul className="mt-5 space-y-2.5">
                   {plan.features.map((feature) => (

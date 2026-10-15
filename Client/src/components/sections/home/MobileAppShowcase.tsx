@@ -18,7 +18,7 @@ const AppStoreBadge = ({ href }: { href: string }) => (
       <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-92.1zM260.6 85.2c16.3-20.2 27.6-48.5 24.3-77.2-24.3 1-54.1 16.3-71.5 36.7-15.3 17.6-28.7 46.4-24.8 74.4 27.2 2.1 55.4-13.7 72-33.9z" />
     </svg>
     <div className="flex flex-col text-left leading-none">
-      <span className="text-[9px] font-normal text-white">Download on the</span>
+      <span className="text-[11px] font-normal text-white">Download on the</span>
       <span className="mt-0.5 text-[15px] font-medium tracking-tight">App Store</span>
     </div>
   </a>
@@ -37,7 +37,7 @@ const GooglePlayBadge = ({ href }: { href: string }) => (
       <path fill="#00f076" d="M339.4 178.6 78.8 30.7C61 20.6 45.2 22 35.6 33.4L261.6 269z" />
     </svg>
     <div className="flex flex-col text-left leading-none">
-      <span className="text-[9px] uppercase tracking-wide text-white">Get it on</span>
+      <span className="text-[11px] uppercase tracking-wide text-white">Get it on</span>
       <span className="mt-0.5 text-[15px] font-medium tracking-tight">Google Play</span>
     </div>
   </a>
@@ -46,18 +46,18 @@ const GooglePlayBadge = ({ href }: { href: string }) => (
 export default function MobileAppShowcase({ content = defaultHomeContent.mobile_app }: Props) {
   return (
     <section className="w-full overflow-hidden bg-salon-bg">
-      <div className="relative min-h-[440px] lg:min-h-[520px]">
-        <div className="relative h-[340px] w-full overflow-hidden sm:h-[420px] lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[54%]">
+      <div className="relative mx-auto min-h-[440px] max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24 lg:min-h-[520px]">
+        <div className="relative h-[260px] w-full overflow-hidden sm:h-[320px] lg:absolute lg:bottom-12 lg:right-48 lg:top-12 lg:w-[42%]">
           <CmsImage
             value={content.image_url}
             fallback={fallbackImages.mobile_app}
             alt={content.image_alt}
             fill
             priority
-            className="object-cover object-center"
+            className="object-cover object-top"
             sizes="(max-width: 1024px) 100vw, 54vw"
           />
-          <div className="absolute inset-y-0 left-0 hidden w-28 bg-gradient-to-r from-salon-bg via-salon-bg/55 to-transparent lg:block" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-salon-bg via-salon-bg/70 to-transparent sm:h-32" />
         </div>
 
         <motion.div
@@ -65,30 +65,25 @@ export default function MobileAppShowcase({ content = defaultHomeContent.mobile_
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.45 }}
-          className="relative z-10 px-5 py-12 sm:px-8 lg:flex lg:min-h-[520px] lg:w-[47%] lg:items-center lg:py-10 lg:pl-[6vw] lg:pr-8"
+          className="relative z-10 py-12 lg:flex lg:min-h-[520px] lg:w-[47%] lg:items-center lg:py-10"
         >
-          <div className="w-full max-w-md">
-            <div className="mb-5 flex items-center gap-3">
-              <span className="h-px w-12 bg-salon-rule" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-                {content.eyebrow}
-              </span>
-            </div>
-
-            <h2 className="font-display text-4xl leading-[1.02] tracking-tight text-salon-ink sm:text-5xl lg:text-[3rem]">
+          <div className="mx-auto w-full max-w-md text-center">
+            <h2 className="font-display text-3xl leading-tight tracking-tight text-salon-ink sm:text-4xl lg:text-5xl">
               {content.heading}
               {content.heading_accent ? (
-                <span className="block text-salon-accent">{content.heading_accent}</span>
+                <span className="block bg-gradient-to-r from-salon-ink via-salon-gold to-salon-tile bg-clip-text text-transparent">
+                  {content.heading_accent}
+                </span>
               ) : null}
             </h2>
 
             {content.subheading ? (
-              <p className="mt-5 max-w-sm text-sm leading-relaxed text-salon-muted">
+               <p className="mx-auto mt-5 max-w-sm text-[19px] leading-relaxed text-salon-muted">
                 {content.subheading}
               </p>
             ) : null}
 
-            <div className="mt-7 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
               <AppStoreBadge href={content.app_store_url} />
               <GooglePlayBadge href={content.play_store_url} />
             </div>

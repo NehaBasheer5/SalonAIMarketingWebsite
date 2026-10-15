@@ -76,7 +76,7 @@ function contactIcon(item: FooterContact): LucideIcon {
   return Globe;
 }
 
-const HEADING_CLASS = "text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-gold";
+const HEADING_CLASS = "text-[11px] font-semibold uppercase tracking-[0.28em] text-salon-gold";
 const LINK_CLASS =
   "text-sm text-white/55 transition hover:text-salon-gold focus-visible:text-salon-gold focus-visible:outline-none";
 
@@ -123,14 +123,14 @@ export default function Footer({
 
   return (
     <footer className="w-full overflow-hidden bg-salon-ink text-white">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         <div className="grid grid-cols-1 gap-10 py-14 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 lg:py-16">
           <div className="sm:col-span-2 lg:col-span-4">
             <Link href="/" className="inline-flex flex-col leading-none">
               <span className="font-display text-[1.75rem] font-medium tracking-[-0.045em] text-white">
                 Salon <span className="text-salon-gold">AI</span>
               </span>
-              <span className="mt-1 pl-0.5 text-[8px] font-medium uppercase tracking-[0.24em] text-salon-gold-soft/70">
+              <span className="mt-1 pl-0.5 text-[10px] font-medium uppercase tracking-[0.24em] text-salon-gold-soft/70">
                 {content.heading}
               </span>
             </Link>
@@ -198,7 +198,7 @@ export default function Footer({
                         <Icon className="h-4 w-4" strokeWidth={1.8} />
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-white/40">
+                        <span className="block text-[12px] font-medium uppercase tracking-[0.18em] text-white/40">
                           {item.label}
                         </span>
                         <span className="mt-0.5 block break-words text-sm text-white/70 transition group-hover:text-white">
@@ -269,7 +269,7 @@ export default function Footer({
           <p className="text-xs text-white/40">
             © {new Date().getFullYear()} {content.copyright}
           </p>
-          <p className="font-display text-[10px] uppercase tracking-[0.24em] text-salon-gold-soft/60">
+          <p className="font-display text-[12px] uppercase tracking-[0.24em] text-salon-gold-soft/60">
             {content.footer_note}
           </p>
         </div>

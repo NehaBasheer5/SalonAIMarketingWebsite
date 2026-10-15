@@ -11,7 +11,7 @@ export default function StatsBar({ content = defaultFeaturesContent.stats_bar }:
 
   return (
     <section className="border-y border-salon-card bg-salon-shell-soft py-12">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         <div
           className={`grid grid-cols-2 gap-6 ${
             content.stats.length >= 5 ? "md:grid-cols-5" : "md:grid-cols-3"

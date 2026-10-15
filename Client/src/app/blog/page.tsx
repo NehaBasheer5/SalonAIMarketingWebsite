@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import BlogHero from "@/components/sections/blog/BlogHero";
+import BlogPopular from "@/components/sections/blog/BlogPopular";
 import BlogCategories from "@/components/sections/blog/BlogCategories";
-import BlogNewsletterAndPopular from "@/components/sections/blog/BlogNewsletterAndPopular";
-import BlogCtaBanner from "@/components/sections/blog/BlogCtaBanner";
 import {
   getBlogContent,
   getBlogFeed,
-  pickFeaturedPost,
   resolveBlogCategories,
   type BlogCategoryOption,
 } from "@/lib/content";
@@ -27,12 +25,7 @@ export default async function BlogPage() {
   const posts = feed.posts;
   const show = (key: keyof typeof content) => !hidden.has(key);
 
-  // The featured article is shown in the hero, so the grid lists everything else
-  // first and only falls back to including it when the hero is hidden.
-  const featured = pickFeaturedPost(posts);
-  const gridPosts = featured && show("hero")
-    ? posts.filter((post) => post.id !== featured.id)
-    : posts;
+  const gridPosts = posts;
 
   const options = resolveBlogCategories(content.categories.items, posts, feed.categories);
 
@@ -51,7 +44,10 @@ export default async function BlogPage() {
   return (
     <main className="min-h-screen bg-salon-bg">
       {show("hero") ? (
-        <BlogHero content={content.hero} featured={featured} categories={categories} />
+        <BlogHero content={content.hero} categories={categories} />
+      ) : null}
+      {show("popular") ? (
+        <BlogPopular popular={content.popular} popularPosts={posts.slice(0, 3)} />
       ) : null}
       {show("categories") || show("latest") ? (
         <BlogCategories
@@ -61,14 +57,6 @@ export default async function BlogPage() {
           categories={categories}
         />
       ) : null}
-      {show("newsletter") || show("popular") ? (
-        <BlogNewsletterAndPopular
-          newsletter={content.newsletter}
-          popular={content.popular}
-          popularPosts={posts.slice(0, 3)}
-        />
-      ) : null}
-      {show("cta_banner") ? <BlogCtaBanner content={content.cta_banner} /> : null}
     </main>
   );
 }

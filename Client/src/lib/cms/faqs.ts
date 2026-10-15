@@ -1,6 +1,22 @@
 ﻿const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || process.env.ADMIN_URL || 'http://localhost:3001';
 
-export async function fetchCmsFaqs() {
+export type CmsFaq = {
+  id?: number;
+  question: string;
+  answer: string;
+  category?: string | null;
+  sort_order?: number;
+  created_at?: string;
+};
+
+export type CmsFaqCategory = {
+  id: string;
+  label: string;
+  icon: string;
+  slug?: string;
+};
+
+export async function fetchCmsFaqs(): Promise<CmsFaq[]> {
   try {
     const res = await fetch(`${ADMIN_URL}/api/public/faqs`, {
       cache: 'no-store',
@@ -11,6 +27,23 @@ export async function fetchCmsFaqs() {
   } catch {
     return [];
   }
+}
+
+/**
+ * The most recently added FAQs, newest first. `created_at` comes from the DB;
+ * when two rows share a timestamp we fall back to the auto-increment id so the
+ * ordering is always stable.
+ */
+export async function fetchRecentCmsFaqs(limit: number): Promise<CmsFaq[]> {
+  const faqs = await fetchCmsFaqs();
+  return [...faqs]
+    .sort((a, b) => {
+      const at = a.created_at ? Date.parse(a.created_at) : 0;
+      const bt = b.created_at ? Date.parse(b.created_at) : 0;
+      if (bt !== at) return bt - at;
+      return (b.id ?? 0) - (a.id ?? 0);
+    })
+    .slice(0, Math.max(0, limit));
 }
 
 export type FaqCmsSections = {
@@ -46,4 +79,55 @@ export async function fetchCmsFaqPageContent(): Promise<FaqCmsSections | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * The category tabs shared by the FAQ page, the home FAQ section and the Admin
+ * FAQs screen. They live in the FAQ page's `categories` section so there is a
+ * single place to add or reorder them. If that list is empty, the tabs are
+ * derived from the categories actually used by the questions in the database so
+ * the two never drift apart.
+ */
+export async function fetchCmsFaqCategories(): Promise<CmsFaqCategory[]> {
+  const cms = await fetchCmsFaqPageContent();
+  const list = cms?.categories?.categories;
+  if (Array.isArray(list) && list.length) {
+    return list
+      .map((c: Record<string, unknown>, idx: number): CmsFaqCategory => {
+        const id = String(c.id ?? c.slug ?? idx) || String(idx);
+        return {
+          id,
+          label: String(c.label ?? c.name ?? c.id ?? 'Category'),
+          icon: typeof c.icon === 'string' ? c.icon : 'HelpCircle',
+          slug: c.slug === undefined || c.slug === null ? '' : String(c.slug),
+        };
+      })
+      .filter((c) => c.id.length > 0);
+  }
+
+  // CMS category list unavailable: fall back to the categories used by the
+  // published questions so the FAQ page still groups them correctly.
+  const faqs = await fetchCmsFaqs();
+  const byKey = new Map<string, CmsFaqCategory>();
+  for (const faq of faqs) {
+    const label = String(faq.category ?? '').trim();
+    if (!label) continue;
+    const key = label.toLowerCase();
+    if (byKey.has(key)) continue;
+    byKey.set(key, {
+      id: slugify(label) || key,
+      label,
+      icon: 'HelpCircle',
+      slug: slugify(label),
+    });
+  }
+  return [...byKey.values()];
+}
+
+function slugify(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }

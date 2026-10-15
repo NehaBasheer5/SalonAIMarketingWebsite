@@ -4,9 +4,9 @@ import { images } from '@/assets';
 export default function TrustedBySection() {
   return (
     <section className="w-full bg-salon-bg pt-2 pb-0">
-      <div className="max-w-7xl mx-auto px-6 text-center">
+      <div className="max-w-7xl mx-auto px-6 text-center lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         {/* Section Headline */}
-        <h2 className="mb-2 font-display text-2xl font-semibold tracking-tight text-salon-ink sm:text-3xl">
+        <h2 className="mb-2 font-display text-3xl leading-tight tracking-tight text-salon-ink sm:text-4xl lg:text-5xl">
           Trusted by 10,000+ Salons Worldwide
         </h2>
 

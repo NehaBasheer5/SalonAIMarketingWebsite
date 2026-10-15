@@ -188,6 +188,7 @@ export const SECTION_SPECS: SectionSpec[] = [
     fields: [
       eyebrowField,
       ...headingPair("Highlighted line"),
+      subheadingField,
       { kind: "text", key: "cta_label", column: "cta_label", label: "Header link label" },
       { kind: "url", key: "cta_href", column: "cta_href", label: "Header link URL" },
     ],
@@ -235,30 +236,14 @@ export const SECTION_SPECS: SectionSpec[] = [
   {
     key: "faq",
     label: "FAQ",
-    description: "Category sidebar plus the accordion of questions.",
+    description:
+      "Heading, intro copy and the link to the full FAQ page. The questions come from Content → FAQs (showing the 5 newest) and the category tabs come from Pages → FAQ → Categories & Questions.",
     fields: [
       eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "text", key: "cta_label", column: "cta_label", label: "Link label" },
       { kind: "url", key: "cta_href", column: "cta_href", label: "Link URL" },
-      {
-        kind: "list",
-        key: "categories",
-        label: "Categories",
-        itemLabel: "Category",
-        fields: [iconField(), { kind: "text", key: "label", label: "Label" }],
-      },
-      {
-        kind: "list",
-        key: "faqs",
-        label: "Questions",
-        itemLabel: "Question",
-        fields: [
-          { kind: "text", key: "question", label: "Question" },
-          { kind: "textarea", key: "answer", label: "Answer", rows: 3 },
-        ],
-      },
     ],
   },
   {

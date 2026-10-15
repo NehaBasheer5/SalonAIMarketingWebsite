@@ -14,6 +14,10 @@ type Props = {
   height?: number;
   sizes?: string;
   priority?: boolean;
+  /** Show native player controls on videos. Set false for background media. */
+  controls?: boolean;
+  /** Loop videos. Set false to play a background video only once. */
+  loop?: boolean;
 };
 
 /**
@@ -33,6 +37,8 @@ export default function CmsImage({
   height: heightProp,
   sizes,
   priority,
+  controls = true,
+  loop = true,
 }: Props) {
   const resolved = resolveImageUrl(value);
 
@@ -50,9 +56,9 @@ export default function CmsImage({
         poster={undefined}
         autoPlay
         muted
-        loop
+        loop={loop}
         playsInline
-        controls
+        controls={controls}
         preload="metadata"
         aria-label={alt}
         width={fill ? undefined : widthProp}

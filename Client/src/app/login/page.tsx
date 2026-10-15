@@ -12,7 +12,7 @@ export default function LoginPage() {
       <section className="mx-auto flex max-w-md flex-col items-center gap-5 px-6 py-24 text-center">
         <div className="flex items-center gap-3">
           <span className="h-px w-8 bg-salon-rule" />
-          <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
             Login
           </span>
           <span className="h-px w-8 bg-salon-rule" />

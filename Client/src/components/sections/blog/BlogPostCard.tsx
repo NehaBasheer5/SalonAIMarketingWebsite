@@ -1,18 +1,17 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import CmsImage from "@/components/ui/CmsImage";
 import type { BlogPost } from "@/lib/content";
 import { fallbackImages } from "@/lib/content";
 
 type Props = {
   post: BlogPost;
-  /** Shown as a small chip in the corner of the card. */
-  tag?: string;
 };
 
 /** Author, date and read time, shared by the card and the blog hero. */
 export function BlogPostMeta({ post }: { post: BlogPost }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-salon-muted">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-salon-muted">
       {post.author ? <span className="font-semibold text-salon-ink">{post.author}</span> : null}
       {post.author && post.date_label ? <span>•</span> : null}
       {post.date_label ? <span>{post.date_label}</span> : null}
@@ -22,54 +21,50 @@ export function BlogPostMeta({ post }: { post: BlogPost }) {
 }
 
 /** Article card used on the blog index, the related reads and the home teaser. */
-export default function BlogPostCard({ post, tag }: Props) {
-  const label = tag || post.category;
-
+export default function BlogPostCard({ post }: Props) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-salon-card bg-white/80 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_14px_34px_rgba(91,64,39,0.1)]">
-      <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden bg-salon-tile">
+    <article className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-[0_8px_24px_rgba(91,64,39,0.05)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_22px_50px_rgba(91,64,39,0.14)]">
+      <div className="relative aspect-[16/9] shrink-0 overflow-hidden bg-salon-tile">
         {/* A cover video wins over the cover image when both are set. */}
         <CmsImage
           value={post.cover_video || post.cover_image}
           fallback={fallbackImages.blog_cover}
           alt={post.title}
           fill
-          sizes="(max-width: 768px) 100vw, 400px"
-          className="object-cover"
+          sizes="(max-width: 768px) 85vw, 340px"
+          className="object-cover object-center"
         />
-        {label ? (
-          <span className="absolute left-3 top-3 rounded-md bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-salon-brand backdrop-blur-sm">
-            {label}
-          </span>
-        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-salon-ink/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-4 p-5">
-        <div>
-          <h3 className="line-clamp-2 text-sm font-semibold text-salon-ink transition group-hover:text-salon-brand">
-            <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-          </h3>
-          {post.excerpt ? (
-            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-salon-muted">
-              {post.excerpt}
-            </p>
-          ) : null}
-          {post.tags.length ? (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {post.tags.slice(0, 3).map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded bg-salon-shell px-2 py-0.5 text-[10px] font-medium text-salon-brand-dark"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </div>
+      <div className="flex flex-1 flex-col p-5">
+        {post.tags.length ? (
+          <div className="mb-2.5 flex flex-wrap gap-1.5">
+            {post.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-salon-shell px-2.5 py-0.5 text-[12px] font-medium text-salon-brand-dark"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
-        <div className="border-t border-salon-card pt-3">
+        <h3 className="line-clamp-2 text-base font-semibold text-salon-ink transition group-hover:text-salon-brand">
+          <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+        </h3>
+        {post.excerpt ? (
+          <p className="mt-2 line-clamp-2 text-[19px] leading-relaxed text-salon-muted">
+            {post.excerpt}
+          </p>
+        ) : null}
+
+        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           <BlogPostMeta post={post} />
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-salon-shell text-salon-brand transition group-hover:bg-salon-brand group-hover:text-white">
+            <ArrowRight className="h-3.5 w-3.5" />
+          </span>
         </div>
       </div>
     </article>

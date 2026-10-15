@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import CmsImage from "@/components/ui/CmsImage";
 import { defaultHomeContent, type HomeContent } from "@/lib/content";
@@ -12,29 +12,30 @@ type Props = {
 
 export default function PricingSection({ content = defaultHomeContent.pricing }: Props) {
   return (
-    <section className="w-full overflow-hidden bg-salon-bg py-14 lg:py-16">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+    <section className="w-full overflow-hidden border-t border-salon-card bg-salon-soft py-14 lg:py-16">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="mb-4 flex items-center gap-3">
-              <span className="h-px w-9 bg-salon-rule" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-                {content.eyebrow}
-              </span>
-            </div>
-            <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl">
+            <h2 className="font-display text-3xl leading-tight tracking-tight text-salon-ink sm:text-4xl lg:text-5xl">
               {content.heading}
               {content.heading_accent ? (
-                <span className="text-salon-accent"> {content.heading_accent}</span>
+                <span className="block bg-gradient-to-r from-salon-ink via-salon-gold to-salon-tile bg-clip-text text-transparent">
+                  {content.heading_accent}
+                </span>
               ) : null}
             </h2>
+            {content.subheading ? (
+               <p className="mt-2 max-w-xl text-[19px] text-salon-muted">{content.subheading}</p>
+            ) : null}
           </div>
           {content.cta_label ? (
             <Link
               href={content.cta_href || "/pricing"}
-              className="text-sm font-semibold text-salon-brand underline-offset-4 hover:underline"
+              className="group relative inline-flex items-center gap-2 text-sm font-semibold text-salon-brand transition hover:text-salon-brand-dark"
             >
-              {content.cta_label}
+              <span>{content.cta_label.replace(/\s*→\s*$/, "")}</span>
+              <ArrowRight className="h-4 w-4 animate-nudge transition-transform group-hover:translate-x-1" />
+              <span className="absolute -bottom-1 left-0 h-[2px] w-0 rounded-full bg-gradient-to-r from-salon-brand to-salon-gold transition-all duration-300 group-hover:w-full" />
             </Link>
           ) : null}
         </div>
@@ -43,18 +44,18 @@ export default function PricingSection({ content = defaultHomeContent.pricing }:
           {content.plans.map((plan, index) => (
             <motion.article
               key={plan.name}
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
-              className={`relative flex min-h-[300px] flex-col rounded-2xl border p-5 ${
+              transition={{ delay: index * 0.05, duration: 0.4 }}
+              className={`group relative flex min-h-[340px] flex-col rounded-3xl p-6 transition-all duration-300 ease-out will-change-transform ${
                 plan.featured
-                  ? "border-salon-brand bg-salon-shell shadow-[0_10px_30px_rgba(133,89,47,0.12)]"
-                  : "border-salon-card bg-salon-shell-soft/70"
+                  ? "bg-gradient-to-b from-white to-salon-shell shadow-[0_18px_45px_rgba(133,89,47,0.16)] hover:-translate-y-2 hover:scale-[1.05] hover:shadow-[0_28px_60px_rgba(133,89,47,0.28)]"
+                  : "bg-white shadow-[0_8px_24px_rgba(91,64,39,0.06)] hover:-translate-y-2 hover:scale-[1.03] hover:shadow-[0_22px_50px_rgba(91,64,39,0.16)]"
               }`}
             >
               {plan.featured ? (
-                <span className="absolute -top-3 left-5 rounded-full bg-salon-brand px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                <span className="absolute -top-3 left-6 rounded-full bg-gradient-to-r from-salon-brand to-salon-gold px-3.5 py-1 text-[12px] font-bold uppercase tracking-wide text-white shadow-md shadow-salon-brand/30">
                   {plan.badge || "Most Popular"}
                 </span>
               ) : null}
@@ -65,28 +66,30 @@ export default function PricingSection({ content = defaultHomeContent.pricing }:
                     value={plan.image_url}
                     alt={plan.image_alt || `${plan.name} plan`}
                     fill
-                    className="object-cover"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                 </div>
               ) : null}
 
               <h3 className="text-base font-semibold text-salon-ink">{plan.name}</h3>
-              <div className="mt-2 flex items-baseline gap-1">
-                <span className="font-display text-3xl font-semibold text-salon-ink">
+              <div className="mt-3 flex items-baseline gap-1.5">
+                <span className="font-display text-4xl font-bold tracking-tight text-salon-ink">
                   {plan.price}
                 </span>
-                {plan.period ? <span className="text-xs text-salon-muted">{plan.period}</span> : null}
+                {plan.period ? (
+                  <span className="text-xs text-salon-muted">{plan.period}</span>
+                ) : null}
               </div>
               {plan.description ? (
-                <p className="mt-2 text-xs leading-relaxed text-salon-muted">{plan.description}</p>
+                <p className="mt-3 text-xs leading-relaxed text-salon-muted">{plan.description}</p>
               ) : null}
 
               {plan.features.length ? (
-                <ul className="mt-5 space-y-2.5">
+                <ul className="mt-6 space-y-3">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-xs text-salon-ink">
-                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-salon-tile text-salon-brand">
+                    <li key={feature} className="flex items-center gap-2.5 text-xs text-salon-ink">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-salon-tile text-salon-brand">
                         <Check className="h-2.5 w-2.5" strokeWidth={3} />
                       </span>
                       {feature}
@@ -98,10 +101,10 @@ export default function PricingSection({ content = defaultHomeContent.pricing }:
               {plan.cta_label ? (
                 <Link
                   href={plan.cta_href || "/request-demo"}
-                  className={`mt-auto inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-xs font-semibold transition ${
+                  className={`mt-auto inline-flex items-center justify-center rounded-full px-5 py-3 text-xs font-semibold transition duration-300 ${
                     plan.featured
-                      ? "bg-salon-brand text-white hover:bg-salon-brand-dark"
-                      : "border border-salon-brand text-salon-brand hover:bg-white"
+                      ? "bg-gradient-to-r from-salon-brand to-salon-brand-dark text-white shadow-md shadow-salon-brand/25 hover:shadow-lg hover:shadow-salon-brand/35"
+                      : "border border-salon-brand text-salon-brand hover:bg-salon-brand hover:text-white"
                   }`}
                 >
                   {plan.cta_label}

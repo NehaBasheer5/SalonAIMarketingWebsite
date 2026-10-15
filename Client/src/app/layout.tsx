@@ -1,18 +1,18 @@
 import "./globals.css";
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import { DM_Sans, Manrope } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { getFooterContent } from "@/lib/content";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-});
-
 const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-dm-sans",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
   display: "swap",
 });
 
@@ -30,7 +30,7 @@ export default async function RootLayout({
   const { content, hidden } = await getFooterContent();
 
   return (
-    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${dmSans.variable} ${manrope.variable}`}>
       <body className="font-sans antialiased">
         <Navbar />
         {children}

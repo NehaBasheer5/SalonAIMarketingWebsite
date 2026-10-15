@@ -3,11 +3,23 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CmsImage from "@/components/ui/CmsImage";
+import { images } from "@/assets";
 import { defaultAboutContent, type AboutContent } from "@/lib/content";
 
 type Props = {
   content?: AboutContent["team"];
 };
+
+/** Bundled headshots used until the CMS supplies a photo for each member. */
+const teamFallbackImages = [
+  images.team1,
+  images.team2,
+  images.team3,
+  images.team4,
+  images.team5,
+  images.team6,
+  images.team7,
+];
 
 export default function AboutTeam({ content = defaultAboutContent.team }: Props) {
   const [currentCenterIndex, setCurrentCenterIndex] = useState(Math.floor(content.members.length / 2));
@@ -114,12 +126,6 @@ export default function AboutTeam({ content = defaultAboutContent.team }: Props)
               })
               .sort((a, b) => a.visualOrder - b.visualOrder)
               .map(({ member, index, props }) => {
-                const initials = member.name
-                  .split(" ")
-                  .filter(Boolean)
-                  .map((part) => part[0])
-                  .join("");
-
                 return (
                   <motion.div
                     key={member.name || `member-${index}`}
@@ -161,24 +167,14 @@ export default function AboutTeam({ content = defaultAboutContent.team }: Props)
                       <div className="relative h-full w-full overflow-hidden rounded-[16px] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-shadow duration-500 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.25)]">
                         {/* Image Container */}
                         <div className="relative h-full w-full">
-                          {member.image_url ? (
-                            <CmsImage
-                              value={member.image_url}
-                              alt={member.name}
-                              fill
-                              className="object-cover transition-transform duration-700 group-hover:scale-110"
-                              sizes="300px"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100">
-                              <span
-                                className="font-display text-gray-400"
-                                style={{ fontSize: props.width * 0.2 }}
-                              >
-                                {initials}
-                              </span>
-                            </div>
-                          )}
+                          <CmsImage
+                            value={member.image_url}
+                            fallback={teamFallbackImages[index % teamFallbackImages.length]}
+                            alt={member.name}
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            sizes="300px"
+                          />
 
                           {/* Gradient Overlay - Always visible */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />

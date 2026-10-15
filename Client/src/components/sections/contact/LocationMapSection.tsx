@@ -26,17 +26,17 @@ export default function LocationMapSection({
   return (
     <section className="w-full overflow-hidden bg-salon-soft py-12">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="grid grid-cols-1 items-center gap-6 rounded-2xl border border-salon-card bg-white/80 p-4 shadow-sm sm:p-6 lg:grid-cols-12">
-          <div className="h-64 w-full overflow-hidden rounded-2xl bg-salon-tile lg:col-span-8">
+        <div className="grid grid-cols-1 overflow-hidden rounded-2xl bg-white/80 shadow-sm lg:grid-cols-12">
+          <div className="h-64 w-full lg:col-span-8 lg:h-auto lg:min-h-[380px]">
             <iframe
               title="Office Map"
               src={src}
-              className="h-full w-full rounded-2xl border-0"
+              className="h-full w-full border-0"
               loading="lazy"
             />
           </div>
 
-          <div className="space-y-3 px-2 lg:col-span-4">
+          <div className="space-y-3 p-5 sm:p-6 lg:col-span-4 lg:p-8 lg:pt-24">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-salon-tile text-salon-brand-dark">
               <MapPin className="h-5 w-5" strokeWidth={1.8} />
             </span>

@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
     // to a private IP. Next's optimiser refuses to fetch those unless this is on.
     dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
   },
+  turbopack: {
+    rules: {
+      // Bundled video assets (e.g. the home hero background) emit a hashed URL.
+      "*.mp4": { type: "asset" },
+      "*.webm": { type: "asset" },
+      "*.mov": { type: "asset" },
+      "*.ogv": { type: "asset" },
+    },
+  },
 };
 
 export default nextConfig;

@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import CmsIcon from "@/components/ui/CmsIcon";
 import { defaultAboutContent, type AboutContent } from "@/lib/content";
 
 type Props = {
@@ -15,38 +14,26 @@ export default function AboutJourneyTimeline({
 
   return (
     <section className="w-full overflow-hidden bg-salon-bg py-14 lg:py-16">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="mb-10 flex flex-col items-center text-center">
-          {content.eyebrow ? (
-            <div className="mb-4 flex items-center gap-3">
-              <span className="h-px w-8 bg-salon-rule" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-                {content.eyebrow}
-              </span>
-              <span className="h-px w-8 bg-salon-rule" />
-            </div>
-          ) : null}
-          <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl">
-            {content.heading} <span className="text-salon-accent">{content.heading_accent}</span>
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
+        <div className="mb-10 text-center">
+          <h2 className="font-display text-3xl tracking-tight text-black sm:text-4xl lg:text-5xl">
+            {content.heading} <span>{content.heading_accent}</span>
           </h2>
         </div>
 
-        <div className="relative">
-          <div className="absolute left-[8%] right-[8%] top-7 hidden h-px bg-salon-rule/40 md:block" />
-          <div className="relative z-10 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-5">
-            {content.milestones.map((item, index) => (
-              <div key={item.title} className="flex flex-col items-center gap-3 text-center">
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-salon-brand text-white shadow-[0_6px_18px_rgba(133,89,47,0.22)]">
-                  <CmsIcon name={item.icon} className="h-6 w-6" strokeWidth={1.7} />
-                </span>
-                <p className="font-display text-[10px] font-light text-salon-gold-soft/70">
-                  {String(index + 1).padStart(2, "0")}
-                </p>
-                <h3 className="text-sm font-semibold text-salon-ink">{item.title}</h3>
-                <p className="text-[11px] leading-relaxed text-salon-muted">{item.desc}</p>
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-5">
+          {content.milestones.map((item, index) => (
+            <div
+              key={item.title}
+              className="flex min-h-[260px] flex-col items-start gap-3 rounded-2xl bg-white p-6 text-left shadow-sm transition duration-500 hover:-translate-y-1.5 hover:shadow-xl"
+            >
+              <p className="font-display text-2xl font-light text-salon-gold-soft/70">
+                {String(index + 1).padStart(2, "0")}
+              </p>
+              <h3 className="text-sm font-semibold text-salon-ink">{item.title}</h3>
+              <p className="text-lg leading-relaxed text-salon-muted">{item.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

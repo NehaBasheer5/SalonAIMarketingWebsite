@@ -2,10 +2,15 @@
 import FaqHero from "@/components/sections/faq/FaqHero";
 import FaqCategoriesContent from "@/components/sections/faq/FaqCategoriesContent";
 import FaqSupportCta from "@/components/sections/faq/FaqSupportCta";
-import { fetchCmsFaqs, fetchCmsFaqPageContent } from "@/lib/cms/faqs";
+import { fetchCmsFaqs, fetchCmsFaqPageContent, fetchCmsFaqCategories } from "@/lib/cms/faqs";
+import { defaultFaqPageContent } from "@/lib/content";
 
 export default async function FaqPage() {
-  const [faqs, cms] = await Promise.all([fetchCmsFaqs(), fetchCmsFaqPageContent()]);
+  const [faqs, cms, categoryDefs] = await Promise.all([
+    fetchCmsFaqs(),
+    fetchCmsFaqPageContent(),
+    fetchCmsFaqCategories(),
+  ]);
 
   const hero = cms?.hero ?? {};
   const categoriesSection = cms?.categories ?? {};
@@ -23,22 +28,28 @@ export default async function FaqPage() {
     image_alt: (hero.image_alt as string) || "",
   };
 
-  const categories = Array.isArray(categoriesSection.categories)
-    ? (categoriesSection.categories as any[]).map((c: any, idx: number) => ({
-        id: c.id || String(idx),
-        label: c.label || c.name || "Category",
-        icon: c.icon || "BookOpen",
-        slug: c.slug || "",
-      }))
-    : [];
+  // When the `faqs` table is empty (and the CMS has no questions), fall back to
+  // the bundled set so the page still renders categories and answers.
+  const useFallback = faqs.length === 0;
+
+  const categories = (useFallback ? defaultFaqPageContent.categories : categoryDefs).map((c) => ({
+    id: c.id,
+    label: c.label,
+    icon: c.icon,
+    slug: c.slug || "",
+  }));
 
   const content = {
-    eyebrow: (categoriesSection.eyebrow as string) || "Browse",
-    heading: (categoriesSection.heading as string) || "Answers",
-    heading_accent: (categoriesSection.heading_accent as string) || "by Category",
-    subheading: (categoriesSection.subheading as string) || "Browse questions and answers.",
+    eyebrow: (categoriesSection.eyebrow as string) || defaultFaqPageContent.eyebrow,
+    heading: (categoriesSection.heading as string) || defaultFaqPageContent.heading,
+    heading_accent:
+      (categoriesSection.heading_accent as string) || defaultFaqPageContent.heading_accent,
+    subheading:
+      (categoriesSection.subheading as string) || defaultFaqPageContent.subheading,
     categories,
-    faqs: faqs.map((f: any) => ({ question: f.question, answer: f.answer })),
+    faqs: useFallback
+      ? defaultFaqPageContent.faqs
+      : faqs.map((f) => ({ question: f.question, answer: f.answer, category: f.category ?? "" })),
   };
 
   const cta = cms?.cta_banner ?? {};
@@ -59,6 +70,8 @@ export default async function FaqPage() {
           cta_href: (cta.cta_href as string) || "/contact",
           secondary_cta_label: (cta.secondary_cta_label as string) || "Book a Demo",
           secondary_cta_href: (cta.secondary_cta_href as string) || "/request-demo",
+          image_url: (cta.image_url as string) || "",
+          image_alt: (cta.image_alt as string) || "SalonAI support team",
         }}
       />
     </main>

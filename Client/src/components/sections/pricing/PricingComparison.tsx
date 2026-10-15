@@ -28,10 +28,12 @@ export default function PricingComparison({
   const renderCell = (cell: PricingComparisonValue | undefined) => {
     const text = cell?.value?.trim();
     if (text) {
-      return <span className="text-xs font-semibold text-salon-ink">{text}</span>;
+      return <span className="text-xs font-semibold text-salon-ink sm:text-sm">{text}</span>;
     }
     return cell?.yes ? (
-      <Check className="mx-auto h-4 w-4 text-salon-brand" strokeWidth={2.5} />
+      <span className="mx-auto flex h-5 w-5 items-center justify-center rounded-full bg-salon-tile text-salon-brand">
+        <Check className="h-3 w-3" strokeWidth={3} />
+      </span>
     ) : (
       <Minus className="mx-auto h-4 w-4 text-salon-card" />
     );
@@ -39,54 +41,54 @@ export default function PricingComparison({
 
   return (
     <section className="w-full overflow-hidden bg-salon-bg pb-14 lg:pb-16">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex items-center gap-3">
-            <span className="h-px w-8 bg-salon-rule" />
-            <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-              Compare
-            </span>
-            <span className="h-px w-8 bg-salon-rule" />
-          </div>
-          <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl">
+          <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl lg:text-5xl">
             {heading}
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-salon-muted">{subheading}</p>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-salon-card bg-white/80 p-6 shadow-sm">
-          <table className="w-full min-w-[650px] border-collapse text-left">
+        <div className="overflow-x-auto rounded-3xl bg-white shadow-[0_8px_24px_rgba(91,64,39,0.06)]">
+          <table className="w-full min-w-[720px] border-collapse text-left">
             <thead>
-              <tr className="border-b border-salon-card">
-                <th className="w-1/3 pb-4 text-sm font-semibold text-salon-ink">
+              <tr>
+                <th className="w-1/3 px-6 py-5 text-sm font-bold text-salon-ink">
                   {feature_column_label}
                 </th>
                 {plan_columns.map((column, index) => (
-                  <th
-                    key={`${column}-${index}`}
-                    className={`pb-4 text-center text-sm font-semibold ${
-                      index === 1
-                        ? "rounded-t-xl bg-salon-shell/70 text-salon-brand"
-                        : "text-salon-ink"
-                    }`}
-                  >
-                    {column}
+                  <th key={`${column}-${index}`} className="px-4 py-4 text-center align-bottom">
+                    {index === 1 ? (
+                      <span className="inline-flex flex-col items-center gap-1.5">
+                        <span className="rounded-full bg-gradient-to-r from-salon-brand to-salon-gold px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm shadow-salon-brand/30">
+                          Most Popular
+                        </span>
+                        <span className="text-sm font-bold text-salon-brand">{column}</span>
+                      </span>
+                    ) : (
+                      <span className="text-sm font-bold text-salon-ink">{column}</span>
+                    )}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-salon-card/70">
+            <tbody>
               {rows.map((row, rowIndex) => (
-                <tr key={`${row.name}-${rowIndex}`} className="transition hover:bg-salon-shell-soft/60">
-                  <td className="flex items-center gap-2.5 py-3.5 text-xs font-semibold text-salon-ink">
-                    <CmsIcon name={row.icon} className="h-4 w-4 text-salon-brand" strokeWidth={1.8} />
-                    {row.name}
+                <tr
+                  key={`${row.name}-${rowIndex}`}
+                  className="border-t border-salon-card/60 transition hover:bg-salon-shell-soft/50"
+                >
+                  <td className="px-6 py-4">
+                    <span className="flex items-center gap-2.5 text-xs font-semibold text-salon-ink sm:text-sm">
+                      <CmsIcon name={row.icon} className="h-4 w-4 text-salon-brand" strokeWidth={1.8} />
+                      {row.name}
+                    </span>
                   </td>
                   {plan_columns.map((column, columnIndex) => (
                     <td
                       key={`${row.name}-${column}-${columnIndex}`}
-                      className={`py-3.5 text-center ${
-                        columnIndex === 1 ? "bg-salon-shell/70" : ""
+                      className={`px-4 py-4 text-center ${
+                        columnIndex === 1 ? "bg-salon-shell/40" : ""
                       }`}
                     >
                       {renderCell(row.values?.[columnIndex])}
