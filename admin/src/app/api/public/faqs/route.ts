@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const pool = getPool();
     const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT id, question, answer, category, sort_order FROM faqs WHERE is_published = 1 ORDER BY sort_order ASC, id ASC"
+      "SELECT id, question, answer, category, sort_order, created_at FROM faqs WHERE is_published = 1 ORDER BY sort_order ASC, id ASC"
     );
     return NextResponse.json(
       { faqs: rows },

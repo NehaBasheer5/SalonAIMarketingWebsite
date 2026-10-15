@@ -515,6 +515,8 @@ async function main() {
       slug: "home",
       key: "pricing",
       heading: "Simple,",
+      subheading:
+        "Choose the plan that fits your salon. Upgrade, downgrade or cancel anytime — no hidden fees.",
       cta_label: "View Full Pricing →",
       cta_href: "/pricing",
       extra: {
@@ -637,37 +639,11 @@ async function main() {
       subheading: "Quick answers to the most common questions about SalonAI.",
       cta_label: "View All FAQs →",
       cta_href: "/faq",
+      // Questions live in the `faqs` table and the category tabs come from the
+      // FAQ page's `categories` section, so the home section only owns its copy.
       extra: {
         eyebrow: "FAQ",
         heading_accent: "Questions",
-        categories: [
-          { id: "general", label: "General", icon: "HelpCircle" },
-          { id: "features", label: "Features", icon: "Sparkles" },
-          { id: "billing", label: "Billing", icon: "Settings2" },
-          { id: "security", label: "Security", icon: "Shield" },
-        ],
-        faqs: [
-          {
-            question: "What is SalonAI?",
-            answer:
-              "SalonAI is an all-in-one salon management platform that helps you handle bookings, staff, customers, and growth from one place.",
-          },
-          {
-            question: "Is there a free trial?",
-            answer:
-              "Yes. You can start with a free trial and explore the full platform before choosing a plan.",
-          },
-          {
-            question: "Can I manage multiple branches?",
-            answer:
-              "Absolutely. Higher plans support multi-branch management with shared reporting and staff controls.",
-          },
-          {
-            question: "Is my data secure?",
-            answer:
-              "Yes. SalonAI uses secure cloud infrastructure with encryption and reliable backups to protect your salon data.",
-          },
-        ],
       },
       sort: 7,
     },
@@ -1024,11 +1000,31 @@ async function main() {
       extra: {
         strip_heading: "All plans include",
         items: [
-          { icon: "Cloud", title: "Cloud Based", desc: "Secure & Reliable" },
-          { icon: "RefreshCw", title: "Automatic Updates", desc: "Always up to date" },
-          { icon: "Database", title: "Data Backup", desc: "Daily backups" },
-          { icon: "Smartphone", title: "Mobile Apps", desc: "iOS & Android" },
-          { icon: "ShieldCheck", title: "GDPR Compliant", desc: "Your data is safe" },
+          {
+            icon: "Cloud",
+            title: "Cloud Based",
+            desc: "Your salon data lives securely in the cloud and stays synced across every device, so you can work from anywhere.",
+          },
+          {
+            icon: "RefreshCw",
+            title: "Automatic Updates",
+            desc: "New features, improvements and fixes are delivered automatically — no manual installs or downtime.",
+          },
+          {
+            icon: "Database",
+            title: "Data Backup",
+            desc: "Automatic daily backups keep your bookings, clients and records safe and recoverable.",
+          },
+          {
+            icon: "Smartphone",
+            title: "Mobile Apps",
+            desc: "Run your salon on the go with dedicated iOS and Android apps for you and your team.",
+          },
+          {
+            icon: "ShieldCheck",
+            title: "GDPR Compliant",
+            desc: "We follow strict data-protection and privacy rules to keep your information secure.",
+          },
         ],
         title: "Still not sure which plan is right for you?",
         subtitle: "Our team is happy to help you choose the perfect plan for your salon.",
@@ -1189,8 +1185,11 @@ async function main() {
         heading_accent: "by Category",
         categories: [
           { id: "general", label: "General", icon: "BookOpen", slug: "" },
+          { id: "features", label: "Features", icon: "Sparkles", slug: "features" },
+          { id: "bookings", label: "Bookings", icon: "Calendar", slug: "bookings" },
           { id: "billing", label: "Billing", icon: "Settings2", slug: "billing" },
-          { id: "product", label: "Product", icon: "Sparkles", slug: "product" },
+          { id: "security", label: "Security", icon: "Shield", slug: "security" },
+          { id: "support", label: "Support", icon: "HelpCircle", slug: "support" },
         ],
       },
       sort: 2,
@@ -1414,11 +1413,40 @@ async function main() {
 
   const [faqCount] = await conn.query<mysql.RowDataPacket[]>("SELECT COUNT(*) AS c FROM faqs");
   if (Number(faqCount[0].c) === 0) {
+    // Categories match the labels on the FAQ page (`categories` section) so the
+    // home teaser (newest 5) and the FAQ page group them under the right tabs.
     await conn.query(
       `INSERT INTO faqs (question, answer, category, sort_order) VALUES
        ('What is SalonAI?', 'SalonAI is an AI-powered salon management platform for bookings, staff, customers and operations.', 'General', 1),
-       ('Is there a free trial?', 'Yes, we offer a 14-day free trial on all plans with no credit card required.', 'Billing', 2),
-       ('Can I manage multiple branches?', 'Yes, multi-branch management is supported on Pro and Enterprise plans.', 'Product', 3)`
+       ('Who is SalonAI built for?', 'SalonAI is designed for salons, spas, barbershops and beauty studios of all sizes.', 'General', 2),
+       ('Do I need technical skills to use it?', 'No. SalonAI is designed to be intuitive and easy to use for both owners and staff.', 'General', 3),
+       ('Can I use SalonAI on mobile devices?', 'Yes, we have dedicated iOS and Android apps along with a fully responsive web app.', 'General', 4),
+       ('Is setup easy?', 'Yes. Most salons are up and running within a day with our guided onboarding.', 'General', 5),
+       ('What features are included?', 'Online booking, customer management, staff scheduling, payments, reports and more.', 'Features', 6),
+       ('Does it support multiple locations?', 'Yes, multi-branch management is available on higher plans with shared reporting.', 'Features', 7),
+       ('Can I send automated reminders?', 'Yes, automated SMS and email reminders help reduce no-shows significantly.', 'Features', 8),
+       ('Can I track staff commissions?', 'Yes, you can track commissions based on services, products or custom rules.', 'Features', 9),
+       ('Does it include marketing tools?', 'Yes, loyalty programmes, gift cards and targeted campaigns are built in.', 'Features', 10),
+       ('Can clients book online?', 'Yes, clients can book 24/7 through your booking page with real-time availability.', 'Bookings', 11),
+       ('Can I block time slots?', 'Yes, you can block time for breaks, holidays or private appointments with ease.', 'Bookings', 12),
+       ('Can I manage waitlists?', 'Yes, waitlists help fill cancellations automatically when slots become available.', 'Bookings', 13),
+       ('Can clients reschedule themselves?', 'Yes, depending on your settings, clients can reschedule or cancel their own appointments.', 'Bookings', 14),
+       ('Does it sync with calendars?', 'Yes, you can sync appointments with popular calendars to avoid double bookings.', 'Bookings', 15),
+       ('Is there a free trial?', 'Yes, we offer a 14-day free trial on all plans with no credit card required.', 'Billing', 16),
+       ('Can I change my plan later?', 'Yes, you can upgrade, downgrade or cancel your subscription at any time from your dashboard.', 'Billing', 17),
+       ('Do you offer refunds?', 'Yes, we offer a 30-day money-back guarantee if you are not satisfied.', 'Billing', 18),
+       ('What payment methods do you accept?', 'We accept major credit and debit cards. Enterprise plans can be invoiced.', 'Billing', 19),
+       ('Are there any hidden fees?', 'No, all pricing is transparent with no hidden setup or cancellation fees.', 'Billing', 20),
+       ('Is my data secure?', 'Your data is encrypted in transit and at rest with automatic daily backups.', 'Security', 21),
+       ('Is SalonAI GDPR compliant?', 'Yes, we follow strict data-protection and privacy rules to stay compliant.', 'Security', 22),
+       ('Who can access my data?', 'Only authorised users. Role-based permissions give you full control over access.', 'Security', 23),
+       ('Do you have two-factor authentication?', 'Yes, 2FA is available to add an extra layer of security for your account.', 'Security', 24),
+       ('How often is data backed up?', 'We run automatic daily backups to secure cloud storage with redundancy.', 'Security', 25),
+       ('How can I contact support?', 'You can reach us via email, live chat or the contact form on our website.', 'Support', 26),
+       ('What support hours do you have?', 'Our support team is available during business hours, with priority for paid plans.', 'Support', 27),
+       ('Do you offer priority support?', 'Yes, Pro and Enterprise plans include priority support with faster response times.', 'Support', 28),
+       ('Can I get help with migration?', 'Yes, our team can help you migrate your client and appointment data over to SalonAI.', 'Support', 29),
+       ('Where can I find tutorials?', 'Our help centre has guides, videos and FAQs to help you get the most out of SalonAI.', 'Support', 30)`
     );
     console.log("FAQs seeded.");
   }

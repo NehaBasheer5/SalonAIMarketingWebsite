@@ -29,8 +29,144 @@ body {
   background: var(--salon-bg);
   color: var(--salon-ink);
   font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 18px;
 }
 
-.font-display {
-  font-family: var(--font-playfair), Georgia, serif;
+@layer base {
+  .font-display {
+    font-weight: 700;
+  }
+}
+
+@keyframes salon-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: salon-marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes salon-float-a {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  30% {
+    transform: translate(-8px, -12px);
+  }
+  70% {
+    transform: translate(8px, -6px);
+  }
+}
+
+@keyframes salon-float-b {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  30% {
+    transform: translate(10px, 9px);
+  }
+  70% {
+    transform: translate(-9px, 5px);
+  }
+}
+
+.animate-float-a {
+  animation: salon-float-a 6s ease-in-out infinite;
+}
+
+.animate-float-b {
+  animation: salon-float-b 7s ease-in-out infinite;
+}
+
+@keyframes salon-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-nudge {
+  animation: salon-nudge 1.2s ease-in-out infinite;
+}
+
+@keyframes salon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: salon-spin 8s linear infinite;
+}
+
+@keyframes salon-fade-swap {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-swap {
+  animation: salon-fade-swap 0.6s ease both;
+}
+
+@keyframes salon-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes salon-pop-strong {
+  0%,
+  100% {
+    transform: scale(1.04);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+.animate-pop {
+  animation: salon-pop 3s ease-in-out infinite;
+}
+
+.animate-pop-strong {
+  animation: salon-pop-strong 3s ease-in-out infinite;
+}
+
+@keyframes salon-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-shift {
+  background-size: 200% auto;
+  animation: salon-shift 3s ease-in-out infinite;
 }

@@ -8,7 +8,6 @@ import {
   Link2,
   Lock,
   Mail,
-  MapPin,
   MessageSquare,
   Phone,
   Play,
@@ -17,18 +16,11 @@ import {
   User,
 } from "lucide-react";
 import type { IconName } from "@/lib/content";
-import CmsIcon from "@/components/ui/CmsIcon";
-
-const ICONS: Record<IconName, any> = {
-  Mail,
-  Phone,
-  MapPin,
-} as const;
 
 const SOCIALS = [Share2, Globe, Link2, AtSign, Play] as const;
 
 const FIELD =
-  "w-full rounded-xl border border-salon-card bg-white px-3 py-2.5 text-xs text-salon-ink placeholder:text-salon-muted/60 focus:border-salon-brand focus:outline-none";
+  "w-full rounded-xl border border-salon-card bg-white px-3 py-2.5 text-xs text-salon-ink placeholder:text-salon-muted/60 transition focus:border-salon-brand focus:outline-none focus:ring-2 focus:ring-salon-brand/15";
 const LABEL = "mb-1 block text-xs font-semibold text-salon-ink";
 
 export type ContactFormSectionProps = {
@@ -99,16 +91,16 @@ export default function ContactFormSection({
   }
 
   return (
-    <section className="w-full overflow-hidden border-t border-salon-card bg-salon-soft py-14 lg:py-16">
+    <section className="w-full overflow-hidden bg-salon-soft py-14 lg:py-16">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <div className="rounded-2xl border border-salon-card bg-white/80 p-6 shadow-sm sm:p-8 lg:col-span-7">
+          <div className="rounded-2xl bg-white p-6 shadow-[0_20px_50px_-24px_rgba(91,64,39,0.28)] sm:p-8 lg:col-span-7">
             <div className="mb-6 flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-salon-tile text-salon-brand-dark">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-salon-brand to-salon-gold text-white shadow-sm shadow-salon-brand/25">
                 <Send className="h-5 w-5" strokeWidth={1.8} />
               </span>
               <div>
-                <h2 className="font-display text-2xl leading-tight text-salon-ink">{heading}</h2>
+                <h2 className="font-display text-3xl leading-tight text-salon-ink sm:text-4xl lg:text-5xl">{heading}</h2>
                 <p className="mt-1 text-xs text-salon-muted">{subheading}</p>
               </div>
             </div>
@@ -207,11 +199,11 @@ export default function ContactFormSection({
                   <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="rounded-lg bg-salon-brand px-6 py-2.5 text-xs font-semibold text-white transition hover:bg-salon-brand-dark disabled:opacity-60"
+                    className="rounded-full bg-gradient-to-r from-salon-brand to-salon-brand-dark px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-salon-brand/25 transition hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-60"
                   >
                     {status === "loading" ? "Sending..." : submit_label || "Send Message →"}
                   </button>
-                  <div className="flex items-center gap-1 text-[10px] text-salon-muted">
+                  <div className="flex items-center gap-1 text-[12px] text-salon-muted">
                     <Lock className="h-3 w-3" />
                     <span>{privacy_note}</span>
                   </div>
@@ -220,38 +212,44 @@ export default function ContactFormSection({
             )}
           </div>
 
-          <div className="flex flex-col justify-between rounded-2xl border border-salon-card bg-salon-shell-soft p-6 sm:p-8 lg:col-span-5">
-            <div className="space-y-6">
-              <h3 className="font-display text-2xl text-salon-ink">{details_heading}</h3>
+          <div className="flex flex-col gap-6 lg:col-span-5">
+            <div className="relative flex flex-1 flex-col justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-salon-brand-dark via-salon-brand to-salon-deep p-6 text-white shadow-[0_24px_60px_-24px_rgba(91,64,39,0.55)] sm:p-8">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-white/10 blur-2xl"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -bottom-16 -left-10 h-44 w-44 rounded-full bg-salon-gold/20 blur-2xl"
+              />
 
-              <div className="space-y-4">
-                {(details || []).map((item, idx) => (
-                  <div key={`${item.label}-${idx}`} className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-salon-tile text-salon-brand-dark">
-                      <CmsIcon name={item.icon} className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
-                    <div>
-                      <p className="text-xs font-semibold text-salon-ink">{item.label}</p>
-                      <p className="mt-0.5 text-xs leading-relaxed text-salon-muted">{item.value}</p>
+              <div className="relative space-y-6">
+                <h3 className="font-display text-2xl text-white">{details_heading}</h3>
+
+                <div className="space-y-4">
+                  {(details || []).map((item, idx) => (
+                    <div key={`${item.label}-${idx}`}>
+                      <p className="text-sm font-semibold text-white">{item.label}</p>
+                      <p className="mt-1 text-base leading-relaxed text-white/70">{item.value}</p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className="border-t border-salon-card pt-6">
-              <p className="mb-3 text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-                {socials_heading}
-              </p>
-              <div className="flex items-center gap-2">
-                {SOCIALS.map((Icon, index) => (
-                  <span
-                    key={index}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-salon-card bg-white text-salon-brand-dark transition hover:bg-salon-tile"
-                  >
-                    <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
-                  </span>
-                ))}
+              <div className="relative mt-6 border-t border-white/20 pt-6">
+                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/60">
+                  {socials_heading}
+                </p>
+                <div className="flex items-center gap-2">
+                  {SOCIALS.map((Icon, index) => (
+                    <span
+                      key={index}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-white transition hover:bg-white/25"
+                    >
+                      <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

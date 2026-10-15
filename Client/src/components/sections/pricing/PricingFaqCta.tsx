@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { Plus } from "lucide-react";
 import CmsImage from "@/components/ui/CmsImage";
 import { images } from "@/assets";
+import pricingCtaVideo from "@/assets/images/images/pricingCTA.mp4";
 import type { PricingFaq } from "@/lib/content";
 
 export type PricingFaqCtaProps = {
@@ -47,16 +48,10 @@ export default function PricingFaqCta({
 
   return (
     <section className="w-full overflow-hidden bg-salon-bg pb-16 lg:pb-20">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <div className="lg:col-span-6">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="h-px w-9 bg-salon-rule" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-                FAQ
-              </span>
-            </div>
-            <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
+        <div>
+          <div className="text-center">
+            <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl lg:text-5xl">
               {heading || (
                 <>
                   Frequently Asked <span className="text-salon-accent">Questions</span>
@@ -64,115 +59,111 @@ export default function PricingFaqCta({
               )}
             </h2>
             {subheading ? (
-              <p className="mt-3 text-sm leading-relaxed text-salon-muted">{subheading}</p>
-            ) : null}
-
-            {faqs.length ? (
-              <div className="mt-6 space-y-3">
-                {faqs.map((faq, index) => {
-                  const open = openIdx === index;
-                  return (
-                    <div
-                      key={`${faq.question}-${index}`}
-                      className="overflow-hidden rounded-2xl border border-salon-card bg-white/80"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setOpenIdx(open ? null : index)}
-                        className="flex w-full items-center justify-between gap-4 p-4 text-left"
-                      >
-                        <span className="flex items-center gap-3">
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-salon-tile text-[11px] font-bold text-salon-brand">
-                            {String(index + 1).padStart(2, "0")}
-                          </span>
-                          <span className="text-sm font-semibold text-salon-ink">{faq.question}</span>
-                        </span>
-                        <ChevronDown
-                          className={`h-4 w-4 shrink-0 text-salon-brand transition-transform ${
-                            open ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-                      {open ? (
-                        <p className="border-t border-salon-card px-4 py-3 text-xs leading-relaxed text-salon-muted">
-                          {faq.answer}
-                        </p>
-                      ) : null}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : null}
-
-            {link_label ? (
-              <div className="mt-4">
-                <Link
-                  href={link_href || "/faq"}
-                  className="text-xs font-semibold text-salon-brand underline-offset-4 hover:underline"
-                >
-                  {link_label}
-                </Link>
-              </div>
+              <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-salon-muted">
+                {subheading}
+              </p>
             ) : null}
           </div>
 
-          <div className="lg:col-span-6">
-            <div className="relative flex h-full min-h-[320px] flex-col justify-between overflow-hidden rounded-2xl border border-salon-brand bg-salon-brand p-8 text-white shadow-[0_16px_40px_rgba(133,89,47,0.2)]">
-              <div>
-                {cta_eyebrow ? (
-                  <div className="mb-4 flex items-center gap-3">
-                    <span className="h-px w-9 bg-white/40" />
-                    <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-white/75">
-                      {cta_eyebrow}
-                    </span>
-                  </div>
-                ) : null}
-
-                <h3 className="font-display text-2xl leading-tight text-white sm:text-3xl">
-                  {cta_heading}
-                  {cta_heading_accent ? (
-                    <span className="italic text-white/85"> {cta_heading_accent}</span>
-                  ) : null}
-                </h3>
-                {cta_subheading ? (
-                  <p className="mt-3 max-w-sm text-xs leading-relaxed text-white/80">
-                    {cta_subheading}
-                  </p>
-                ) : null}
-
-                {cta_label || cta_secondary_label ? (
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    {cta_label ? (
-                      <Link
-                        href={cta_href || "/request-demo"}
-                        className="rounded-lg bg-white px-5 py-2.5 text-xs font-semibold text-salon-brand transition hover:bg-salon-chip"
+          {faqs.length ? (
+            <div className="mx-auto mt-8 max-w-3xl divide-y divide-salon-card">
+              {faqs.map((faq, index) => {
+                const open = openIdx === index;
+                return (
+                  <div key={`${faq.question}-${index}`}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenIdx(open ? null : index)}
+                      className="group flex w-full items-center justify-between gap-4 py-5 text-left"
+                    >
+                      <span className="text-lg font-semibold text-salon-ink transition-colors duration-300 group-hover:text-salon-brand sm:text-xl">
+                        {faq.question}
+                      </span>
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
+                          open
+                            ? "rotate-45 border-salon-brand bg-salon-brand text-white"
+                            : "border-salon-card text-salon-brand group-hover:border-salon-brand"
+                        }`}
                       >
-                        {cta_label}
-                      </Link>
-                    ) : null}
-                    {cta_secondary_label ? (
-                      <Link
-                        href={cta_secondary_href || "/contact"}
-                        className="rounded-lg border border-white/45 px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10"
-                      >
-                        {cta_secondary_label}
-                      </Link>
-                    ) : null}
+                        <Plus className="h-4 w-4" strokeWidth={2.5} />
+                      </span>
+                    </button>
+                    <div
+                      className={`grid transition-all duration-300 ease-out ${
+                        open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                      }`}
+                    >
+                      <div className="overflow-hidden">
+                        <p className="pb-5 pr-10 text-base leading-relaxed text-salon-muted">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                ) : null}
-              </div>
-
-              <div className="relative mt-6 hidden aspect-[16/10] w-full sm:block">
-                <CmsImage
-                  value={image_url}
-                  fallback={images.dashboardMockup}
-                  alt={image_alt}
-                  fill
-                  className="rounded-lg object-contain opacity-95"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              </div>
+                );
+              })}
             </div>
+          ) : null}
+        </div>
+
+        <div className="relative mt-10 flex min-h-[320px] items-center overflow-hidden rounded-3xl border border-salon-brand shadow-[0_24px_60px_rgba(133,89,47,0.35)] lg:min-h-[400px]">
+          {image_url ? (
+            <CmsImage
+              value={image_url}
+              fallback={images.dashboardMockup}
+              alt={image_alt}
+              fill
+              className="object-cover object-center"
+              sizes="100vw"
+            />
+          ) : (
+            <video
+              src={pricingCtaVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none select-none"
+            />
+          )}
+
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2a1a0e]/90 via-salon-brand-dark/70 to-salon-brand/20" />
+
+          <div className="relative max-w-xl p-8 text-white lg:p-12">
+            <h3 className="font-display text-2xl leading-tight text-white sm:text-3xl">
+              {cta_heading}
+              {cta_heading_accent ? (
+                <span className="italic text-white/85"> {cta_heading_accent}</span>
+              ) : null}
+            </h3>
+            {cta_subheading ? (
+              <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/85">
+                {cta_subheading}
+              </p>
+            ) : null}
+
+            {cta_label || cta_secondary_label ? (
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                {cta_label ? (
+                  <Link
+                    href={cta_href || "/request-demo"}
+                    className="rounded-lg bg-white px-5 py-2.5 text-xs font-semibold text-salon-brand transition hover:bg-salon-chip"
+                  >
+                    {cta_label}
+                  </Link>
+                ) : null}
+                {cta_secondary_label ? (
+                  <Link
+                    href={cta_secondary_href || "/contact"}
+                    className="rounded-lg border border-white/45 px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10"
+                  >
+                    {cta_secondary_label}
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

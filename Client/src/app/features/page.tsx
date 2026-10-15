@@ -3,7 +3,6 @@ import { Metadata } from "next";
 import FeaturesHero from "@/components/sections/features/FeaturesHero";
 import FeaturesGrid from "@/components/sections/features/FeaturesGrid";
 import PlatformShowcase from "@/components/sections/features/PlatformShowcase";
-import StatsBar from "@/components/sections/features/StatsBar";
 import { getFeaturesContent, type FeaturesContent } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -23,7 +22,6 @@ export default async function FeaturesPage() {
       {show("platform_showcase") ? (
         <PlatformShowcase content={content.platform_showcase} />
       ) : null}
-      {show("stats_bar") ? <StatsBar content={content.stats_bar} /> : null}
     </main>
   );
 }

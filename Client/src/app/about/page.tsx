@@ -22,8 +22,8 @@ export default async function ClientAboutPage() {
     <main className="min-h-screen bg-salon-bg">
       {show("hero") ? <AboutHero content={content.hero} /> : null}
       {show("mission_stats") ? <AboutMissionAndStats content={content.mission_stats} /> : null}
-      {show("journey") ? <AboutJourneyTimeline content={content.journey} /> : null}
       {show("team") ? <AboutTeam content={content.team} /> : null}
+      {show("journey") ? <AboutJourneyTimeline content={content.journey} /> : null}
       {show("why_choose") ? <AboutWhyChoose content={content.why_choose} /> : null}
     </main>
   );

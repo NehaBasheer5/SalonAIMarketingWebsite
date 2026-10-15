@@ -237,7 +237,7 @@ export default function MarkdownContent({
               return (
                 <h2
                   key={key}
-                  className="mt-10 mb-3 font-display text-2xl tracking-tight text-salon-ink first:mt-0"
+                  className="mt-10 mb-3 font-display text-3xl tracking-tight text-salon-ink sm:text-4xl lg:text-5xl first:mt-0"
                 >
                   {text}
                 </h2>
@@ -307,7 +307,7 @@ export default function MarkdownContent({
                   />
                 </div>
                 {block.alt ? (
-                  <figcaption className="mt-2 text-center text-[11px] text-salon-muted">
+                  <figcaption className="mt-2 text-center text-[13px] text-salon-muted">
                     {block.alt}
                   </figcaption>
                 ) : null}

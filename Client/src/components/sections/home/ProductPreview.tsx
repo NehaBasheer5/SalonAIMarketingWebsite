@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import CmsIcon from "@/components/ui/CmsIcon";
 import CmsImage from "@/components/ui/CmsImage";
 import { defaultHomeContent, fallbackImages, type HomeContent } from "@/lib/content";
 
@@ -14,81 +13,98 @@ type Props = {
 export default function ProductPreview({ content = defaultHomeContent.product_preview }: Props) {
   return (
     <section className="relative w-full overflow-hidden bg-salon-bg">
-      <div className="relative min-h-[440px] lg:min-h-[520px]">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.15 }}
-          transition={{ duration: 0.55 }}
-          className="relative h-[340px] w-full overflow-hidden sm:h-[420px] lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[58%]"
-        >
-          <CmsImage
-            value={content.image_url}
-            fallback={fallbackImages.product_preview}
-            alt={content.image_alt}
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="(max-width: 1024px) 100vw, 58vw"
-          />
-          <div className="absolute inset-y-0 left-0 hidden w-28 bg-gradient-to-r from-salon-bg via-salon-bg/65 to-transparent lg:block" />
-        </motion.div>
-
+      <div className="relative mx-auto max-w-7xl px-5 pb-12 pt-8 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24 lg:pb-16 lg:pt-10">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.45 }}
-          className="relative z-10 px-5 py-12 sm:px-8 lg:flex lg:min-h-[520px] lg:w-[43%] lg:items-center lg:py-10 lg:pl-[6vw] lg:pr-8"
+          className="mb-8 max-w-2xl"
         >
-          <div className="w-full max-w-md">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="h-px w-9 bg-salon-rule" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-                {content.eyebrow}
+          <h2 className="font-display text-3xl leading-tight tracking-tight text-salon-ink sm:text-4xl lg:text-5xl">
+            {content.heading}
+            {content.heading_accent ? (
+              <span className="block bg-gradient-to-r from-salon-ink via-salon-gold to-salon-tile bg-clip-text text-transparent">
+                {content.heading_accent}
               </span>
-            </div>
-
-            <h2 className="font-display text-3xl leading-[1.08] tracking-tight text-salon-ink sm:text-4xl lg:text-[2.7rem]">
-              {content.heading}
-              {content.heading_accent ? (
-                <span className="block text-salon-accent">{content.heading_accent}</span>
-              ) : null}
-            </h2>
-
-            {content.subheading ? (
-              <p className="mt-3 max-w-sm text-sm leading-relaxed text-salon-muted">
-                {content.subheading}
-              </p>
             ) : null}
+          </h2>
 
-            {content.points.length ? (
-              <ul className="mt-6 space-y-3.5">
-                {content.points.map((item) => (
-                  <li key={item.title} className="flex items-start gap-3.5">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-salon-tile text-salon-brand-dark">
-                      <CmsIcon name={item.icon} className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <p className="text-xs font-semibold text-salon-ink">{item.title}</p>
-                      <p className="mt-0.5 text-[11px] text-salon-muted">{item.desc}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
+          {content.subheading ? (
+            <p className="mt-6 max-w-xl text-[19px] leading-relaxed text-salon-muted">
+              {content.subheading}
+            </p>
+          ) : null}
 
-            {content.cta_label ? (
-              <Link
-                href={content.cta_href || "/request-demo"}
-                className="mt-6 inline-flex items-center gap-8 rounded-lg bg-salon-brand px-6 py-3 text-xs font-semibold text-white transition hover:bg-salon-brand-dark"
-              >
-                {content.cta_label}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            ) : null}
-          </div>
+          {content.cta_label ? (
+            <Link
+              href={content.cta_href || "/request-demo"}
+              className="group relative mt-7 inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-salon-brand to-salon-brand-dark px-7 py-3 text-xs font-semibold text-white shadow-lg shadow-salon-brand/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-salon-brand/35"
+            >
+              <ArrowRight className="h-4 w-4 animate-nudge" />
+              {content.cta_label}
+              <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
+            </Link>
+          ) : null}
         </motion.div>
+
+        <div className="grid grid-cols-1 items-center gap-x-2 gap-y-8 lg:grid-cols-[1fr_minmax(0,620px)_1fr]">
+          <div className="space-y-8">
+            {content.points.slice(0, 2).map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, x: -16 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.4, delay: 0.15 + index * 0.15 }}
+                className="border-b border-salon-border/70 pb-5 lg:text-right"
+              >
+                <span className="font-display text-4xl font-light text-salon-gold-soft">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-1 text-base font-bold text-salon-ink">{item.title}</h3>
+                <p className="mt-1 text-xs leading-relaxed text-salon-muted">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 1.03 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="relative mx-auto h-[340px] w-full max-w-[620px] overflow-hidden sm:h-[440px] lg:h-[540px]"
+          >
+            <CmsImage
+              value={content.image_url}
+              fallback={fallbackImages.product_preview}
+              alt={content.image_alt}
+              fill
+              priority
+              className="object-contain object-center"
+              sizes="(min-width: 1024px) 620px, 100vw"
+            />
+          </motion.div>
+
+          <div className="space-y-8">
+            {content.points.slice(2).map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, x: 16 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.4, delay: 0.45 + index * 0.15 }}
+                className="border-b border-salon-border/70 pb-5"
+              >
+                <span className="font-display text-4xl font-light text-salon-gold-soft">
+                  {String(index + 3).padStart(2, "0")}
+                </span>
+                <h3 className="mt-1 text-base font-bold text-salon-ink">{item.title}</h3>
+                <p className="mt-1 text-xs leading-relaxed text-salon-muted">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

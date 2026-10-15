@@ -1,115 +1,176 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Play, Scissors } from "lucide-react";
-import CmsIcon from "@/components/ui/CmsIcon";
+import { ArrowRight, Play } from "lucide-react";
 import CmsImage from "@/components/ui/CmsImage";
-import { defaultHomeContent, fallbackImages, type HomeContent } from "@/lib/content";
+import { defaultHomeContent, type HomeContent } from "@/lib/content";
 
 type Props = {
   content?: HomeContent["hero"];
 };
 
 export default function HeroSection({ content = defaultHomeContent.hero }: Props) {
+  const highlights = content.highlights ?? [];
+  const loop = highlights.length ? [...highlights, ...highlights, ...highlights, ...highlights] : [];
+  const marqueeItems = [...loop, ...loop];
+
+  // Bumping this key remounts the media and the copy, so the video and the
+  // timed intro replay on every load — including browser back/forward restores.
+  const [replayKey, setReplayKey] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const wasVisible = useRef(true);
+
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) setReplayKey((key) => key + 1);
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
+  // The hero intro (video + copy) only plays while the hero is on screen. When
+  // the hero scrolls out the video pauses; when it returns, the whole intro
+  // replays together so the video and text never fall out of sync.
+  useEffect(() => {
+    const host = sectionRef.current;
+    if (!host) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!wasVisible.current) setReplayKey((key) => key + 1);
+          wasVisible.current = true;
+        } else {
+          wasVisible.current = false;
+          host.querySelector("video")?.pause();
+        }
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="relative min-h-[680px] w-full overflow-hidden bg-salon-bg lg:h-[min(760px,100svh)]">
-      {/* On desktop the photo starts at the navbar and fills the right half. */}
+    <section
+      ref={sectionRef}
+      className="relative flex h-[100svh] w-full flex-col overflow-hidden bg-salon-bg"
+    >
+      {/* The uploaded image or video fills the full hero background. */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.7, ease: "easeOut", delay: 0.08 }}
-        className="relative mt-20 h-[52vh] min-h-[380px] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:mt-0 lg:h-full lg:w-[52%]"
+        key={`media-${replayKey}`}
+        initial={{ opacity: 0, scale: 1.05 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="absolute inset-0 z-0"
       >
-        <CmsImage
-          value={content.image_url}
-          fallback={fallbackImages.hero}
-          alt={content.image_alt}
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="(max-width: 1024px) 100vw, 52vw"
-        />
-        <div className="absolute inset-y-0 left-0 hidden w-20 bg-gradient-to-r from-salon-bg to-transparent lg:block" />
+        <motion.div
+          initial={false}
+          animate={{ x: [0, 28, 0] }}
+          transition={{ delay: 6.62, duration: 1.2, ease: "easeInOut" }}
+          className="absolute -inset-x-8 inset-y-0"
+        >
+          <CmsImage
+            value={content.image_url}
+            alt={content.image_alt}
+            fill
+            priority
+            controls={false}
+            loop={false}
+            className="h-full w-full object-cover object-center"
+            sizes="100vw"
+          />
+        </motion.div>
       </motion.div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: "easeOut" }}
-          className="flex py-12 lg:min-h-[590px] lg:w-[47%] lg:items-center lg:pb-32 lg:pt-24"
-        >
-          <div className="w-full max-w-xl">
-            {content.eyebrow ? (
-              <div className="inline-flex items-center gap-2 rounded-xl bg-salon-chip px-3 py-2 text-[11px] font-semibold text-salon-ink shadow-[inset_0_0_0_1px_rgba(166,139,103,0.08)]">
-                <Scissors className="h-3.5 w-3.5 text-salon-brand" strokeWidth={1.8} />
-                <span>{content.eyebrow}</span>
-              </div>
-            ) : null}
-
-            <h1 className="mt-6 font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl lg:text-[4rem]">
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-center justify-items-start px-5 pb-10 pt-24 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24 lg:pt-28">
+        {/* Copy overlays the full-bleed hero background. */}
+        <div className="flex flex-col items-start justify-center text-left">
+          <motion.div
+            key={`copy-${replayKey}`}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1], delay: 9 }}
+            className="-mt-3 w-full max-w-2xl"
+          >
+            <h1 className="font-hero text-4xl font-bold leading-[1.08] tracking-tight text-salon-ink [text-shadow:0_1px_2px_rgba(252,250,247,0.95),0_2px_14px_rgba(252,250,247,0.85)] md:text-[44px] lg:text-[56px] desktop:text-[64px]">
               {content.heading}
               {content.heading_accent ? (
                 <span className="block text-salon-gold">{content.heading_accent}</span>
               ) : null}
             </h1>
+          </motion.div>
 
-            {content.subheading ? (
-              <p className="mt-5 max-w-md text-base leading-relaxed text-salon-muted sm:text-[1.05rem]">
-                {content.subheading}
-              </p>
-            ) : null}
+          {content.subheading ? (
+            <motion.p
+              key={`sub-${replayKey}`}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1], delay: 9 }}
+               className="mt-4 max-w-xl font-sans text-[19px] font-normal leading-relaxed text-black [text-shadow:0_1px_2px_rgba(252,250,247,0.95),0_1px_10px_rgba(252,250,247,0.85)]"
+            >
+              {content.subheading}
+            </motion.p>
+          ) : null}
 
-            {(content.cta_label || content.secondary_cta_label) && (
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                {content.cta_label ? (
-                  <Link
-                    href={content.cta_href || "/request-demo"}
-                    className="inline-flex items-center gap-2 rounded-lg bg-salon-ink px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-black"
-                  >
-                    {content.cta_label}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                ) : null}
+          {(content.cta_label || content.secondary_cta_label) && (
+            <motion.div
+              key={`cta-${replayKey}`}
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1], delay: 9 }}
+              className="mt-7 flex flex-wrap items-center justify-start gap-3"
+            >
+              {content.cta_label ? (
+                <Link
+                  href={content.cta_href || "/request-demo"}
+                  className="inline-flex items-center gap-2 rounded-lg bg-salon-ink px-5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-black"
+                >
+                  {content.cta_label}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              ) : null}
 
-                {content.secondary_cta_label ? (
-                  <Link
-                    href={content.secondary_cta_href || "#"}
-                    className="inline-flex items-center gap-3 text-sm font-semibold text-salon-ink transition hover:text-salon-gold"
-                  >
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-salon-border bg-white shadow-sm">
-                      <Play className="h-4 w-4 fill-salon-ink" />
-                    </span>
-                    <span className="leading-tight">
-                      {content.secondary_cta_label}
-                      {content.secondary_cta_sub ? (
-                        <span className="block text-xs font-medium text-salon-muted">
-                          {content.secondary_cta_sub}
-                        </span>
-                      ) : null}
-                    </span>
-                  </Link>
-                ) : null}
-              </div>
-            )}
-
-            {content.highlights.length ? (
-              <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-6 border-t border-salon-border/80 pt-8 sm:grid-cols-4">
-                {content.highlights.map((item) => (
-                  <div key={item.title} className="min-w-0 text-center">
-                    <span className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-salon-chip text-salon-ink">
-                      <CmsIcon name={item.icon} className="h-5 w-5" />
-                    </span>
-                    <p className="text-xs font-semibold text-salon-ink">{item.title}</p>
-                    <p className="mt-0.5 text-[10px] leading-snug text-salon-muted">{item.desc}</p>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </motion.div>
+              {content.secondary_cta_label ? (
+                <Link
+                  href={content.secondary_cta_href || "#"}
+                  className="inline-flex items-center gap-2.5 text-[13px] font-semibold text-salon-ink transition hover:text-salon-gold"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-salon-border bg-white shadow-sm">
+                    <Play className="h-3.5 w-3.5 fill-salon-ink" />
+                  </span>
+                  <span className="text-left leading-tight">
+                    {content.secondary_cta_label}
+                    {content.secondary_cta_sub ? (
+                      <span className="block text-xs font-medium text-salon-muted">
+                        {content.secondary_cta_sub}
+                      </span>
+                    ) : null}
+                  </span>
+                </Link>
+              ) : null}
+            </motion.div>
+          )}
+        </div>
       </div>
+
+      {/* Highlights scroll right-to-left as a single line along the base of the hero. */}
+      {marqueeItems.length ? (
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
+          <div className="flex overflow-hidden py-5">
+            <div className="animate-marquee flex shrink-0 items-center">
+              {marqueeItems.map((item, index) => (
+                <span key={`${item.title}-${index}`} className="flex items-center whitespace-nowrap px-6 text-sm">
+                  <span className="font-semibold text-salon-ink">{item.title}</span>
+                  <span className="ml-3 text-salon-muted">{item.desc}</span>
+                  <span className="ml-6 h-1.5 w-1.5 rounded-full bg-salon-gold" aria-hidden />
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -1,9 +1,8 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { Search } from "lucide-react";
-import CmsImage from "@/components/ui/CmsImage";
-import { fallbackImages } from "@/lib/content";
+import contactVideo from "@/assets/images/images/contact.mp4";
 
 type Props = {
   content?: {
@@ -19,7 +18,6 @@ type Props = {
 };
 
 export default function FaqHero({ content }: Props) {
-  const eyebrow = content?.eyebrow || "FAQ";
   const heading = content?.heading || "Got Questions?";
   const headingAccent = content?.heading_accent || "We've Got Answers";
   const subheading =
@@ -29,53 +27,47 @@ export default function FaqHero({ content }: Props) {
   const searchLabel = content?.search_label || "Search";
 
   return (
-    <section className="relative min-h-[560px] w-full overflow-hidden bg-salon-bg lg:min-h-[min(480px,100svh)]">
-      {/* On desktop the photo fills the right half, same as the home hero. */}
-      <div className="relative h-[35vh] min-h-[260px] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]">
-        <CmsImage
-          value={content?.image_url}
-          fallback={fallbackImages.about_hero}
-          alt={content?.image_alt || "SalonAI support team"}
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="(max-width: 1024px) 100vw, 52vw"
-        />
-        <div className="absolute inset-y-0 left-0 hidden w-20 bg-gradient-to-r from-salon-bg to-transparent lg:block" />
-      </div>
+    <section className="relative flex min-h-[560px] w-full items-center overflow-hidden bg-salon-bg lg:min-h-[min(560px,100svh)]">
+      <video
+        src={contactVideo}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none select-none"
+      />
+      <div className="absolute inset-0 bg-black/55" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_35%,rgba(0,0,0,0.55)_100%)]" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="flex py-12 lg:min-h-[400px] lg:w-[47%] lg:items-center lg:pb-20 lg:pt-16">
-          <div className="w-full max-w-xl">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="h-px w-9 bg-salon-rule" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-                {eyebrow}
-              </span>
-            </div>
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
+        <div className="mx-auto flex max-w-2xl flex-col items-center py-20 text-center lg:py-28">
+          <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-white sm:text-6xl lg:text-[4rem]">
+            {heading}
+            <span className="block text-salon-gold-soft">{headingAccent}</span>
+          </h1>
 
-            <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl lg:text-[4rem]">
-              {heading}
-              <span className="block text-salon-accent">{headingAccent}</span>
-            </h1>
+          <p className="mt-5 max-w-lg text-base leading-relaxed text-white/85 sm:text-lg">
+            {subheading}
+          </p>
 
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-salon-muted">{subheading}</p>
-
-            <div className="mt-8 flex max-w-md items-center gap-2 rounded-xl border border-salon-card bg-white/80 p-2 shadow-sm">
-              <Search className="ml-2 h-5 w-5 text-salon-muted/60" />
-              <input
-                type="text"
-                placeholder={searchPlaceholder}
-                className="w-full bg-transparent text-sm text-salon-ink outline-none placeholder:text-salon-muted/60"
-              />
-              <button
-                type="button"
-                className="rounded-lg bg-salon-brand px-6 py-2.5 text-xs font-semibold text-white transition hover:bg-salon-brand-dark"
-              >
-                {searchLabel}
-              </button>
-            </div>
-          </div>
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="mt-8 flex w-full max-w-xl items-center gap-2 rounded-full border border-white/40 bg-white/95 p-1.5 pl-5 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.6)] backdrop-blur transition focus-within:border-salon-brand focus-within:ring-4 focus-within:ring-white/30"
+          >
+            <Search className="h-5 w-5 shrink-0 text-salon-muted/70" />
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              className="w-full bg-transparent py-2 text-sm text-salon-ink outline-none placeholder:text-salon-muted/60 sm:text-base"
+            />
+            <button
+              type="submit"
+              className="shrink-0 rounded-full bg-gradient-to-r from-salon-brand to-salon-brand-dark px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-salon-brand/30 transition hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              {searchLabel}
+            </button>
+          </form>
         </div>
       </div>
     </section>

@@ -1,8 +1,7 @@
 "use client";
 
-import CmsImage from "@/components/ui/CmsImage";
-import CmsIcon from "@/components/ui/CmsIcon";
 import type { IconName } from "@/lib/content";
+import contactVideo from "@/assets/images/images/contact.mp4";
 
 export type ContactHeroProps = {
   eyebrow?: string;
@@ -14,66 +13,41 @@ export type ContactHeroProps = {
 };
 
 export default function ContactHero({
-  eyebrow = "Get in Touch",
   heading,
   subheading,
   image_url,
   image_alt,
-  quick_contacts,
 }: ContactHeroProps) {
   return (
-    <section className="relative min-h-[560px] w-full overflow-hidden bg-salon-bg lg:min-h-[min(480px,100svh)]">
-      {/* On desktop the photo fills the right half, same as the home hero. */}
-      {image_url ? (
-        <div className="relative h-[35vh] min-h-[260px] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]">
-          <CmsImage
-            value={image_url}
-            alt={image_alt || "Contact hero"}
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="(max-width: 1024px) 100vw, 52vw"
-          />
-          <div className="absolute inset-y-0 left-0 hidden w-20 bg-gradient-to-r from-salon-bg to-transparent lg:block" />
-        </div>
-      ) : null}
+    <section className="relative min-h-[460px] w-full overflow-hidden bg-salon-bg lg:min-h-[min(420px,100svh)]">
+      {/* Right side video */}
+      <div className="relative h-[38vh] min-h-[280px] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]">
+        <video
+          src={contactVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="h-full w-full object-cover object-center pointer-events-none select-none"
+        />
+        <div className="absolute inset-y-0 left-0 hidden w-20 bg-gradient-to-r from-salon-bg to-transparent lg:block" />
+      </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         <div
-          className={`flex py-12 lg:min-h-[400px] lg:items-center lg:pb-20 lg:pt-16 ${
-            image_url ? "lg:w-[47%]" : "lg:w-3/4"
-          }`}
+          className="flex flex-col items-center py-14 text-center lg:min-h-[360px] lg:items-center lg:pb-20 lg:pt-20 lg:w-[47%]"
         >
-          <div className="w-full max-w-xl space-y-6">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="h-px w-9 bg-salon-rule" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-                {eyebrow}
+          <div className="mx-auto w-full max-w-2xl space-y-6">
+            <h1 className="text-center font-display text-6xl leading-[1.06] tracking-tight sm:text-7xl lg:text-[4.75rem]">
+              <span className="bg-gradient-to-r from-salon-ink via-salon-gold to-salon-tile bg-clip-text text-transparent">
+                {heading}
               </span>
-            </div>
-
-            <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl lg:text-[4rem]">
-              {heading}
             </h1>
 
-            <p className="max-w-2xl text-sm leading-relaxed text-salon-muted">{subheading}</p>
-
-            <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-3">
-              {quick_contacts.map((item, idx) => (
-                <div
-                  key={`${item.label}-${idx}`}
-                  className="flex items-center gap-3 rounded-2xl border border-salon-card bg-white/80 p-3"
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-salon-tile text-salon-brand-dark">
-                    <CmsIcon name={item.icon} className="h-4 w-4" strokeWidth={1.8} />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-medium text-salon-muted">{item.label}</p>
-                    <p className="truncate text-xs font-semibold text-salon-ink">{item.value}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p className="mx-auto max-w-2xl text-center text-base leading-relaxed text-salon-ink sm:text-lg">
+              {subheading}
+            </p>
           </div>
         </div>
       </div>

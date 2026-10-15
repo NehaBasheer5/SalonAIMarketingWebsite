@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
-import { ChevronRight } from "lucide-react";
-import CmsIcon from "@/components/ui/CmsIcon";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { HomeContent } from "@/lib/content";
 
 type Props = {
@@ -35,84 +35,128 @@ export default function FaqCategoriesContent({ content, faqsFromDb }: Props) {
       : [{ id: "general", label: "General", icon: "BookOpen", slug: "" }];
 
   const dbFaqs = Array.isArray(faqsFromDb) ? faqsFromDb : [];
+  const fallbackFaqs = Array.isArray(content?.faqs) ? content.faqs : [];
 
   const [activeCategory, setActiveCategory] = useState(categories[0]?.id ?? "general");
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const active = categories.find((cat) => cat.id === activeCategory) ?? categories[0];
 
-  const faqItems =
-    dbFaqs.length > 0
-      ? dbFaqs
-          .filter((f) => matchesCategory(active, f))
-          .map((f) => ({ question: f.question, answer: f.answer }))
-      : Array.isArray(content?.faqs)
-        ? content.faqs
-        : [];
+  const faqsFor = (cat: Category): { question: string; answer: string }[] => {
+    // Prefer the database, but fall back to the bundled list when the `faqs`
+    // table is empty. Both are filtered by category so each tab shows its own.
+    const source = dbFaqs.length > 0 ? dbFaqs : fallbackFaqs;
+    return source
+      .filter((f) => matchesCategory(cat, f))
+      .map((f) => ({ question: f.question, answer: f.answer }));
+  };
+
+  const faqItems = faqsFor(active);
 
   return (
-    <section className="w-full overflow-hidden border-t border-salon-card bg-salon-soft py-14 lg:py-16">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex items-center gap-3">
-            <span className="h-px w-8 bg-salon-rule" />
-            <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-              {content?.eyebrow || "Browse"}
-            </span>
-            <span className="h-px w-8 bg-salon-rule" />
-          </div>
-          <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl">
-            {(content?.heading || "Answers")} <span className="text-salon-accent">{content?.heading_accent || "by Category"}</span>
+    <section className="w-full overflow-hidden bg-salon-bg py-14 lg:py-16">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
+        <div className="mb-10 flex flex-col items-center text-center">
+          <h2 className="font-display text-3xl tracking-tight text-black sm:text-4xl lg:text-5xl">
+            {content?.heading || "Frequently Asked"}
+            {content?.heading_accent ? (
+              <span className="text-black"> {content.heading_accent}</span>
+            ) : null}
           </h2>
+          {content?.subheading ? (
+            <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-black">
+              {content.subheading}
+            </p>
+          ) : null}
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <div className="space-y-3 lg:col-span-4">
-            {categories.map((cat) => {
-              const isActive = activeCategory === cat.id;
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+          <aside className="lg:col-span-4">
+            <div className="flex gap-2 overflow-x-auto pb-2 lg:sticky lg:top-24 lg:flex-col lg:overflow-visible lg:pb-0">
+              {categories.map((cat) => {
+                const isActive = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveCategory(cat.id);
+                      setOpenFaq(0);
+                    }}
+                    className={`group flex w-full shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-left transition ${
+                      isActive
+                        ? "bg-gradient-to-r from-salon-brand to-salon-gold text-white shadow-[0_10px_26px_-10px_rgba(133,89,47,0.6)]"
+                        : "bg-white/70 text-salon-ink hover:bg-salon-shell-soft"
+                    }`}
+                  >
+                    <span className="text-sm font-semibold">{cat.label}</span>
+                    <ChevronRight
+                      className={`ml-auto h-4 w-4 transition group-hover:translate-x-0.5 ${
+                        isActive ? "text-white" : "text-salon-brand"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+
+          <div className="space-y-3 lg:col-span-8">
+            {faqItems.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-salon-card bg-white/60 px-5 py-8 text-center text-sm text-salon-muted">
+                No questions in this category yet.
+              </p>
+            ) : null}
+            {faqItems.map((faq, index) => {
+              const open = openFaq === index;
               return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`flex w-full items-center justify-between gap-3 rounded-2xl border p-4 text-left transition ${isActive ? "border-salon-brand bg-white shadow-sm" : "border-salon-card bg-white/60 hover:bg-white"}`}
+                <div
+                  key={`${faq.question}-${index}`}
+                  className={`overflow-hidden rounded-2xl bg-white/80 transition ${
+                    open ? "shadow-[0_14px_34px_-14px_rgba(133,89,47,0.4)]" : ""
+                  }`}
                 >
-                  <span className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(open ? null : index)}
+                    className="flex w-full items-center gap-4 px-5 py-4 text-left"
+                  >
                     <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${isActive ? "bg-salon-brand text-white" : "bg-salon-soft text-salon-ink"}`}
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[13px] font-bold transition ${
+                        open
+                          ? "bg-gradient-to-br from-salon-brand to-salon-gold text-white"
+                          : "bg-salon-tile text-salon-brand"
+                      }`}
                     >
-                      <CmsIcon name={cat.icon as any} className="h-4 w-4" strokeWidth={2} />
+                      {String(index + 1).padStart(2, "0")}
                     </span>
-                    <span>
-                      <span className="block text-xs font-semibold">
-                        {cat.label}
-                      </span>
+                    <span className="flex-1 text-sm font-semibold text-salon-ink sm:text-base">
+                      {faq.question}
                     </span>
-                  </span>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-salon-brand" />
-                </button>
+                    <span
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition ${
+                        open ? "rotate-180 bg-salon-brand text-white" : "bg-salon-shell text-salon-brand"
+                      }`}
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </span>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {open ? (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.22 }}
+                      >
+                        <p className="border-t border-salon-card/70 px-5 pb-5 pt-4 text-sm leading-relaxed text-salon-muted sm:pl-[4.75rem]">
+                          {faq.answer}
+                        </p>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </div>
               );
             })}
-          </div>
-
-          <div className="rounded-2xl border border-salon-card bg-white/80 p-6 shadow-sm lg:col-span-8">
-            <h3 className="font-display text-2xl text-salon-ink">{active.label}</h3>
-            <p className="mb-6 mt-1 text-xs text-salon-muted">
-              {content?.subheading || "Browse questions and answers."}
-            </p>
-            {faqItems.length > 0 ? (
-              <div className="space-y-3">
-                {faqItems.map((f, idx) => (
-                  <details key={idx} className="group rounded-xl border border-salon-card bg-white/80 p-4">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-                      <span className="text-sm font-semibold text-salon-ink">{f.question}</span>
-                      <span className="text-salon-brand">+</span>
-                    </summary>
-                    <p className="mt-2 text-sm leading-relaxed text-salon-muted">{f.answer}</p>
-                  </details>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-salon-muted">No FAQs available for this category.</p>
-            )}
           </div>
         </div>
       </div>

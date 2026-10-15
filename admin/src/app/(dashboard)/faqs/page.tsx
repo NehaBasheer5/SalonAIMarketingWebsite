@@ -18,6 +18,48 @@ type CategoryDef = {
   slug?: string;
 };
 
+/** The editable form of a category row (always has icon + slug strings). */
+type CatRow = { id: string; label: string; icon: string; slug: string };
+
+/** A page_sections row from GET /api/pages/faq, round-tripped on save. */
+type SectionRow = {
+  id: number;
+  section_key: string;
+  heading: string | null;
+  subheading: string | null;
+  body: string | null;
+  cta_label: string | null;
+  cta_href: string | null;
+  image_url: string | null;
+  is_visible: number | boolean;
+  sort_order: number;
+  extra: Record<string, unknown>;
+};
+
+/** Icons the Client's CmsIcon can render for a category tab. */
+const CATEGORY_ICONS = [
+  "HelpCircle",
+  "Sparkles",
+  "BookOpen",
+  "Settings2",
+  "CreditCard",
+  "Shield",
+  "Users",
+  "Zap",
+  "Star",
+  "CalendarDays",
+  "Cloud",
+  "Headset",
+];
+
+function slugify(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 const empty: Faq = {
   question: "",
   answer: "",
@@ -56,6 +98,10 @@ function matchesCategory(faq: Faq, cat: CategoryDef) {
 export default function FaqsPage() {
   const [faqs, setFaqs] = useState<Faq[]>([]);
   const [categories, setCategories] = useState<CategoryDef[]>([]);
+  const [catSection, setCatSection] = useState<SectionRow | null>(null);
+  const [draftCats, setDraftCats] = useState<CatRow[]>([]);
+  const [newCat, setNewCat] = useState<CatRow>({ id: "", label: "", icon: "HelpCircle", slug: "" });
+  const [savingCats, setSavingCats] = useState(false);
   const [tab, setTab] = useState("all");
   const [form, setForm] = useState<Faq>(empty);
 
@@ -66,26 +112,33 @@ export default function FaqsPage() {
       setFaqs(Array.isArray(faqData?.faqs) ? faqData.faqs : []);
       try {
         const pageData = pageRes.ok ? await safeJson(pageRes) : null;
-        const catSection = (pageData?.sections || []).find(
-          (s: { section_key: string }) => s.section_key === "categories"
-        );
-        const list = Array.isArray(catSection?.extra?.categories)
-          ? catSection.extra.categories
+        const sections = Array.isArray(pageData?.sections)
+          ? (pageData?.sections as SectionRow[])
           : [];
-        setCategories(
-          list.map((c: Record<string, unknown>) => ({
-            id: String(c.id ?? "") || "",
-            label: String(c.label ?? "") || "Category",
-            icon: typeof c.icon === "string" ? c.icon : undefined,
-            slug: String(c.slug ?? "") || "",
-          }))
-        );
+        const found = sections.find((s) => s.section_key === "categories") ?? null;
+        setCatSection(found);
+
+        const list = Array.isArray(found?.extra?.categories)
+          ? (found?.extra?.categories as Record<string, unknown>[])
+          : [];
+        const rows: CatRow[] = list.map((c, idx) => ({
+          id: String(c.id ?? c.slug ?? `cat-${idx}`) || `cat-${idx}`,
+          label: String(c.label ?? c.name ?? c.id ?? "Category"),
+          icon: typeof c.icon === "string" && c.icon ? c.icon : "HelpCircle",
+          slug: c.slug === undefined || c.slug === null ? "" : String(c.slug),
+        }));
+        setCategories(rows.map((r) => ({ id: r.id, label: r.label, icon: r.icon, slug: r.slug })));
+        setDraftCats(rows);
       } catch {
         setCategories([]);
+        setCatSection(null);
+        setDraftCats([]);
       }
     } catch {
       setFaqs([]);
       setCategories([]);
+      setCatSection(null);
+      setDraftCats([]);
     }
   }, []);
 
@@ -142,6 +195,77 @@ export default function FaqsPage() {
     setForm((prev) => ({ ...prev, category: e }));
   }
 
+  const savedCatsKey = useMemo(
+    () => JSON.stringify(categories.map((c) => [c.id, c.label, c.icon ?? "", c.slug ?? ""])),
+    [categories]
+  );
+  const draftCatsKey = useMemo(
+    () => JSON.stringify(draftCats.map((c) => [c.id, c.label, c.icon, c.slug])),
+    [draftCats]
+  );
+  const catsDirty = savedCatsKey !== draftCatsKey;
+
+  function updateCat(index: number, patch: Partial<CatRow>) {
+    setDraftCats((prev) => prev.map((c, i) => (i === index ? { ...c, ...patch } : c)));
+  }
+
+  function removeCat(index: number) {
+    setDraftCats((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function resetCats() {
+    setDraftCats(
+      categories.map((c) => ({ id: c.id, label: c.label, icon: c.icon ?? "HelpCircle", slug: c.slug ?? "" }))
+    );
+  }
+
+  function addCat() {
+    const label = newCat.label.trim();
+    if (!label) return;
+    const slug = newCat.slug.trim() || slugify(label);
+    const id = slugify(label) || `cat-${Date.now()}`;
+    setDraftCats((prev) => [...prev, { id, label, icon: newCat.icon || "HelpCircle", slug }]);
+    setNewCat({ id: "", label: "", icon: "HelpCircle", slug: "" });
+  }
+
+  async function saveCategories() {
+    if (!catSection || savingCats) return;
+    setSavingCats(true);
+    const cleaned = draftCats
+      .map((c, idx) => ({
+        id: c.id.trim() || slugify(c.label) || `cat-${idx}`,
+        label: c.label.trim(),
+        icon: c.icon.trim() || "HelpCircle",
+        slug: c.slug.trim(),
+      }))
+      .filter((c) => c.label);
+    try {
+      await fetch("/api/pages/faq", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sections: [
+            {
+              id: catSection.id,
+              heading: catSection.heading ?? "",
+              subheading: catSection.subheading ?? "",
+              body: catSection.body ?? "",
+              cta_label: catSection.cta_label ?? "",
+              cta_href: catSection.cta_href ?? "",
+              image_url: catSection.image_url ?? "",
+              is_visible: catSection.is_visible,
+              sort_order: catSection.sort_order,
+              extra: { ...catSection.extra, categories: cleaned },
+            },
+          ],
+        }),
+      });
+      await load();
+    } finally {
+      setSavingCats(false);
+    }
+  }
+
   const activeTabLabel =
     (categories.find((c) => c.id === tab)?.label ?? "") || (tab === UNCATEGORIZED ? "Uncategorized" : "All categories");
 
@@ -150,9 +274,120 @@ export default function FaqsPage() {
       <div>
         <h2 className="text-2xl font-bold text-[#0D1140]">FAQs</h2>
         <p className="text-sm text-slate-600">
-          Manage questions shown on the Client FAQ page. Categories are defined under Pages → FAQ → Categories &amp; Questions.
+          Manage the questions shown on the Client home page (newest 5) and the FAQ page. Add or edit the category tabs below.
         </p>
       </div>
+
+      {catSection ? (
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-slate-700">Categories</p>
+              <p className="text-xs text-slate-400">
+                These tabs appear on the Client home page and the FAQ page. Each question&apos;s category matches a tab by its label, slug or id.
+              </p>
+            </div>
+            {catsDirty ? (
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={resetCats}
+                  className="text-xs font-semibold text-slate-500 hover:text-slate-700"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={saveCategories}
+                  disabled={savingCats}
+                  className="rounded-lg bg-[#0D1140] px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+                >
+                  {savingCats ? "Saving…" : "Save categories"}
+                </button>
+              </div>
+            ) : null}
+          </div>
+
+          {draftCats.length ? (
+            <div className="space-y-2">
+              {draftCats.map((cat, idx) => (
+                <div
+                  key={`${cat.id}-${idx}`}
+                  className="grid items-center gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_170px_auto]"
+                >
+                  <input
+                    value={cat.label}
+                    onChange={(e) => updateCat(idx, { label: e.target.value })}
+                    placeholder="Label"
+                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  />
+                  <input
+                    value={cat.slug}
+                    onChange={(e) => updateCat(idx, { slug: e.target.value })}
+                    placeholder="slug (optional)"
+                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  />
+                  <select
+                    value={cat.icon}
+                    onChange={(e) => updateCat(idx, { icon: e.target.value })}
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+                  >
+                    {CATEGORY_ICONS.map((icon) => (
+                      <option key={icon} value={icon}>
+                        {icon}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => removeCat(idx)}
+                    className="justify-self-end rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-xl border border-dashed border-slate-200 px-4 py-3 text-sm text-slate-400">
+              No categories yet. Add one below.
+            </p>
+          )}
+
+          <div className="grid items-center gap-2 border-t border-slate-100 pt-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_170px_auto]">
+            <input
+              value={newCat.label}
+              onChange={(e) => setNewCat((p) => ({ ...p, label: e.target.value }))}
+              placeholder="New category label"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            />
+            <input
+              value={newCat.slug}
+              onChange={(e) => setNewCat((p) => ({ ...p, slug: e.target.value }))}
+              placeholder="slug (optional)"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            />
+            <select
+              value={newCat.icon}
+              onChange={(e) => setNewCat((p) => ({ ...p, icon: e.target.value }))}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+            >
+              {CATEGORY_ICONS.map((icon) => (
+                <option key={icon} value={icon}>
+                  {icon}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={addCat}
+              className="justify-self-end rounded-lg border border-[#0D1140] px-3 py-2 text-xs font-semibold text-[#0D1140] hover:bg-slate-50"
+            >
+              + Add category
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap gap-2">
         <TabButton active={tab === "all"} onClick={() => switchTab("all", "General")}>
@@ -225,7 +460,7 @@ export default function FaqsPage() {
               ) : null}
             </select>
             <p className="mt-1 text-[11px] text-slate-400">
-              Choices come from Pages → FAQ → Categories &amp; Questions.
+              Choices come from the Categories panel above.
             </p>
           </div>
           <div>

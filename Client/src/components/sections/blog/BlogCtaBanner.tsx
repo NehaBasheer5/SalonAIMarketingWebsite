@@ -12,14 +12,14 @@ export default function BlogCtaBanner({
 }) {
   return (
     <section className="w-full overflow-hidden bg-salon-bg py-12">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         <div className="flex flex-col items-center justify-between gap-6 rounded-3xl border border-salon-brand bg-salon-brand p-8 text-white shadow-[0_16px_40px_rgba(133,89,47,0.2)] sm:p-10 lg:flex-row">
           <div className="flex items-center gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/30 bg-white/10">
               <Sparkles className="h-6 w-6" strokeWidth={1.8} />
             </span>
             <div>
-              <h2 className="font-display text-xl text-white sm:text-2xl">
+              <h2 className="font-display text-3xl text-white sm:text-4xl lg:text-5xl">
                 {content.heading}
                 {content.heading_accent ? (
                   <span className="block text-white/90">{content.heading_accent}</span>

@@ -22,19 +22,11 @@ export default function PricingHero({
   return (
     <section className="w-full overflow-hidden bg-salon-bg pt-14 lg:pt-16">
       <div className="mx-auto max-w-4xl px-5 text-center sm:px-8">
-        <div className="mb-4 flex items-center justify-center gap-3">
-          <span className="h-px w-8 bg-salon-rule" />
-          <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-            {eyebrow}
-          </span>
-          <span className="h-px w-8 bg-salon-rule" />
-        </div>
-
         <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl">
           {heading}
-          {heading_accent ? <span className="block text-salon-accent">{heading_accent}</span> : null}
+          {heading_accent ? <span className="block text-salon-gold-soft">{heading_accent}</span> : null}
         </h1>
-        <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-salon-muted sm:text-base">
+        <p className="mx-auto mt-5 max-w-xl text-[19px] leading-relaxed text-salon-muted">
           {subheading}
         </p>
 

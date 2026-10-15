@@ -75,14 +75,14 @@ export default async function BlogPostPage({ params }: Params) {
 
             <div className="mt-6 flex flex-wrap items-center gap-2">
               {post.category ? (
-                <span className="rounded-md bg-salon-tile px-2.5 py-1 text-[10px] font-semibold text-salon-brand-dark">
+                <span className="rounded-md bg-salon-tile px-2.5 py-1 text-[12px] font-semibold text-salon-brand-dark">
                   {post.category}
                 </span>
               ) : null}
               {post.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-md border border-salon-card bg-white px-2.5 py-1 text-[10px] font-medium text-salon-muted"
+                  className="rounded-md border border-salon-card bg-white px-2.5 py-1 text-[12px] font-medium text-salon-muted"
                 >
                   {tag}
                 </span>
@@ -126,7 +126,7 @@ export default async function BlogPostPage({ params }: Params) {
         </header>
 
         {post.cover_video || post.cover_image ? (
-          <div className="mx-auto max-w-5xl px-5 pt-10 sm:px-8">
+          <div className="mx-auto max-w-5xl px-5 pt-0 sm:px-8">
             <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-salon-card bg-salon-shell">
               <CmsImage
                 value={post.cover_video || post.cover_image}
@@ -168,10 +168,10 @@ export default async function BlogPostPage({ params }: Params) {
 
       {related.length ? (
         <section className="w-full overflow-hidden border-t border-salon-card bg-salon-soft py-12">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
             <div className="mb-8 flex items-center gap-3">
               <span className="h-px w-9 bg-salon-rule" />
-              <h2 className="font-display text-2xl tracking-tight text-salon-ink">
+              <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl lg:text-5xl">
                 More from the <span className="text-salon-accent">blog</span>
               </h2>
             </div>

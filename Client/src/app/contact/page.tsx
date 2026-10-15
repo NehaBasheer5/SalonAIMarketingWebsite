@@ -1,7 +1,6 @@
 import ContactHero from "@/components/sections/contact/ContactHero";
 import ContactFormSection from "@/components/sections/contact/ContactFormSection";
 import LocationMapSection from "@/components/sections/contact/LocationMapSection";
-import ContactCtaBanner from "@/components/sections/contact/ContactCtaBanner";
 import { getContactContent } from "@/lib/content";
 import { resolveImageUrl, isVideoPath } from "@/lib/content";
 
@@ -23,9 +22,6 @@ export default async function ContactPage() {
       ) : null}
       {!hidden.has("location_map") ? (
         <LocationMapSection {...content.location_map} />
-      ) : null}
-      {!hidden.has("cta_banner") ? (
-        <ContactCtaBanner {...content.cta_banner} />
       ) : null}
     </main>
   );

@@ -1,9 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { ArrowRight, LayoutGrid } from "lucide-react";
-import CmsIcon from "@/components/ui/CmsIcon";
 import BlogPostCard from "@/components/sections/blog/BlogPostCard";
 import {
   categoryKey,
@@ -80,25 +77,16 @@ export default function BlogCategories({ content = defaultBlogContent.categories
     });
   }, [posts, query, activeKeys]);
 
-  const total = posts.length;
   const allOption = options.find((option) => !option.value);
   const chips = allOption ? [allOption, ...options.filter((option) => option.value)] : options;
 
   return (
     <>
-      <section className="w-full overflow-hidden border-t border-salon-card bg-salon-soft py-12">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="mb-6 flex items-center gap-3">
-            <span className="h-px w-9 bg-salon-rule" />
-            <h3 className="text-[9px] font-semibold uppercase tracking-[0.28em] text-salon-eyebrow">
-              {content.heading}
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <section className="w-full overflow-hidden bg-salon-bg py-12">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             {chips.map((cat) => {
               const active = category === cat.value;
-              const count = cat.value ? cat.count : allOption?.count ?? total;
 
               return (
                 <button
@@ -106,35 +94,13 @@ export default function BlogCategories({ content = defaultBlogContent.categories
                   type="button"
                   onClick={() => setCategory(active ? "" : cat.value)}
                   aria-pressed={active}
-                  className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition ${
+                  className={`rounded-full px-4 py-1.5 text-[19px] font-semibold transition ${
                     active
-                      ? "border-salon-brand bg-salon-shell shadow-[0_8px_24px_rgba(133,89,47,0.1)]"
-                      : "border-salon-card bg-white/70 hover:bg-white"
+                      ? "bg-salon-brand text-white"
+                      : "text-salon-ink hover:text-salon-brand"
                   }`}
                 >
-                  <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
-                      active ? "bg-salon-brand text-white" : "bg-salon-tile text-salon-brand-dark"
-                    }`}
-                  >
-                    {cat.icon ? (
-                      <CmsIcon name={cat.icon} className="h-4 w-4" strokeWidth={1.8} />
-                    ) : (
-                      <LayoutGrid className="h-4 w-4" strokeWidth={1.8} />
-                    )}
-                  </span>
-                  <span className="min-w-0">
-                    <span
-                      className={`block truncate text-xs font-semibold ${
-                        active ? "text-salon-brand" : "text-salon-ink"
-                      }`}
-                    >
-                      {cat.label}
-                    </span>
-                    <span className="mt-0.5 block text-[10px] text-salon-muted">
-                      {count} Article{count === 1 ? "" : "s"}
-                    </span>
-                  </span>
+                  {cat.label}
                 </button>
               );
             })}
@@ -143,25 +109,14 @@ export default function BlogCategories({ content = defaultBlogContent.categories
       </section>
 
       <section id="articles" className="w-full overflow-hidden bg-salon-bg py-12 lg:py-14">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="mb-8 flex flex-col items-end justify-between gap-4 sm:flex-row">
-            <div className="flex items-center gap-3">
-              <span className="h-px w-9 bg-salon-rule" />
-              <h2 className="font-display text-2xl tracking-tight text-salon-ink sm:text-3xl">
-                {latest.heading}
-                {latest.heading_accent ? (
-                  <span className="text-salon-accent"> {latest.heading_accent}</span>
-                ) : null}
-              </h2>
-            </div>
-            {latest.cta_label ? (
-              <Link
-                href={latest.cta_href || "/blog"}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-salon-brand underline-offset-4 hover:underline"
-              >
-                {latest.cta_label} <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            ) : null}
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
+          <div className="mb-8">
+            <h2 className="font-display text-3xl tracking-tight text-black sm:text-4xl lg:text-5xl">
+              {latest.heading}
+              {latest.heading_accent ? (
+                <span className="text-black"> {latest.heading_accent}</span>
+              ) : null}
+            </h2>
           </div>
 
           {filtered.length ? (
