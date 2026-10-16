@@ -5,9 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Eye } from "lucide-react";
 import CmsImage from "@/components/ui/CmsImage";
 import MarkdownContent from "@/components/ui/MarkdownContent";
-import BlogCtaBanner from "@/components/sections/blog/BlogCtaBanner";
 import BlogPostCard from "@/components/sections/blog/BlogPostCard";
-import { getBlogContent, getBlogPost, resolveImageUrl } from "@/lib/content";
+import { getBlogPost, resolveImageUrl } from "@/lib/content";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -55,7 +54,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
  */
 export default async function BlogPostPage({ params }: Params) {
   const { slug } = await params;
-  const [result, { content }] = await Promise.all([loadPost(slug), getBlogContent()]);
+  const result = await loadPost(slug);
 
   if (!result) notFound();
 
@@ -64,7 +63,7 @@ export default async function BlogPostPage({ params }: Params) {
   return (
     <main className="min-h-screen bg-salon-bg">
       <article>
-        <header className="w-full overflow-hidden border-b border-salon-card bg-salon-soft">
+        <header className="w-full overflow-hidden">
           <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 lg:py-16">
             <Link
               href="/blog"
@@ -169,10 +168,9 @@ export default async function BlogPostPage({ params }: Params) {
       {related.length ? (
         <section className="w-full overflow-hidden border-t border-salon-card bg-salon-soft py-12">
           <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
-            <div className="mb-8 flex items-center gap-3">
-              <span className="h-px w-9 bg-salon-rule" />
-              <h2 className="font-display text-3xl tracking-tight text-salon-ink sm:text-4xl lg:text-5xl">
-                More from the <span className="text-salon-accent">blog</span>
+            <div className="mb-8">
+              <h2 className="font-display text-3xl tracking-tight text-black sm:text-4xl lg:text-5xl">
+                More from the blog
               </h2>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -183,8 +181,6 @@ export default async function BlogPostPage({ params }: Params) {
           </div>
         </section>
       ) : null}
-
-      <BlogCtaBanner content={content.cta_banner} />
     </main>
   );
 }

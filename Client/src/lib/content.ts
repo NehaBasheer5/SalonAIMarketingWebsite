@@ -1,6 +1,7 @@
 import { images } from "@/assets";
 import heroVideo from "@/assets/images/home_hero.mp4";
-import { fetchCmsFaqCategories, fetchRecentCmsFaqs } from "@/lib/cms/faqs";
+import { fetchCmsFaqCategories, fetchHomeCmsFaqs, type CmsFaq } from "@/lib/cms/faqs";
+import { fetchCmsFeaturePosts } from "@/lib/cms/features";
 
 /**
  * Content layer between the Client site and the Admin CMS.
@@ -16,14 +17,12 @@ import { fetchCmsFaqCategories, fetchRecentCmsFaqs } from "@/lib/cms/faqs";
 export type IconName = string;
 
 export type Highlight = {
-  icon: IconName;
   title: string;
   desc: string;
 };
 
 export type HomeContent = {
   hero: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
@@ -37,17 +36,20 @@ export type HomeContent = {
     highlights: Highlight[];
   };
   features_overview: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
     cta_label: string;
     cta_href: string;
-    features: { icon: IconName; title: string; description: string }[];
-    footer_note: string;
+    features: {
+      title: string;
+      description: string;
+      /** detail page slug, when the card came from a feature post */
+      slug?: string;
+      image_url?: string;
+    }[];
   };
   product_preview: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
@@ -58,7 +60,6 @@ export type HomeContent = {
     points: Highlight[];
   };
   pricing: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
@@ -79,12 +80,9 @@ export type HomeContent = {
     }[];
   };
   testimonials: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
-    cta_label: string;
-    cta_href: string;
     items: {
       name: string;
       role: string;
@@ -95,7 +93,6 @@ export type HomeContent = {
     }[];
   };
   mobile_app: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
@@ -121,18 +118,9 @@ export type HomeContent = {
     subheading: string;
     cta_label: string;
     cta_href: string;
-    secondary_cta_label: string;
-    secondary_cta_href: string;
     image_url: string;
     image_alt: string;
-    features: Highlight[];
-    avatars: string[];
-    trust_text: string;
-    stat_label: string;
-    stat_value: string;
-    stat_delta: string;
-    stat_note_title: string;
-    stat_note_body: string;
+    features: { title: string }[];
   };
 };
 
@@ -165,7 +153,6 @@ export const fallbackImages = {
 
 const DEFAULTS: HomeContent = {
   hero: {
-    eyebrow: "All-in-One Salon Management App",
     heading: "Empower Your Salon",
     heading_accent: "Business",
     subheading:
@@ -178,14 +165,13 @@ const DEFAULTS: HomeContent = {
     image_url: heroVideo,
     image_alt: "SalonAI mobile app mockups in a modern salon",
     highlights: [
-      { icon: "CalendarDays", title: "Easy Booking", desc: "24/7 online appointments." },
-      { icon: "Users", title: "Manage Staff", desc: "Save time, work smarter." },
-      { icon: "Sparkles", title: "Grow Revenue", desc: "Insights & reports." },
-      { icon: "ShieldCheck", title: "Secure & Reliable", desc: "Your data is safe." },
+      { title: "Easy Booking", desc: "24/7 online appointments." },
+      { title: "Manage Staff", desc: "Save time, work smarter." },
+      { title: "Grow Revenue", desc: "Insights & reports." },
+      { title: "Secure & Reliable", desc: "Your data is safe." },
     ],
   },
   features_overview: {
-    eyebrow: "Features",
     heading: "Everything You Need to",
     heading_accent: "Run Your Salon Smarter",
     subheading:
@@ -194,30 +180,24 @@ const DEFAULTS: HomeContent = {
     cta_href: "/features",
     features: [
       {
-        icon: "CalendarClock",
         title: "Booking Management",
         description: "Manage appointments, schedule and walk-ins effortlessly.",
       },
       {
-        icon: "UsersRound",
         title: "Staff Management",
         description: "Organize staff, roles, commissions and performance.",
       },
       {
-        icon: "UserRoundCog",
         title: "Customer Management",
         description: "Keep customer profiles, history, notes and preferences.",
       },
       {
-        icon: "Cpu",
         title: "AI Features",
         description: "Manage appointments with AI-powered workflows effortlessly.",
       },
     ],
-    footer_note: "Beauty Meets Technology",
   },
   product_preview: {
-    eyebrow: "Platform",
     heading: "A Powerful Platform",
     heading_accent: "Designed for Salons",
     subheading:
@@ -228,29 +208,24 @@ const DEFAULTS: HomeContent = {
     image_alt: "Modern salon interior",
     points: [
       {
-        icon: "CalendarDays",
         title: "Easy Navigation",
         desc: "A clean and intuitive interface for everyone.",
       },
       {
-        icon: "Zap",
         title: "Real-time Updates",
         desc: "Stay in sync with bookings, staff and customers.",
       },
       {
-        icon: "ChartColumnIncreasing",
         title: "Advanced Analytics",
         desc: "Track performance and grow with clear insights.",
       },
       {
-        icon: "ShieldCheck",
         title: "Secure & Cloud Based",
         desc: "Your salon data stays protected and accessible.",
       },
     ],
   },
   pricing: {
-    eyebrow: "Pricing",
     heading: "Simple,",
     heading_accent: "Transparent Pricing",
     subheading:
@@ -305,13 +280,10 @@ const DEFAULTS: HomeContent = {
     ],
   },
   testimonials: {
-    eyebrow: "Testimonials",
     heading: "Loved by",
     heading_accent: "Salon Owners",
     subheading:
       "Real stories from salon owners who are growing their business with SalonAI.",
-    cta_label: "View All Testimonials →",
-    cta_href: "/#testimonials",
     items: [
       {
         name: "Priya Sharma",
@@ -346,7 +318,6 @@ const DEFAULTS: HomeContent = {
     ],
   },
   mobile_app: {
-    eyebrow: "Mobile App",
     heading: "On the Go,",
     heading_accent: "Always in Control",
     subheading:
@@ -500,32 +471,13 @@ const DEFAULTS: HomeContent = {
       "Join 10,000+ salon owners who are saving time, increasing bookings and growing their business with SalonAI.",
     cta_label: "Book a Demo",
     cta_href: "/request-demo",
-    secondary_cta_label: "Contact Sales",
-    secondary_cta_href: "/contact",
     image_url: "",
     image_alt: "Salon professional at work",
     features: [
-      { icon: "CalendarDays", title: "Easy Setup", desc: "Get started in minutes." },
-      { icon: "Users", title: "Dedicated Support", desc: "Real help when you need it." },
-      {
-        icon: "ChartColumnIncreasing",
-        title: "Grow Faster",
-        desc: "Insights that drive bookings.",
-      },
+      { title: "Easy Setup" },
+      { title: "Dedicated Support" },
+      { title: "Grow Faster" },
     ],
-    avatars: [
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=80",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=80",
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=80",
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=80",
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=80",
-    ],
-    trust_text: "Trusted by 10,000+ salon owners worldwide",
-    stat_label: "Bookings This Month",
-    stat_value: "1,248",
-    stat_delta: "+12.5%",
-    stat_note_title: "More Time For What You Love",
-    stat_note_body: "Spend less time on admin and more time with your clients.",
   },
 };
 
@@ -737,7 +689,6 @@ export const defaultFaqPageContent: HomeContent["faq"] = {
 
 export type FeaturesContent = {
   hero: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
@@ -745,34 +696,32 @@ export type FeaturesContent = {
     cta_href: string;
     secondary_cta_label: string;
     secondary_cta_href: string;
-    image_url: string;
-    image_alt: string;
-    highlights: Highlight[];
   };
   feature_grid: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
-    categories: { id: string; label: string; icon: IconName }[];
+    categories: { id: string; label: string }[];
     features: {
       title: string;
       description: string;
       category: string;
       icon: IconName;
       href: string;
+      /** detail page URL at `/features/<slug>` */
+      slug?: string;
+      image_url?: string;
+      image_alt?: string;
     }[];
   };
   platform_showcase: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     body: string;
-    image_url: string;
-    image_alt: string;
-    benefits: Highlight[];
-  };
-stats_bar: {
-    stats: { icon: IconName; value: string; label: string }[];
+    /** CMS uploads for the photo collage; blank falls back to the bundled images. */
+    image_left?: string;
+    image_center?: string;
+    image_right?: string;
+    benefits: { title: string; desc: string }[];
   };
 };
 
@@ -782,12 +731,10 @@ export const FEATURES_SECTION_ORDER: FeaturesSectionKey[] = [
   "hero",
   "feature_grid",
   "platform_showcase",
-  "stats_bar",
 ];
 
 const FEATURES_DEFAULTS: FeaturesContent = {
   hero: {
-    eyebrow: "Features",
     heading: "Everything You Need to",
     heading_accent: "Run Your Salon Smarter",
     subheading:
@@ -796,28 +743,19 @@ const FEATURES_DEFAULTS: FeaturesContent = {
     cta_href: "/request-demo",
     secondary_cta_label: "Our Story",
     secondary_cta_href: "/about",
-    image_url: "",
-    image_alt: "SalonAI Dashboard Interface",
-    highlights: [
-      { icon: "Sparkles", title: "Easy to Use", desc: "Onboard in minutes." },
-      { icon: "Cpu", title: "AI-Powered", desc: "Smarter workflows." },
-      { icon: "ShieldCheck", title: "Secure & Reliable", desc: "Your data is safe." },
-      { icon: "Cloud", title: "Cloud Based", desc: "Access anywhere." },
-    ],
   },
   feature_grid: {
-    eyebrow: "Everything Included",
     heading: "Explore Our",
     heading_accent: "Powerful Features",
     categories: [
-      { id: "all", label: "All Features", icon: "LayoutGrid" },
-      { id: "bookings", label: "Bookings", icon: "Calendar" },
-      { id: "customers", label: "Customers", icon: "Users" },
-      { id: "staff", label: "Staff", icon: "UserCheck" },
-      { id: "business", label: "Business", icon: "Briefcase" },
-      { id: "marketing", label: "Marketing", icon: "Megaphone" },
-      { id: "reports", label: "Reports", icon: "BarChart3" },
-      { id: "integrations", label: "Integrations", icon: "Puzzle" },
+      { id: "all", label: "All Features" },
+      { id: "bookings", label: "Bookings" },
+      { id: "customers", label: "Customers" },
+      { id: "staff", label: "Staff" },
+      { id: "business", label: "Business" },
+      { id: "marketing", label: "Marketing" },
+      { id: "reports", label: "Reports" },
+      { id: "integrations", label: "Integrations" },
     ],
     features: [
       { title: "Online Booking", description: "Let clients book appointments 24/7 with real-time availability and instant confirmation.", category: "bookings", icon: "Calendar", href: "/features/booking" },
@@ -835,37 +773,50 @@ const FEATURES_DEFAULTS: FeaturesContent = {
     ],
   },
   platform_showcase: {
-    eyebrow: "Platform",
     heading: "A Powerful Platform",
     heading_accent: "Designed for Your Success",
     body: "SalonAI is more than just software. It's a complete management solution that helps you save time, improve customer experience and grow your salon.",
-    image_url: "",
-    image_alt: "SalonAI Laptop and Mobile App Interface",
+    image_left: "",
+    image_center: "",
+    image_right: "",
     benefits: [
-      { icon: "Clock", title: "Save Time", desc: "Automate tasks and focus on what matters most." },
-      { icon: "Globe", title: "Work from Anywhere", desc: "Access your salon data anytime, on any device." },
-      { icon: "Shield", title: "Increase Revenue", desc: "Boost sales with smart insights and retention." },
-      { icon: "Zap", title: "Scalable Solution", desc: "From single salons to large enterprises." },
-      { icon: "Smile", title: "Delight Customers", desc: "Provide exceptional service and experience." },
-      { icon: "RefreshCw", title: "Always Improving", desc: "We innovate and ship new features regularly." },
-    ],
-  },
-stats_bar: {
-    stats: [
-      { icon: "Users", value: "10,000+", label: "Salons Worldwide" },
-      { icon: "Smile", value: "500K+", label: "Happy Customers" },
-      { icon: "CalendarCheck", value: "1M+", label: "Appointments Managed" },
-      { icon: "TrendingUp", value: "95%", label: "Customer Satisfaction" },
-      { icon: "Headset", value: "24/7", label: "Customer Support" },
+      { title: "Save Time", desc: "Automate tasks and focus on what matters most." },
+      { title: "Work from Anywhere", desc: "Access your salon data anytime, on any device." },
+      { title: "Increase Revenue", desc: "Boost sales with smart insights and retention." },
+      { title: "Scalable Solution", desc: "From single salons to large enterprises." },
+      { title: "Delight Customers", desc: "Provide exceptional service and experience." },
+      { title: "Always Improving", desc: "We innovate and ship new features regularly." },
     ],
   },
 };
 
 export const defaultFeaturesContent: FeaturesContent = FEATURES_DEFAULTS;
 
+/**
+ * One feature card plus the body of its own detail page, served at
+ * `/features/<slug>` when "Learn more" is clicked on the features grid.
+ *
+ * The card fields double as the detail page header, so the summary and hero are
+ * always in step with the grid.
+ */
+export type FeaturePost = {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  /** markdown body of the detail page */
+  content?: string;
+  category: string;
+  icon: IconName;
+  image_url: string;
+  image_alt: string;
+  /** external link, when it replaces the detail page */
+  href?: string;
+  sort_order: number;
+};
+
 export type AboutContent = {
   hero: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
@@ -875,10 +826,8 @@ export type AboutContent = {
     secondary_cta_href: string;
     image_url: string;
     image_alt: string;
-    highlights: { icon: string; title: string; desc: string }[];
   };
   mission_stats: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
@@ -886,13 +835,11 @@ export type AboutContent = {
     mission_body: string;
     vision_title: string;
     vision_body: string;
-    stats: { value: string; label: string }[];
   };
   journey: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
-    milestones: { icon: string; title: string; desc: string }[];
+    milestones: { title: string; desc: string }[];
   };
   team: {
     eyebrow: string;
@@ -915,8 +862,8 @@ export type AboutSectionKey = keyof AboutContent;
 export const ABOUT_SECTION_ORDER: AboutSectionKey[] = [
   "hero",
   "mission_stats",
-  "journey",
   "team",
+  "journey",
   "why_choose",
 ];
 
@@ -954,7 +901,6 @@ export type PricingComparisonRow = {
 };
 
 export type PricingIncludedItem = {
-  icon?: IconName;
   title: string;
   desc?: string;
 };
@@ -966,15 +912,12 @@ export type PricingFaq = {
 
 export type PricingContent = {
   hero: {
-    eyebrow: string;
     heading: string;
     heading_accent?: string;
     subheading: string;
     monthly_label?: string;
     annual_label?: string;
     per_month_suffix?: string;
-    image_url?: string;
-    image_alt?: string;
   };
 pricing_cards: {
     plans: PricingPlan[];
@@ -988,9 +931,7 @@ pricing_cards: {
     plan_columns?: string[];
     rows?: PricingComparisonRow[];
   };
-  banner?: {
-    strip_heading?: string;
-    items?: PricingIncludedItem[];
+  closing_cta?: {
     title?: string;
     subtitle?: string;
     cta_label?: string;
@@ -1000,13 +941,14 @@ pricing_cards: {
     image_url?: string;
     image_alt?: string;
   };
+  banner?: {
+    strip_heading?: string;
+    items?: PricingIncludedItem[];
+  };
   faq_cta?: {
     heading?: string;
     subheading?: string;
-    link_label?: string;
-    link_href?: string;
     faqs?: PricingFaq[];
-    cta_eyebrow?: string;
     cta_heading?: string;
     cta_heading_accent?: string;
     cta_subheading?: string;
@@ -1021,16 +963,24 @@ pricing_cards: {
 
 export type ContactContent = {
   hero: {
-    eyebrow: string;
     heading: string;
     subheading: string;
     image_url: string;
     image_alt: string;
-    quick_contacts: { icon: IconName; label: string; value: string }[];
   };
   contact_form: {
     heading: string;
     subheading: string;
+    name_label: string;
+    name_placeholder: string;
+    email_label: string;
+    email_placeholder: string;
+    phone_label: string;
+    phone_placeholder: string;
+    subject_label: string;
+    subject_placeholder: string;
+    message_label: string;
+    message_placeholder: string;
     submit_label: string;
     success_message: string;
     privacy_note: string;
@@ -1047,18 +997,23 @@ export type ContactContent = {
     directions_label: string;
     directions_href: string;
   };
-  cta_banner: {
-    eyebrow: string;
-    heading: string;
-    heading_accent: string;
-    subheading: string;
-    cta_label: string;
-    cta_href: string;
-    secondary_cta_label: string;
-    secondary_cta_href: string;
-    image_url: string;
-    image_alt: string;
-  };
+};
+
+/**
+ * Closing CTA banner shared with the request-demo page. The contact page no
+ * longer renders one, so this type no longer lives inside `ContactContent`.
+ */
+export type ContactCtaBannerContent = {
+  eyebrow: string;
+  heading: string;
+  heading_accent: string;
+  subheading: string;
+  cta_label: string;
+  cta_href: string;
+  secondary_cta_label: string;
+  secondary_cta_href: string;
+  image_url: string;
+  image_alt: string;
 };
 
 export type ContactSectionKey = keyof ContactContent;
@@ -1067,12 +1022,10 @@ export const CONTACT_SECTION_ORDER: ContactSectionKey[] = [
   "hero",
   "contact_form",
   "location_map",
-  "cta_banner",
 ];
 
 const ABOUT_DEFAULTS: AboutContent = {
   hero: {
-    eyebrow: "About SalonAI",
     heading: "Building Intelligent",
     heading_accent: "Solutions for Modern Salons",
     subheading:
@@ -1083,15 +1036,8 @@ const ABOUT_DEFAULTS: AboutContent = {
     secondary_cta_href: "/features",
     image_url: "",
     image_alt: "SalonAI platform overview",
-    highlights: [
-      { icon: "Sparkles", title: "AI-Powered", desc: "Smarter tools, less admin." },
-      { icon: "Users", title: "10,000+ Salons", desc: "Trusted worldwide." },
-      { icon: "TrendingUp", title: "Proven Growth", desc: "Real results, daily." },
-      { icon: "ShieldCheck", title: "Secure", desc: "Enterprise-grade data safety." },
-    ],
   },
   mission_stats: {
-    eyebrow: "Our Mission",
     heading: "Our Mission, Vision",
     heading_accent: "& Values",
     subheading:
@@ -1102,41 +1048,28 @@ const ABOUT_DEFAULTS: AboutContent = {
     vision_title: "Our Vision",
     vision_body:
       "To be the leading intelligent salon management platform, powering every salon to achieve excellence and scale effortlessly.",
-    stats: [
-      { value: "10,000+", label: "Salons Worldwide" },
-      { value: "500K+", label: "Happy Customers" },
-      { value: "1M+", label: "Appointments Managed" },
-      { value: "95%", label: "Customer Satisfaction" },
-      { value: "24/7", label: "Customer Support" },
-    ],
   },
   journey: {
-    eyebrow: "Our Journey",
     heading: "Milestones That",
     heading_accent: "Shaped Us",
     milestones: [
       {
-        icon: "Sparkles",
         title: "The Beginning",
         desc: "SalonAI was founded with a vision to modernize salon operations with technology and innovation.",
       },
       {
-        icon: "Rocket",
         title: "Early Growth",
         desc: "We launched our platform and onboarded our first 1,000+ salons, improving bookings and operations.",
       },
       {
-        icon: "BarChart2",
         title: "Expanding Features",
         desc: "AI features, analytics, loyalty programs, and mobile apps were introduced to empower salons even more.",
       },
       {
-        icon: "Globe",
         title: "Global Reach",
         desc: "We reached 10,000+ salons worldwide and continue to grow our global community every day.",
       },
       {
-        icon: "Star",
         title: "What's Next",
         desc: "We're building the future of salon management with smarter AI, more integrations, and limitless possibilities.",
       },
@@ -1184,15 +1117,12 @@ export const defaultAboutContent: AboutContent = ABOUT_DEFAULTS;
 
 const PRICING_DEFAULTS: PricingContent = {
   hero: {
-    eyebrow: "Pricing",
     heading: "Simple, Transparent",
     heading_accent: "Pricing for Every Salon",
     subheading: "Choose the perfect plan for your salon. Upgrade, downgrade or cancel anytime.",
     monthly_label: "Monthly",
     annual_label: "Annual",
     per_month_suffix: "/month",
-    image_url: "",
-    image_alt: "SalonAI pricing",
   },
   pricing_cards: {
     plans: [
@@ -1311,31 +1241,28 @@ const PRICING_DEFAULTS: PricingContent = {
     strip_heading: "All plans include",
     items: [
       {
-        icon: "Cloud",
         title: "Cloud Based",
         desc: "Your salon data lives securely in the cloud and stays synced across every device, so you can work from anywhere.",
       },
       {
-        icon: "RefreshCw",
         title: "Automatic Updates",
         desc: "New features, improvements and fixes are delivered automatically — no manual installs or downtime.",
       },
       {
-        icon: "Database",
         title: "Data Backup",
         desc: "Automatic daily backups keep your bookings, clients and records safe and recoverable.",
       },
       {
-        icon: "Smartphone",
         title: "Mobile Apps",
         desc: "Run your salon on the go with dedicated iOS and Android apps for you and your team.",
       },
       {
-        icon: "ShieldCheck",
         title: "GDPR Compliant",
         desc: "We follow strict data-protection and privacy rules to keep your information secure.",
       },
     ],
+  },
+  closing_cta: {
     title: "Still not sure\u00A0which\u00A0plan is right for you?",
     subtitle: "Our team is happy to help you choose the perfect plan for your salon.",
     cta_label: "Talk to Sales",
@@ -1348,8 +1275,6 @@ const PRICING_DEFAULTS: PricingContent = {
   faq_cta: {
     heading: "Frequently Asked Questions",
     subheading: "Got questions? We've got answers.",
-    link_label: "View All FAQs →",
-    link_href: "/faq",
     faqs: [
       {
         question: "Can I change my plan later?",
@@ -1374,7 +1299,6 @@ const PRICING_DEFAULTS: PricingContent = {
         answer: "Yes, multi-branch management is supported on our Pro and Enterprise plans.",
       },
     ],
-    cta_eyebrow: "Get Started",
     cta_heading: "Ready to Transform",
     cta_heading_accent: "Your Salon?",
     cta_subheading:
@@ -1390,20 +1314,24 @@ const PRICING_DEFAULTS: PricingContent = {
 
 const CONTACT_DEFAULTS: ContactContent = {
   hero: {
-    eyebrow: "Contact Us",
     heading: "Let’s build a better salon business together",
     subheading: "Have a question or want a demo? Reach out and we’ll help.",
     image_url: "",
     image_alt: "SalonAI support team",
-    quick_contacts: [
-      { icon: "Mail", label: "Email Us", value: "hello@avenque.com" },
-      { icon: "Phone", label: "Call Us", value: "+94 11 234 5678" },
-      { icon: "MapPin", label: "Visit Our Office", value: "Colombo, Sri Lanka" },
-    ],
   },
   contact_form: {
     heading: "Send Us a Message",
     subheading: "Fill out the form below and we'll get back to you within 24 hours.",
+    name_label: "Full Name *",
+    name_placeholder: "Enter your full name",
+    email_label: "Email Address *",
+    email_placeholder: "Enter your email",
+    phone_label: "Phone Number",
+    phone_placeholder: "Enter your phone number",
+    subject_label: "Subject *",
+    subject_placeholder: "Select a subject",
+    message_label: "Message *",
+    message_placeholder: "Tell us how we can help you...",
     submit_label: "Send Message →",
     success_message: "Thanks! Your message has been sent. We'll get back to you shortly.",
     privacy_note: "Your information is safe with us.",
@@ -1424,18 +1352,6 @@ const CONTACT_DEFAULTS: ContactContent = {
     directions_label: "Get Directions",
     directions_href: "https://maps.google.com/?q=Colombo+Sri+Lanka",
   },
-  cta_banner: {
-    eyebrow: "Get Started",
-    heading: "Ready to Transform",
-    heading_accent: "Your Salon?",
-    subheading: "Let’s discuss how SalonAI can help your salon grow faster.",
-    cta_label: "Book a Demo",
-    cta_href: "/request-demo",
-    secondary_cta_label: "Start Free Trial",
-    secondary_cta_href: "#",
-    image_url: "",
-    image_alt: "SalonAI team",
-  },
 };
 
 export const defaultContactContent: ContactContent = CONTACT_DEFAULTS;
@@ -1453,7 +1369,7 @@ export type RequestDemoContent = {
     subheading: string;
   };
   contact_form: ContactContent["contact_form"];
-  cta_banner: ContactContent["cta_banner"];
+  cta_banner: ContactCtaBannerContent;
 };
 
 export type RequestDemoSectionKey = keyof RequestDemoContent;
@@ -1475,6 +1391,16 @@ const REQUEST_DEMO_DEFAULTS: RequestDemoContent = {
   contact_form: {
     heading: "Send Us a Message",
     subheading: "Fill out the form below and we'll get back to you within 24 hours.",
+    name_label: "Full Name *",
+    name_placeholder: "Enter your full name",
+    email_label: "Email Address *",
+    email_placeholder: "Enter your email",
+    phone_label: "Phone Number",
+    phone_placeholder: "Enter your phone number",
+    subject_label: "Subject *",
+    subject_placeholder: "Select a subject",
+    message_label: "Message *",
+    message_placeholder: "Tell us how we can help you...",
     submit_label: "Send Message →",
     success_message: "Thanks! Your message has been sent. We'll get back to you shortly.",
     privacy_note: "Your information is safe with us.",
@@ -1514,6 +1440,7 @@ export type FooterSocial = { label: string; href: string; icon?: string };
 
 export type FooterContent = {
   footer: {
+    logo_url: string;
     heading: string;
     subheading: string;
     explore_heading: string;
@@ -1541,6 +1468,7 @@ export const FOOTER_SECTION_ORDER: FooterSectionKey[] = ["footer", "newsletter"]
 
 const FOOTER_DEFAULTS: FooterContent = {
   footer: {
+    logo_url: "",
     heading: "Manage. Grow. Shine.",
     subheading:
       "Simplify bookings, manage staff, delight your customers and grow your salon — all from one elegant platform.",
@@ -1608,6 +1536,8 @@ category: string;
   tags: string[];
   read_time: string;
   is_featured: boolean;
+  /** Tickable in the CMS; popular posts fill the Popular Posts section. */
+  is_popular: boolean;
   view_count: number;
   published_at: string;
   date_label: string;
@@ -1615,77 +1545,44 @@ category: string;
 
 export type BlogContent = {
   hero: {
-    eyebrow: string;
     heading: string;
     heading_accent: string;
     subheading: string;
-    image_url: string;
-    image_alt: string;
     search_placeholder: string;
     search_label: string;
-    featured_label: string;
+    image_url: string;
+    image_alt: string;
   };
   categories: {
-    heading: string;
     items: { icon: IconName; label: string; slug: string }[];
   };
   latest: {
     heading: string;
     heading_accent: string;
-    cta_label: string;
-    cta_href: string;
     empty_message: string;
-  };
-  newsletter: {
-    heading: string;
-    subheading: string;
-    email_placeholder: string;
-    submit_label: string;
-    success_message: string;
   };
   popular: {
     heading: string;
-    subheading: string;
     empty_message: string;
-  };
-  cta_banner: {
-    eyebrow: string;
-    heading: string;
-    heading_accent: string;
-    subheading: string;
-    cta_label: string;
-    cta_href: string;
-    secondary_cta_label: string;
-    secondary_cta_href: string;
   };
 };
 
 export type BlogSectionKey = keyof BlogContent;
 
-export const BLOG_SECTION_ORDER: BlogSectionKey[] = [
-  "hero",
-  "categories",
-  "latest",
-  "newsletter",
-  "popular",
-  "cta_banner",
-];
+export const BLOG_SECTION_ORDER: BlogSectionKey[] = ["hero", "categories", "latest", "popular"];
 
 const BLOG_DEFAULTS: BlogContent = {
   hero: {
-    eyebrow: "Our Blog",
     heading: "Insights That Help",
     heading_accent: "Your Salon Grow",
     subheading:
       "Expert tips, industry trends, and product updates to help you run a smarter, more profitable salon business.",
-    image_url: "",
-    image_alt: "SalonAI blog",
     search_placeholder: "Search articles...",
     search_label: "All Categories",
-    featured_label: "Featured Article",
+    image_url: "",
+    image_alt: "",
   },
   categories: {
-    heading: "Categories",
     items: [
       { icon: "LayoutGrid", label: "All Posts", slug: "" },
       { icon: "Briefcase", label: "Management", slug: "management" },
@@ -1698,32 +1595,11 @@ const BLOG_DEFAULTS: BlogContent = {
   latest: {
     heading: "Latest",
     heading_accent: "Articles",
-    cta_label: "View All Articles",
-    cta_href: "/blog",
     empty_message: "No articles have been published yet. Check back soon.",
-  },
-  newsletter: {
-    heading: "Stay Updated with the Latest Insights",
-    subheading:
-      "Subscribe to our newsletter and get the latest tips, trends, and product updates straight to your inbox.",
-    email_placeholder: "Enter your email address",
-    submit_label: "Subscribe",
-    success_message: "Thanks for subscribing! Watch your inbox for the next issue.",
   },
   popular: {
     heading: "Popular Posts",
-    subheading: "Most read articles from the SalonAI blog.",
     empty_message: "Popular articles will show up here once the blog is live.",
-  },
-  cta_banner: {
-    eyebrow: "Get Started",
-    heading: "Ready to Transform",
-    heading_accent: "Your Salon?",
-    subheading: "See how SalonAI can run your salon smarter, faster and more profitably.",
-    cta_label: "Book a Demo",
-    cta_href: "/request-demo",
-    secondary_cta_label: "Contact Sales",
-    secondary_cta_href: "/contact",
   },
 };
 
@@ -1761,6 +1637,7 @@ author: "Sarah Johnson",
     tags: ["AI", "Automation"],
     read_time: "5 min read",
     is_featured: true,
+    is_popular: true,
     view_count: 0,
     published_at: "",
     date_label: "",
@@ -1792,6 +1669,7 @@ author: "Michael Brown",
     tags: ["Efficiency", "Workflow"],
     read_time: "4 min read",
     is_featured: false,
+    is_popular: true,
     view_count: 0,
     published_at: "",
     date_label: "",
@@ -1823,6 +1701,7 @@ author: "Emily Roberts",
     tags: ["Marketing", "Retention"],
     read_time: "6 min read",
     is_featured: false,
+    is_popular: true,
     view_count: 0,
     published_at: "",
     date_label: "",
@@ -1889,6 +1768,7 @@ author: String(row.author ?? ""),
     // Fall back to a rough estimate so a card always shows something sensible.
     read_time: String(row.read_time ?? "") || (wordCount ? `${Math.max(1, Math.round(wordCount / 200))} min read` : ""),
     is_featured: Boolean(row.is_featured),
+    is_popular: Boolean(row.is_popular),
     view_count: Number(row.view_count ?? 0),
     published_at: String(row.published_at ?? ""),
     date_label: formatPostDate(row.published_at),
@@ -2026,29 +1906,56 @@ export function getHomeContent(): Promise<{
     fetchPageContent<HomeContent>("home", DEFAULTS, HOME_SECTION_ORDER),
     getPricingPlans(),
     fetchCmsFaqCategories(),
-    fetchRecentCmsFaqs(HOME_FAQ_LIMIT),
-  ]).then(([page, plans, faqCategories, recentFaqs]) => {
+    fetchHomeCmsFaqs(HOME_FAQ_LIMIT),
+    fetchCmsFeaturePosts(),
+  ]).then(([page, plans, faqCategories, homeFaqs, featurePosts]) => {
+    // Feature posts feed the home features section: the cards ticked "Feature
+    // on the home page" lead, then the remaining published cards fill out the
+    // four slot layout (Admin -> Features Posts). With nothing ticked the
+    // section keeps its own built in cards.
+    const featuredPosts = featurePosts.filter((post) => post.featured);
+    if (featuredPosts.length > 0) {
+      const ordered = [
+        ...featuredPosts,
+        ...featurePosts.filter((post) => !post.featured),
+      ].slice(0, 4);
+      page.content.features_overview = {
+        ...page.content.features_overview,
+        features: ordered.map((post) => ({
+          icon: (post.icon ?? "Sparkles") as IconName,
+          title: post.title,
+          description: post.description ?? "",
+          slug: post.slug ?? "",
+          image_url: post.image_url ?? "",
+        })),
+      };
+    }
     if (plans.length > 0) {
       page.content.pricing = {
         ...page.content.pricing,
         plans: plans.map(toHomePlan),
       };
     }
-    // FAQs live in the `faqs` table and the category tabs live on the FAQ page,
-    // so the home teaser mirrors Content -> FAQs (newest N) instead of keeping
-    // its own duplicate list under Pages -> Home -> FAQ.
+    // FAQs live in the `faqs` table and the category tabs live on the FAQ page.
+    // The home teaser shows the questions ticked "Show on home" in Admin -> FAQs
+    // (falling back to the newest few when nothing is ticked). The tabs are then
+    // trimmed to only the categories those questions actually use, so the
+    // section never renders empty tabs.
+    const faqSourceCategories = faqCategories.length
+      ? faqCategories.map((c) => ({
+          id: c.id,
+          label: c.label,
+          icon: c.icon,
+          slug: c.slug,
+        }))
+      : page.content.faq.categories;
     page.content.faq = {
       ...page.content.faq,
-      categories: faqCategories.length
-        ? faqCategories.map((c) => ({
-            id: c.id,
-            label: c.label,
-            icon: c.icon,
-            slug: c.slug,
-          }))
+      categories: homeFaqs.length
+        ? categoriesForFaqs(homeFaqs, faqSourceCategories)
         : page.content.faq.categories,
-      faqs: recentFaqs.length
-        ? recentFaqs.map((f) => ({
+      faqs: homeFaqs.length
+        ? homeFaqs.map((f) => ({
             question: f.question,
             answer: f.answer,
             category: f.category ?? "",
@@ -2065,6 +1972,48 @@ export function getHomeContent(): Promise<{
 
 /** How many of the newest FAQs the home page teaser shows. */
 export const HOME_FAQ_LIMIT = 5;
+
+/**
+ * The category tabs the home FAQ section should show: only the categories that
+ * the home questions actually use, mapped back to the Admin defined categories
+ * so the label, icon and slug are preserved. Questions whose category is not
+ * defined in Admin still get a tab so they never disappear from the section.
+ */
+function categoriesForFaqs(
+  faqs: CmsFaq[],
+  source: HomeContent["faq"]["categories"]
+): HomeContent["faq"]["categories"] {
+  const norm = (value: unknown) => String(value ?? "").trim().toLowerCase();
+  const findCategory = (label: string) => {
+    const needle = norm(label);
+    if (!needle) return undefined;
+    return source.find(
+      (c) => norm(c.id) === needle || norm(c.label) === needle || norm(c.slug) === needle
+    );
+  };
+
+  const result: HomeContent["faq"]["categories"] = [];
+  const seen = new Set<string>();
+  for (const faq of faqs) {
+    const label = String(faq.category ?? "").trim();
+    const match = findCategory(label);
+    const key = match ? match.id : norm(label);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    const slug = slugifyText(label);
+    result.push(match ?? { id: slug || key, label, icon: "HelpCircle", slug });
+  }
+  return result;
+}
+
+function slugifyText(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 
 /** Narrows a full pricing page plan down to the fields the home cards render. */
 function toHomePlan(plan: PricingPlan): HomeContent["pricing"]["plans"][number] {
@@ -2090,11 +2039,112 @@ export function getFeaturesContent(): Promise<{
   hidden: Set<FeaturesSectionKey>;
   source: "cms" | "defaults";
 }> {
-  return fetchPageContent("features", FEATURES_DEFAULTS, FEATURES_SECTION_ORDER) as Promise<{
-    content: FeaturesContent;
-    hidden: Set<FeaturesSectionKey>;
-    source: "cms" | "defaults";
-  }>;
+  // The feature cards live in the `feature_posts` table (Admin -> Features
+  // Posts), so the grid mirrors that instead of keeping its own copy under
+  // Pages -> Features. The two requests are independent, so they run together.
+  return Promise.all([
+    fetchPageContent("features", FEATURES_DEFAULTS, FEATURES_SECTION_ORDER),
+    fetchCmsFeaturePosts(),
+  ]).then(([page, posts]) => {
+    if (posts.length > 0) {
+      page.content.feature_grid = {
+        ...page.content.feature_grid,
+        features: posts.map((post) => ({
+          title: post.title,
+          description: post.description ?? "",
+          category: post.category ?? "",
+          icon: post.icon ?? "Sparkles",
+          href: post.href ?? "",
+          slug: post.slug ?? "",
+          image_url: post.image_url ?? "",
+          image_alt: post.image_alt ?? "",
+        })),
+      };
+    }
+    return {
+      content: page.content as FeaturesContent,
+      hidden: page.hidden as Set<FeaturesSectionKey>,
+      source: page.source,
+    };
+  });
+}
+
+function toSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+/** Server side only: reads one feature post and its siblings from the Admin CMS. */
+export async function getFeaturePost(
+  slug: string
+): Promise<{ post: FeaturePost; related: FeaturePost[] } | null> {
+  const base = adminBaseUrl();
+  if (!slug) return null;
+
+  // Only an unreachable CMS falls back to the built-in cards; a reachable CMS
+  // that answers 404 really has no such (or no longer published) feature.
+  const fromDefaults = (): { post: FeaturePost; related: FeaturePost[] } | null => {
+    const match = FEATURES_DEFAULTS.feature_grid.features.find(
+      (feature) => toSlug(feature.title) === slug
+    );
+    if (!match) return null;
+    const build = (feature: (typeof FEATURES_DEFAULTS.feature_grid.features)[number], id: number): FeaturePost => ({
+      id,
+      title: feature.title,
+      slug: toSlug(feature.title),
+      description: feature.description,
+      content: "",
+      category: feature.category,
+      icon: feature.icon,
+      image_url: "",
+      image_alt: "",
+      href: feature.href,
+      sort_order: id,
+    });
+    return {
+      post: build(match, 1),
+      related: FEATURES_DEFAULTS.feature_grid.features
+        .filter((feature) => feature !== match)
+        .slice(0, 3)
+        .map((feature, index) => build(feature, index + 2)),
+    };
+  };
+
+  try {
+    const res = await fetch(`${base}/api/public/features-posts/${encodeURIComponent(slug)}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`CMS responded ${res.status}`);
+
+    const data = await res.json();
+    if (!data?.post) return null;
+
+    const build = (row: Record<string, unknown>): FeaturePost => ({
+      id: Number(row.id ?? 0),
+      title: String(row.title ?? ""),
+      slug: String(row.slug ?? slug),
+      description: String(row.description ?? ""),
+      content: row.content ? String(row.content) : "",
+      category: String(row.category ?? ""),
+      icon: String(row.icon ?? "Sparkles"),
+      image_url: String(row.image_url ?? ""),
+      image_alt: String(row.image_alt ?? ""),
+      href: row.href ? String(row.href) : undefined,
+      sort_order: Number(row.sort_order ?? 0),
+    });
+
+    return {
+      post: build(data.post),
+      related: Array.isArray(data.related) ? data.related.map(build) : [],
+    };
+  } catch {
+    return fromDefaults();
+  }
 }
 
 /** Server side only: reads the about page content from the Admin CMS. */
@@ -2151,6 +2201,7 @@ export function getPricingContent(): Promise<{
       "hero",
       "pricing_cards",
       "comparison",
+      "closing_cta",
       "banner",
       "faq_cta",
     ] as readonly string[]),
@@ -2419,4 +2470,106 @@ export function resolveBlogCategories(
   }
 
   return options;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Site settings                                                              */
+/* -------------------------------------------------------------------------- */
+
+export type SiteNavItem = { label: string; href: string; is_visible: boolean };
+
+/**
+ * Site-wide settings managed under Admin -> Settings: the navbar logo/brand and
+ * the navigation links plus header buttons. Stored in the Admin database and
+ * read from `/api/public/settings`, falling back to the defaults below whenever
+ * the CMS is unreachable.
+ */
+export type SiteSettings = {
+  logo_url: string;
+  logo_alt: string;
+  brand_name: string;
+  brand_accent: string;
+  tagline: string;
+  nav_items: SiteNavItem[];
+  secondary_label: string;
+  secondary_href: string;
+  cta_label: string;
+  cta_href: string;
+};
+
+export const defaultSiteSettings: SiteSettings = {
+  logo_url: "",
+  logo_alt: "",
+  brand_name: "Salon",
+  brand_accent: "AI",
+  tagline: "Manage. Grow. Shine.",
+  nav_items: [
+    { label: "Home", href: "/", is_visible: true },
+    { label: "Features", href: "/features", is_visible: true },
+    { label: "For Business", href: "/about", is_visible: true },
+    { label: "Pricing", href: "/pricing", is_visible: true },
+    { label: "Blog", href: "/blog", is_visible: true },
+    { label: "FAQ", href: "/faq", is_visible: true },
+    { label: "Contact", href: "/contact", is_visible: true },
+  ],
+  secondary_label: "Login",
+  secondary_href: "/login",
+  cta_label: "Get Started",
+  cta_href: "/request-demo",
+};
+
+function toSettingsString(value: unknown, fallback: string): string {
+  if (value === null || value === undefined) return fallback;
+  return String(value);
+}
+
+/** Overlays a stored payload over the defaults so a partial one still renders. */
+export function normalizeSiteSettings(value: unknown): SiteSettings {
+  const raw = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+
+  const navItems: SiteNavItem[] = Array.isArray(raw.nav_items)
+    ? (raw.nav_items as unknown[])
+        .map((entry) => {
+          if (!entry || typeof entry !== "object") return null;
+          const item = entry as Record<string, unknown>;
+          const label = String(item.label ?? "").trim();
+          const href = String(item.href ?? "").trim();
+          if (!label && !href) return null;
+          return { label, href, is_visible: item.is_visible !== false } as SiteNavItem;
+        })
+        .filter((item): item is SiteNavItem => item !== null)
+    : defaultSiteSettings.nav_items;
+
+  return {
+    logo_url: toSettingsString(raw.logo_url, defaultSiteSettings.logo_url),
+    logo_alt: toSettingsString(raw.logo_alt, defaultSiteSettings.logo_alt),
+    brand_name: toSettingsString(raw.brand_name, defaultSiteSettings.brand_name),
+    brand_accent: toSettingsString(raw.brand_accent, defaultSiteSettings.brand_accent),
+    tagline: toSettingsString(raw.tagline, defaultSiteSettings.tagline),
+    nav_items: navItems,
+    secondary_label: toSettingsString(raw.secondary_label, defaultSiteSettings.secondary_label),
+    secondary_href: toSettingsString(raw.secondary_href, defaultSiteSettings.secondary_href),
+    cta_label: toSettingsString(raw.cta_label, defaultSiteSettings.cta_label),
+    cta_href: toSettingsString(raw.cta_href, defaultSiteSettings.cta_href),
+  };
+}
+
+/** Server side only: reads the site settings from the Admin CMS. */
+export async function getSiteSettings(): Promise<SiteSettings> {
+  const base = adminBaseUrl();
+  if (!base) return defaultSiteSettings;
+
+  try {
+    const res = await fetch(`${base}/api/public/settings`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) throw new Error(`CMS responded ${res.status}`);
+
+    const data = await res.json();
+    return normalizeSiteSettings(data?.settings);
+  } catch {
+    // Never let a CMS outage take the marketing site down.
+    return defaultSiteSettings;
+  }
 }

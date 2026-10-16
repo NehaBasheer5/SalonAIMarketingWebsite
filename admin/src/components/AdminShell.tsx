@@ -12,6 +12,8 @@ import {
   LayoutDashboard,
   LogOut,
   Newspaper,
+  Settings,
+  Sparkles,
 } from "lucide-react";
 
 const NAV_SECTIONS: {
@@ -39,11 +41,16 @@ const NAV_SECTIONS: {
       { href: "/media", label: "Media", icon: ImageIcon },
       { href: "/blog", label: "Blog", icon: Newspaper },
       { href: "/faqs", label: "FAQs", icon: HelpCircle },
+      { href: "/features-posts", label: "Features Posts", icon: Sparkles },
     ],
   },
   {
     title: "Monetization",
     items: [{ href: "/pricing", label: "Pricing", icon: BadgeDollarSign }],
+  },
+  {
+    title: "System",
+    items: [{ href: "/settings", label: "Settings", icon: Settings }],
   },
 ];
 

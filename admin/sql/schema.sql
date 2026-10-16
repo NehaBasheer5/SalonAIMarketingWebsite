@@ -63,8 +63,11 @@ CREATE TABLE IF NOT EXISTS blog_posts (
   -- Comma separated. Rendered as the tag chips on the blog cards.
   tags VARCHAR(500) NULL,
   read_time VARCHAR(40) NULL,
-  -- Only one article is featured at a time in the blog hero.
+  -- Legacy hero flag, no longer rendered. Kept so old rows stay valid.
   is_featured TINYINT(1) NOT NULL DEFAULT 0,
+  -- Tick "Show in Popular Posts": many articles can be popular at once and
+  -- they fill the Popular Posts section on the Client blog index.
+  is_popular TINYINT(1) NOT NULL DEFAULT 0,
   view_count INT UNSIGNED NOT NULL DEFAULT 0,
   status ENUM('draft', 'published') NOT NULL DEFAULT 'draft',
   published_at DATETIME NULL,
@@ -114,8 +117,44 @@ CREATE TABLE IF NOT EXISTS faqs (
   category VARCHAR(120) NULL,
   sort_order INT NOT NULL DEFAULT 0,
   is_published TINYINT(1) NOT NULL DEFAULT 1,
+  show_on_home TINYINT(1) NOT NULL DEFAULT 0,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Feature cards shown in the Client features page grid, plus a dedicated detail
+-- page for each card served at /features/<slug>.
+-- These used to live in the `feature_grid` section's `extra_json.features` array
+-- (edited under Pages -> Features). They now have their own table so
+-- Admin -> Features Posts can add, edit, reorder and publish individual cards
+-- and their detail page, while the category filter tabs stay in `page_sections`.
+CREATE TABLE IF NOT EXISTS feature_posts (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  -- detail page URL: /features/<slug>
+  slug VARCHAR(191) NOT NULL UNIQUE,
+  -- short line shown on the card and as the detail page summary
+  description TEXT NULL,
+  -- detail page body, stored as markdown
+  content MEDIUMTEXT NULL,
+  -- category id (e.g. "bookings"), matching a tab in the `feature_grid` section
+  category VARCHAR(120) NULL,
+  -- lucide icon name used when the card has no image_url
+  icon VARCHAR(60) NULL,
+  -- optional card image; also the detail page hero when set
+  image_url VARCHAR(500) NULL,
+  image_alt VARCHAR(255) NULL,
+  -- optional external link that overrides the detail page on the card
+  href VARCHAR(255) NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  -- shown in the home page "features overview" section; any number can be
+  -- featured and they are listed before the other cards
+  is_featured TINYINT(1) NOT NULL DEFAULT 0,
+  is_published TINYINT(1) NOT NULL DEFAULT 1,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_feature_posts_order (is_published, sort_order),
+  INDEX idx_feature_posts_featured (is_featured, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Pricing plans used to live in the `pricing_cards` section of the pricing page
@@ -140,4 +179,15 @@ CREATE TABLE IF NOT EXISTS enquiries (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_enquiries_status (status),
   INDEX idx_enquiries_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Site-wide settings edited under Admin -> Settings: the navbar logo and brand
+-- text, the navigation links, and the header action buttons. Stored as a single
+-- row (id = 1) holding one JSON object, so new settings can be added later
+-- without another migration. The Client reads it from /api/public/settings.
+CREATE TABLE IF NOT EXISTS site_settings (
+  id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+  data_json JSON NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

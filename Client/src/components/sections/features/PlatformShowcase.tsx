@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import featuresOne from "@/assets/images/images/features1.jpg";
 import featuresTwo from "@/assets/images/images/features2.jpg";
 import featuresThree from "@/assets/images/images/StaffM.jpg";
+import CmsImage from "@/components/ui/CmsImage";
 import { defaultFeaturesContent, type FeaturesContent } from "@/lib/content";
 
 type Props = {
@@ -32,8 +32,9 @@ export default function PlatformShowcase({
                   className="relative aspect-[3/5] overflow-visible"
                 >
                   <div className="relative h-full w-full overflow-hidden rounded-3xl rounded-b-[50%] bg-white shadow-[0_20px_50px_-15px_rgba(91,64,39,0.3)]">
-                    <Image
-                      src={featuresOne}
+                    <CmsImage
+                      value={content.image_left}
+                      fallback={featuresOne}
                       alt="SalonAI booking and scheduling"
                       fill
                       sizes="(max-width: 1024px) 30vw, 15vw"
@@ -54,8 +55,9 @@ export default function PlatformShowcase({
                 >
                   <div className="relative h-full w-full overflow-hidden rounded-3xl rounded-t-[50%] bg-white shadow-[0_30px_70px_-20px_rgba(91,64,39,0.4)]">
                     <div className="relative z-0 h-full w-full">
-                      <Image
-                        src={featuresThree}
+                      <CmsImage
+                        value={content.image_center}
+                        fallback={featuresThree}
                         alt="SalonAI analytics dashboard"
                         fill
                         sizes="(max-width: 1024px) 30vw, 15vw"
@@ -77,8 +79,9 @@ export default function PlatformShowcase({
                   className="relative aspect-[3/5] overflow-visible"
                 >
                   <div className="relative h-full w-full overflow-hidden rounded-3xl rounded-b-[50%] bg-white shadow-[0_20px_50px_-15px_rgba(91,64,39,0.3)]">
-                    <Image
-                      src={featuresTwo}
+                    <CmsImage
+                      value={content.image_right}
+                      fallback={featuresTwo}
                       alt="SalonAI staff and customer management"
                       fill
                       sizes="(max-width: 1024px) 30vw, 15vw"
@@ -93,17 +96,15 @@ export default function PlatformShowcase({
           </div>
 
           <div className="order-1 lg:order-2 lg:col-span-6">
-            <h2 className="font-display text-3xl leading-[1.08] tracking-tight sm:text-4xl lg:text-5xl">
-              <span className="bg-gradient-to-r from-salon-ink via-salon-gold to-salon-tile bg-clip-text text-transparent">
-                {content.heading}
-                {content.heading_accent ? (
-                  <span className="block">{content.heading_accent}</span>
-                ) : null}
-              </span>
+            <h2 className="font-display text-3xl leading-[1.08] tracking-tight text-black sm:text-4xl lg:text-5xl">
+              {content.heading}
+              {content.heading_accent ? (
+                <span className="block">{content.heading_accent}</span>
+              ) : null}
             </h2>
 
             {content.body ? (
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-salon-ink">
+              <p className="mt-4 max-w-md text-sm leading-relaxed text-salon-gold">
                 {content.body}
               </p>
             ) : null}

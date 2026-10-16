@@ -170,3 +170,57 @@ body {
   background-size: 200% auto;
   animation: salon-shift 3s ease-in-out infinite;
 }
+
+@keyframes salon-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.14);
+    opacity: 1;
+  }
+}
+
+.animate-breathe {
+  animation: salon-breathe 6s ease-in-out infinite;
+}
+
+@keyframes salon-aurora-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(40px, -28px) scale(1.15);
+  }
+}
+
+@keyframes salon-aurora-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-48px, 26px) scale(1.1);
+  }
+}
+
+.animate-aurora-a {
+  animation: salon-aurora-a 16s ease-in-out infinite;
+}
+
+.animate-aurora-b {
+  animation: salon-aurora-b 20s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop,
+  .animate-pop-strong,
+  .animate-float-a,
+  .animate-float-b,
+  .animate-nudge {
+    animation: none;
+  }
+}

@@ -48,7 +48,7 @@ function readBody(body: Record<string, unknown>) {
     author_image: String(body.author_image || "").trim() || null,
     tags: normalizeTags(body.tags),
     read_time: String(body.read_time || "").trim() || null,
-    is_featured: body.is_featured ? 1 : 0,
+    is_popular: body.is_popular ? 1 : 0,
   };
 }
 
@@ -62,7 +62,7 @@ export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const [rows] = await getPool().query<RowDataPacket[]>(
-    "SELECT * FROM blog_posts ORDER BY is_featured DESC, published_at DESC, id DESC"
+    "SELECT * FROM blog_posts ORDER BY is_popular DESC, published_at DESC, id DESC"
   );
   return NextResponse.json({ posts: rows });
 }
@@ -83,15 +83,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Only one article can be the blog hero pick, so clear the flag before
-    // setting it on the incoming post.
-    if (post.is_featured) {
-      await getPool().query("UPDATE blog_posts SET is_featured = 0 WHERE is_featured = 1");
-    }
-
     const [result] = await getPool().query<ResultSetHeader>(
       `INSERT INTO blog_posts
-        (title, slug, excerpt, content, cover_image, cover_video, category, author, author_image, tags, read_time, is_featured, status, published_at)
+        (title, slug, excerpt, content, cover_image, cover_video, category, author, author_image, tags, read_time, is_popular, status, published_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         post.title,
@@ -105,7 +99,7 @@ export async function POST(request: Request) {
         post.author_image,
         post.tags,
         post.read_time,
-        post.is_featured,
+        post.is_popular,
         post.status,
         post.status === "published" ? new Date() : null,
       ]
@@ -135,16 +129,10 @@ export async function PUT(request: Request) {
 
   try {
     const pool = getPool();
-    if (post.is_featured) {
-      await pool.query("UPDATE blog_posts SET is_featured = 0 WHERE is_featured = 1 AND id <> ?", [
-        id,
-      ]);
-    }
-
     await pool.query(
       `UPDATE blog_posts SET
         title=?, slug=?, excerpt=?, content=?, cover_image=?, cover_video=?, category=?,
-        author=?, author_image=?, tags=?, read_time=?, is_featured=?, status=?,
+        author=?, author_image=?, tags=?, read_time=?, is_popular=?, status=?,
         published_at = CASE
           WHEN ? = 'published' AND published_at IS NULL THEN NOW()
           WHEN ? = 'draft' THEN NULL
@@ -163,11 +151,11 @@ export async function PUT(request: Request) {
         post.author_image,
         post.tags,
         post.read_time,
-        post.is_featured,
+        post.is_popular,
         post.status,
         post.status,
         post.status,
-        id,
+        id
       ]
     );
     return NextResponse.json({ ok: true, slug: post.slug });

@@ -36,10 +36,10 @@ export async function GET(request: Request) {
 
     const [rows] = await getPool().query<RowDataPacket[]>(
       `SELECT id, title, slug, excerpt, cover_image, cover_video, category, author, author_image, tags,
-              read_time, is_featured, view_count, published_at
+              read_time, is_featured, is_popular, view_count, published_at
          FROM blog_posts
         WHERE ${where.join(" AND ")}
-        ORDER BY is_featured DESC, published_at DESC, id DESC
+        ORDER BY is_popular DESC, published_at DESC, id DESC
         LIMIT ?`,
       params
     );

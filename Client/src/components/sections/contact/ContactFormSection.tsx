@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   AtSign,
+  Check,
   ChevronDown,
   Globe,
   Link2,
@@ -33,6 +34,16 @@ export type ContactFormSectionProps = {
   socials_heading: string;
   details: { icon: IconName; label: string; value: string }[];
   subjects: string[];
+  name_label?: string;
+  name_placeholder?: string;
+  email_label?: string;
+  email_placeholder?: string;
+  phone_label?: string;
+  phone_placeholder?: string;
+  subject_label?: string;
+  subject_placeholder?: string;
+  message_label?: string;
+  message_placeholder?: string;
   /** Enquiry source stored in the admin database. Defaults to "contact". */
   source?: string;
 };
@@ -47,10 +58,31 @@ export default function ContactFormSection({
   socials_heading,
   details,
   subjects,
+  name_label = "Full Name *",
+  name_placeholder = "Enter your full name",
+  email_label = "Email Address *",
+  email_placeholder = "Enter your email",
+  phone_label = "Phone Number",
+  phone_placeholder = "Enter your phone number",
+  subject_label = "Subject *",
+  subject_placeholder = "Select a subject",
+  message_label = "Message *",
+  message_placeholder = "Tell us how we can help you...",
   source = "contact",
 }: ContactFormSectionProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState<string>("");
+  const [subject, setSubject] = useState("");
+  const [subjectOpen, setSubjectOpen] = useState(false);
+  const subjectRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onPointerDown = (e: PointerEvent) => {
+      if (!subjectRef.current?.contains(e.target as Node)) setSubjectOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -79,6 +111,7 @@ export default function ContactFormSection({
       if (res.ok) {
         setStatus("success");
         form.reset();
+        setSubject("");
       } else {
         const data = await res.json().catch(() => ({}));
         setError(data.error || "Could not send your message. Please try again.");
@@ -119,28 +152,28 @@ export default function ContactFormSection({
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className={LABEL}>Full Name *</label>
+                    <label className={LABEL}>{name_label}</label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-salon-muted/60" />
                       <input
                         name="name"
                         required
                         type="text"
-                        placeholder="Enter your full name"
+                        placeholder={name_placeholder}
                         className={`${FIELD} pl-9`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className={LABEL}>Email Address *</label>
+                    <label className={LABEL}>{email_label}</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-salon-muted/60" />
                       <input
                         name="email"
                         required
                         type="email"
-                        placeholder="Enter your email"
+                        placeholder={email_placeholder}
                         className={`${FIELD} pl-9`}
                       />
                     </div>
@@ -149,43 +182,113 @@ export default function ContactFormSection({
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className={LABEL}>Phone Number</label>
+                    <label className={LABEL}>{phone_label}</label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-salon-muted/60" />
                       <input
                         name="phone"
                         type="tel"
-                        placeholder="Enter your phone number"
+                        placeholder={phone_placeholder}
                         className={`${FIELD} pl-9`}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className={LABEL}>Subject *</label>
-                    <div className="relative">
-                      <select name="subject" required className={`${FIELD} appearance-none pr-9`}>
-                        <option value="">Select a subject</option>
+                    <label className={LABEL}>{subject_label}</label>
+                    <div ref={subjectRef} className="relative">
+                      {/* Kept for form validation + submission; the visible control below is a custom listbox. */}
+                      <select
+                        name="subject"
+                        required
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)}
+                        className="sr-only"
+                        tabIndex={-1}
+                        aria-hidden="true"
+                      >
+                        <option value="">{subject_placeholder}</option>
                         {(subjects || []).map((s, i) => (
                           <option key={i} value={s}>
                             {s}
                           </option>
                         ))}
                       </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-salon-muted/60" />
+
+                      <button
+                        type="button"
+                        onClick={() => setSubjectOpen((v) => !v)}
+                        aria-haspopup="listbox"
+                        aria-expanded={subjectOpen}
+                        className={`flex w-full items-center justify-between gap-2 rounded-xl border border-salon-card bg-white py-2.5 pl-3 pr-3 text-left text-xs transition focus:border-salon-brand focus:outline-none focus:ring-2 focus:ring-salon-brand/15 ${
+                          subject ? "text-salon-ink" : "text-salon-muted/60"
+                        }`}
+                      >
+                        <span className="truncate">{subject || subject_placeholder}</span>
+                        <ChevronDown
+                          className={`h-4 w-4 shrink-0 text-salon-muted/60 transition-transform duration-300 ${
+                            subjectOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+
+                      {subjectOpen ? (
+                        <div
+                          className="fixed inset-0 z-20 sm:hidden"
+                          onClick={() => setSubjectOpen(false)}
+                          aria-hidden="true"
+                        />
+                      ) : null}
+
+                      <div
+                        role="listbox"
+                        aria-label={subject_label}
+                        className={`absolute left-0 right-0 top-full z-30 mt-2 origin-top overflow-hidden rounded-xl border border-salon-border/60 bg-white shadow-2xl shadow-black/15 transition-all duration-200 ease-out ${
+                          subjectOpen
+                            ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
+                            : "pointer-events-none -translate-y-1 scale-[0.97] opacity-0"
+                        }`}
+                      >
+                        <ul className="max-h-56 overflow-y-auto p-1.5">
+                          {(subjects || []).map((s, i) => {
+                            const active = subject === s;
+                            return (
+                              <li key={i}>
+                                <button
+                                  type="button"
+                                  role="option"
+                                  aria-selected={active}
+                                  onClick={() => {
+                                    setSubject(s);
+                                    setSubjectOpen(false);
+                                  }}
+                                  className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-xs font-medium transition ${
+                                    active
+                                      ? "bg-salon-brand text-white"
+                                      : "text-salon-ink hover:bg-salon-chip/80"
+                                  }`}
+                                >
+                                  <span className="truncate">{s}</span>
+                                  {active ? <Check className="h-3.5 w-3.5 shrink-0" /> : null}
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className={LABEL}>Message *</label>
+                  <label className={LABEL}>{message_label}</label>
                   <div className="relative">
                     <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-salon-muted/60" />
                     <textarea
                       name="message"
                       required
                       rows={4}
-                      placeholder="Tell us how we can help you..."
+                      placeholder={message_placeholder}
                       className={`${FIELD} resize-none pl-9`}
                     />
                   </div>

@@ -6,6 +6,7 @@ import { Check, Globe, Mail, MapPin, Phone, type LucideIcon } from "lucide-react
 import BrandIcon, { hasBrandIcon } from "@/components/ui/BrandIcons";
 import {
   defaultFooterContent,
+  resolveImageUrl,
   type FooterContact,
   type FooterContent,
   type FooterSocial,
@@ -93,6 +94,8 @@ export default function Footer({
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
 
+  const logoUrl = resolveImageUrl(content.logo_url);
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setState("sending");
@@ -122,17 +125,33 @@ export default function Footer({
   }
 
   return (
-    <footer className="w-full overflow-hidden bg-salon-ink text-white">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
+    <footer className="relative w-full overflow-hidden bg-salon-ink text-white">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="animate-aurora-a absolute -left-24 -top-40 h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.45),rgba(255,255,255,0.1)_58%,transparent_75%)] blur-3xl" />
+        <div className="animate-aurora-b absolute -right-24 -top-24 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(closest-side,rgba(212,175,55,0.32),rgba(212,175,55,0.06)_62%,transparent_78%)] blur-3xl" />
+        <div className="animate-aurora-a absolute -bottom-40 left-1/3 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(closest-side,rgba(166,139,103,0.26),transparent_72%)] blur-3xl" />
+      </div>
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         <div className="grid grid-cols-1 gap-10 py-14 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 lg:py-16">
           <div className="sm:col-span-2 lg:col-span-4">
-            <Link href="/" className="inline-flex flex-col leading-none">
-              <span className="font-display text-[1.75rem] font-medium tracking-[-0.045em] text-white">
-                Salon <span className="text-salon-gold">AI</span>
-              </span>
-              <span className="mt-1 pl-0.5 text-[10px] font-medium uppercase tracking-[0.24em] text-salon-gold-soft/70">
-                {content.heading}
-              </span>
+            <Link href="/" className="group inline-flex flex-col leading-none">
+              {logoUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={logoUrl}
+                  alt="Salon AI"
+                  className="h-20 w-auto object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] transition-transform duration-500 ease-out group-hover:scale-[1.04] sm:h-[5.5rem]"
+                />
+              ) : (
+                <>
+                  <span className="font-display text-[1.75rem] font-medium tracking-[-0.045em] text-white">
+                    Salon <span className="text-salon-gold">AI</span>
+                  </span>
+                  <span className="mt-1 pl-0.5 text-[10px] font-medium uppercase tracking-[0.24em] text-salon-gold-soft/70">
+                    {content.heading}
+                  </span>
+                </>
+              )}
             </Link>
 
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/55">

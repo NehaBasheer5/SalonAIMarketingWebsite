@@ -10,14 +10,29 @@ type Props = {
   content?: HomeContent["faq"];
 };
 
+type Category = HomeContent["faq"]["categories"][number];
+
+function matchesCategory(cat: Category, category?: string): boolean {
+  const value = String(category ?? "").trim();
+  if (!value) return cat.id === "general" || !cat.slug;
+  const needle = value.toLowerCase();
+  return (
+    needle === String(cat.label ?? "").toLowerCase() ||
+    needle === String(cat.slug ?? "").toLowerCase() ||
+    needle === String(cat.id ?? "").toLowerCase()
+  );
+}
+
 export default function FaqSection({ content = defaultHomeContent.faq }: Props) {
   const [activeCategory, setActiveCategory] = useState<string>(
     content.categories[0]?.id ?? "general"
   );
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const visibleFaqs = content.faqs.filter(
-    (faq) => !faq.category || faq.category === activeCategory
-  );
+  const activeCat =
+    content.categories.find((cat) => cat.id === activeCategory) ?? content.categories[0];
+  const visibleFaqs = activeCat
+    ? content.faqs.filter((faq) => matchesCategory(activeCat, faq.category))
+    : content.faqs;
 
   return (
     <section className="w-full overflow-hidden bg-salon-bg py-14 lg:py-16">

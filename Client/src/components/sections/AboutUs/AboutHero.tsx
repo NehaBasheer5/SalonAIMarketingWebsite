@@ -3,7 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { defaultAboutContent, type AboutContent } from "@/lib/content";
+import CmsImage from "@/components/ui/CmsImage";
+import { defaultAboutContent, resolveImageUrl, type AboutContent } from "@/lib/content";
 import aboutVideo from "@/assets/images/images/contact.mp4";
 
 type Props = {
@@ -11,10 +12,12 @@ type Props = {
 };
 
 export default function AboutHero({ content = defaultAboutContent.hero }: Props) {
+  const hasCmsMedia = Boolean(resolveImageUrl(content.image_url));
+
   return (
     <section className="relative w-full overflow-hidden bg-salon-bg">
       <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
-        <div className="flex flex-col items-center gap-16 py-20 lg:py-28">
+        <div className="flex flex-col items-center gap-16 pt-20 pb-10 lg:pt-28 lg:pb-14">
           <div className="-mt-8 w-full max-w-3xl text-center lg:-mt-12">
             <h1 className="font-display text-5xl leading-[1.06] tracking-tight text-salon-ink sm:text-6xl lg:text-[4rem]">
               {content.heading}
@@ -55,17 +58,28 @@ export default function AboutHero({ content = defaultAboutContent.hero }: Props)
             ) : null}
           </div>
 
-          <div className="mx-auto w-full max-w-5xl overflow-hidden rounded-2xl border border-salon-card bg-salon-shell shadow-sm">
-            <video
-              src={aboutVideo}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-label={content.image_alt}
-              className="aspect-[8/5] h-full w-full object-cover object-center"
-            />
+          <div className="relative mx-auto aspect-[8/5] w-full max-w-5xl overflow-hidden rounded-2xl border border-salon-card bg-salon-shell shadow-sm">
+            {hasCmsMedia ? (
+              <CmsImage
+                value={content.image_url}
+                alt={content.image_alt}
+                fill
+                controls={false}
+                className="h-full w-full object-cover object-center"
+                sizes="(max-width: 1024px) 100vw, 1024px"
+              />
+            ) : (
+              <video
+                src={aboutVideo}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-label={content.image_alt}
+                className="h-full w-full object-cover object-center"
+              />
+            )}
           </div>
         </div>
       </div>

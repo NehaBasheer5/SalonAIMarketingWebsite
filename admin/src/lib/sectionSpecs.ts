@@ -98,7 +98,6 @@ export const SECTION_SPECS: SectionSpec[] = [
     label: "Hero",
     description: "Top of the home page. Headline, both CTAs, the photo and the four highlights.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "text", key: "cta_label", column: "cta_label", label: "Primary button label" },
@@ -124,7 +123,6 @@ export const SECTION_SPECS: SectionSpec[] = [
         label: "Highlights",
         itemLabel: "Highlight",
         fields: [
-          iconField(),
           { kind: "text", key: "title", label: "Title" },
           { kind: "text", key: "desc", label: "Short description" },
         ],
@@ -134,25 +132,13 @@ export const SECTION_SPECS: SectionSpec[] = [
   {
     key: "features_overview",
     label: "Features Overview",
-    description: "Four feature cards plus the 'See more' pill link.",
+    description:
+      "Heading and the 'See more' pill link. The cards come from Content → Features Posts.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "text", key: "cta_label", column: "cta_label", label: "Link label" },
       { kind: "url", key: "cta_href", column: "cta_href", label: "Link URL" },
-      {
-        kind: "list",
-        key: "features",
-        label: "Feature cards",
-        itemLabel: "Feature",
-        fields: [
-          iconField(),
-          { kind: "text", key: "title", label: "Title" },
-          { kind: "textarea", key: "description", label: "Description", rows: 2 },
-        ],
-      },
-      { kind: "text", key: "footer_note", label: "Footer note", full: true },
     ],
   },
   {
@@ -160,7 +146,6 @@ export const SECTION_SPECS: SectionSpec[] = [
     label: "Product Preview",
     description: "Split section: photo on the right, checklist of points on the left.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "text", key: "cta_label", column: "cta_label", label: "Button label" },
@@ -173,7 +158,6 @@ export const SECTION_SPECS: SectionSpec[] = [
         label: "Checklist points",
         itemLabel: "Point",
         fields: [
-          iconField(),
           { kind: "text", key: "title", label: "Title" },
           { kind: "text", key: "desc", label: "Description" },
         ],
@@ -186,7 +170,6 @@ export const SECTION_SPECS: SectionSpec[] = [
     description:
       "Compact pricing cards shown on the home page. Plans are managed under the Pricing page.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "text", key: "cta_label", column: "cta_label", label: "Header link label" },
@@ -198,11 +181,8 @@ export const SECTION_SPECS: SectionSpec[] = [
     label: "Testimonials",
     description: "Customer quotes shown on the home page.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
-      { kind: "text", key: "cta_label", column: "cta_label", label: "Header link label" },
-      { kind: "url", key: "cta_href", column: "cta_href", label: "Header link URL" },
       {
         kind: "list",
         key: "items",
@@ -224,7 +204,6 @@ export const SECTION_SPECS: SectionSpec[] = [
     label: "Mobile App Showcase",
     description: "App download section with the two store badges.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "image", key: "image_url", column: "image_url", label: "Image or video", full: true },
@@ -239,7 +218,6 @@ export const SECTION_SPECS: SectionSpec[] = [
     description:
       "Heading, intro copy and the link to the full FAQ page. The questions come from Content → FAQs (showing the 5 newest) and the category tabs come from Pages → FAQ → Categories & Questions.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "text", key: "cta_label", column: "cta_label", label: "Link label" },
@@ -249,35 +227,35 @@ export const SECTION_SPECS: SectionSpec[] = [
   {
     key: "cta_banner",
     label: "CTA Banner",
-    description: "Closing call to action with the image, avatars and floating stat cards.",
+    description: "Closing call to action with a video or image and the list of reason chips.",
     fields: [
       eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "text", key: "cta_label", column: "cta_label", label: "Primary button label" },
       { kind: "url", key: "cta_href", column: "cta_href", label: "Primary button URL" },
-      { kind: "text", key: "secondary_cta_label", label: "Secondary button label" },
-      { kind: "url", key: "secondary_cta_href", label: "Secondary button URL" },
-      { kind: "image", key: "image_url", column: "image_url", label: "Image or video", full: true },
-      imageAltField,
+      {
+        kind: "image",
+        key: "image_url",
+        column: "image_url",
+        label: "Video or image",
+        help: "Upload an MP4/WebM video or an image. Leave empty to keep the built-in video.",
+        full: true,
+      },
+      {
+        kind: "text",
+        key: "image_alt",
+        label: "Media label",
+        help: "Accessible label for the video or image.",
+        full: true,
+      },
       {
         kind: "list",
         key: "features",
-        label: "Reason cards",
+        label: "Reason chips",
         itemLabel: "Reason",
-        fields: [
-          iconField(),
-          { kind: "text", key: "title", label: "Title" },
-          { kind: "text", key: "desc", label: "Description" },
-        ],
+        fields: [{ kind: "text", key: "title", label: "Title" }],
       },
-      { kind: "image-list", key: "avatars", label: "Avatar images", itemLabel: "Avatar" },
-      { kind: "text", key: "trust_text", label: "Trust line", full: true },
-      { kind: "text", key: "stat_label", label: "Floating stat: label" },
-      { kind: "text", key: "stat_value", label: "Floating stat: value" },
-      { kind: "text", key: "stat_delta", label: "Floating stat: change" },
-      { kind: "text", key: "stat_note_title", label: "Floating note: title" },
-      { kind: "textarea", key: "stat_note_body", label: "Floating note: body", rows: 2 },
     ],
   },
 ];
@@ -301,33 +279,19 @@ export const FEATURES_SECTION_SPECS: SectionSpec[] = [
   {
     key: "hero",
     label: "Features Hero",
-    description: "Top of the features page: headline, both buttons, the photo and four highlights.",
+    description: "Top of the features page: headline, subtext and both buttons.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
-      ...ctaPair("Primary button label", "shown under the label"),
-      { kind: "image", key: "image_url", column: "image_url", label: "Hero media", full: true },
-      imageAltField,
-      {
-        kind: "list",
-        key: "highlights",
-        label: "Highlights",
-        itemLabel: "Highlight",
-        fields: [
-          iconField(),
-          { kind: "text", key: "title", label: "Title" },
-          { kind: "text", key: "desc", label: "Short description" },
-        ],
-      },
+      ...ctaPair("Primary button label"),
     ],
   },
   {
     key: "feature_grid",
     label: "Feature Grid",
-    description: "Category filter tabs plus the filterable grid of feature cards.",
+    description:
+      "Category filter tabs for the grid. The feature cards themselves are managed under Features Posts in the sidebar; this section only controls the tabs and whether the grid is shown.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       {
         kind: "list",
@@ -337,25 +301,6 @@ export const FEATURES_SECTION_SPECS: SectionSpec[] = [
         fields: [
           { kind: "text", key: "id", label: "ID", help: "Used by the cards below. Use all for the default tab." },
           { kind: "text", key: "label", label: "Label" },
-          iconField(),
-        ],
-      },
-      {
-        kind: "list",
-        key: "features",
-        label: "Feature cards",
-        itemLabel: "Feature",
-        fields: [
-          { kind: "text", key: "title", label: "Title" },
-          { kind: "textarea", key: "description", label: "Description", rows: 2 },
-          {
-            kind: "text",
-            key: "category",
-            label: "Category ID",
-            help: "Must match one of the category IDs above, or the card hides on that tab.",
-          },
-          iconField(),
-          { kind: "url", key: "href", label: "Learn more link", placeholder: "/features/booking" },
         ],
       },
     ],
@@ -363,40 +308,43 @@ export const FEATURES_SECTION_SPECS: SectionSpec[] = [
   {
     key: "platform_showcase",
     label: "Platform Showcase",
-    description: "Split section: the six benefits on the right, photo on the left.",
+    description:
+      "Split section: the three photo-collage images on the left and the numbered benefits on the right.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       { kind: "textarea", key: "body", column: "body", label: "Paragraph", rows: 3, full: true },
-      { kind: "image", key: "image_url", column: "image_url", label: "Image or video", full: true },
-      imageAltField,
+      {
+        kind: "image",
+        key: "image_left",
+        label: "Collage image: left",
+        imageOnly: true,
+        full: true,
+        help: "Leave blank to keep the built-in image.",
+      },
+      {
+        kind: "image",
+        key: "image_center",
+        label: "Collage image: center",
+        imageOnly: true,
+        full: true,
+        help: "Leave blank to keep the built-in image.",
+      },
+      {
+        kind: "image",
+        key: "image_right",
+        label: "Collage image: right",
+        imageOnly: true,
+        full: true,
+        help: "Leave blank to keep the built-in image.",
+      },
       {
         kind: "list",
         key: "benefits",
         label: "Benefits",
         itemLabel: "Benefit",
         fields: [
-          iconField(),
           { kind: "text", key: "title", label: "Title" },
           { kind: "text", key: "desc", label: "Short description" },
-        ],
-      },
-    ],
-  },
-  {
-    key: "stats_bar",
-    label: "Stats Bar",
-    description: "The five numbers across the middle of the page.",
-    fields: [
-      {
-        kind: "list",
-        key: "stats",
-        label: "Stats",
-        itemLabel: "Stat",
-        fields: [
-          iconField(),
-          { kind: "text", key: "value", label: "Value", placeholder: "10,000+" },
-          { kind: "text", key: "label", label: "Label", placeholder: "Salons Worldwide" },
         ],
       },
     ],
@@ -413,69 +361,39 @@ export const ABOUT_SECTION_SPECS: SectionSpec[] = [
   {
     key: "hero",
     label: "About Hero",
-    description: "Top of the about page: headline, both buttons, the media and four highlights.",
+    description: "Top of the about page: headline, subtext, both buttons and the hero media.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       ...ctaPair("Primary button label"),
-      { kind: "image", key: "image_url", column: "image_url", label: "Hero media", full: true },
-      imageAltField,
       {
-        kind: "list",
-        key: "highlights",
-        label: "Highlights",
-        itemLabel: "Highlight",
-        fields: [
-          iconField(),
-          { kind: "text", key: "title", label: "Title" },
-          { kind: "text", key: "desc", label: "Short description" },
-        ],
+        kind: "image",
+        key: "image_url",
+        column: "image_url",
+        label: "Hero video or image",
+        full: true,
+        help: "Leave blank to keep the built-in video.",
+      },
+      {
+        kind: "text",
+        key: "image_alt",
+        label: "Hero media alt text",
+        help: "Describes the hero media for screen readers.",
+        full: true,
       },
     ],
   },
   {
     key: "mission_stats",
-    label: "Mission & Vision + Stats",
-    description: "The two mission/vision cards followed by the row of numbers.",
+    label: "Mission & Vision",
+    description: "The two mission/vision cards.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "text", key: "mission_title", label: "Mission card title", full: true },
       { kind: "textarea", key: "mission_body", label: "Mission card text", rows: 3, full: true },
       { kind: "text", key: "vision_title", label: "Vision card title", full: true },
       { kind: "textarea", key: "vision_body", label: "Vision card text", rows: 3, full: true },
-      {
-        kind: "list",
-        key: "stats",
-        label: "Stats",
-        itemLabel: "Stat",
-        fields: [
-          { kind: "text", key: "value", label: "Value", placeholder: "10,000+" },
-          { kind: "text", key: "label", label: "Label", placeholder: "Salons Worldwide" },
-        ],
-      },
-    ],
-  },
-  {
-    key: "journey",
-    label: "Our Journey",
-    description: "The horizontal milestone timeline.",
-    fields: [
-      eyebrowField,
-      ...headingPair("Highlighted line"),
-      {
-        kind: "list",
-        key: "milestones",
-        label: "Milestones",
-        itemLabel: "Milestone",
-        fields: [
-          iconField(),
-          { kind: "text", key: "title", label: "Title" },
-          { kind: "textarea", key: "desc", label: "Description", rows: 3 },
-        ],
-      },
     ],
   },
   {
@@ -508,11 +426,38 @@ export const ABOUT_SECTION_SPECS: SectionSpec[] = [
     ],
   },
   {
-    key: "why_choose",
-    label: "Why Salons Choose SalonAI",
-    description: "The closing band of five reasons.",
+    key: "journey",
+    label: "Our Journey",
+    description: "The horizontal milestone timeline.",
     fields: [
       ...headingPair("Highlighted line"),
+      {
+        kind: "list",
+        key: "milestones",
+        label: "Milestones",
+        itemLabel: "Milestone",
+        fields: [
+          { kind: "text", key: "title", label: "Title" },
+          { kind: "textarea", key: "desc", label: "Description", rows: 3 },
+        ],
+      },
+    ],
+  },
+  {
+    key: "why_choose",
+    label: "Why Salons Choose SalonAI",
+    description: "The closing band: headline, subtext, the photo and the reasons.",
+    fields: [
+      ...headingPair("Highlighted line"),
+      subheadingField,
+      {
+        kind: "image",
+        key: "image_url",
+        column: "image_url",
+        label: "Photo",
+        full: true,
+        help: "Leave blank to keep the built-in image.",
+      },
       {
         kind: "list",
         key: "features",
@@ -533,7 +478,6 @@ export const PRICING_SECTION_SPECS: SectionSpec[] = [
     label: "Pricing Hero",
     description: "Title, subtitle, billing toggle text and optional hero media.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       { kind: "text", key: "monthly_label", label: "Toggle label: monthly", placeholder: "Monthly" },
@@ -545,8 +489,6 @@ export const PRICING_SECTION_SPECS: SectionSpec[] = [
         help: "Shown after the price, e.g. /month.",
         placeholder: "/month",
       },
-      { kind: "image", key: "image_url", column: "image_url", label: "Hero media", full: true },
-      imageAltField,
     ],
   },
   {
@@ -602,9 +544,24 @@ export const PRICING_SECTION_SPECS: SectionSpec[] = [
     ],
   },
   {
+    key: "closing_cta",
+    label: "Still Not Sure CTA",
+    description: "The closing call-to-action above the 'All plans include' strip.",
+    fields: [
+      { kind: "text", key: "title", label: "Title", full: true },
+      { kind: "textarea", key: "subtitle", label: "Subtitle", rows: 2 },
+      { kind: "text", key: "cta_label", label: "CTA label" },
+      { kind: "url", key: "cta_href", label: "CTA href" },
+      { kind: "text", key: "secondary_cta_label", label: "Secondary CTA label" },
+      { kind: "url", key: "secondary_cta_href", label: "Secondary CTA href" },
+      { kind: "image", key: "image_url", column: "image_url", label: "Media", full: true },
+      imageAltField,
+    ],
+  },
+  {
     key: "banner",
-    label: "Pricing Banner",
-    description: "The 'all plans include' strip plus the closing CTA.",
+    label: "All Plans Include",
+    description: "The 'all plans include' strip.",
     fields: [
       { kind: "text", key: "strip_heading", label: "Strip heading", placeholder: "All plans include" },
       {
@@ -613,19 +570,10 @@ export const PRICING_SECTION_SPECS: SectionSpec[] = [
         label: "Included items",
         itemLabel: "Item",
         fields: [
-          iconField(),
           { kind: "text", key: "title", label: "Title" },
           { kind: "text", key: "desc", label: "Short description" },
         ],
       },
-      { kind: "text", key: "title", label: "Title" },
-      { kind: "textarea", key: "subtitle", label: "Subtitle", rows: 2 },
-      { kind: "text", key: "cta_label", label: "CTA label" },
-      { kind: "url", key: "cta_href", label: "CTA href" },
-      { kind: "text", key: "secondary_cta_label", label: "Secondary CTA label" },
-      { kind: "url", key: "secondary_cta_href", label: "Secondary CTA href" },
-      { kind: "image", key: "image_url", column: "image_url", label: "Banner media", full: true },
-      imageAltField,
     ],
   },
   {
@@ -635,8 +583,6 @@ export const PRICING_SECTION_SPECS: SectionSpec[] = [
     fields: [
       { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
       { kind: "text", key: "subheading", column: "subheading", label: "Subheading", full: true },
-      { kind: "text", key: "link_label", label: "Link under the FAQs" },
-      { kind: "url", key: "link_href", label: "Link under the FAQs URL" },
       {
         kind: "list",
         key: "faqs",
@@ -647,7 +593,6 @@ export const PRICING_SECTION_SPECS: SectionSpec[] = [
           { kind: "textarea", key: "answer", label: "Answer", rows: 3 },
         ],
       },
-      { kind: "text", key: "cta_eyebrow", label: "CTA card eyebrow" },
       { kind: "text", key: "cta_heading", label: "CTA card heading" },
       { kind: "text", key: "cta_heading_accent", label: "CTA card highlighted line" },
       { kind: "textarea", key: "cta_subheading", label: "CTA card sub-copy", rows: 2 },
@@ -661,29 +606,70 @@ export const PRICING_SECTION_SPECS: SectionSpec[] = [
   },
 ];
 
+/**
+ * Fields shared by the contact and request-demo forms (they render the same
+ * `ContactFormSection` component on the Client).
+ */
+const contactFormFields: FieldSpec[] = [
+  { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
+  { kind: "text", key: "subheading", column: "subheading", label: "Sub-copy", full: true },
+  { kind: "text", key: "name_label", label: "Name field label" },
+  { kind: "text", key: "name_placeholder", label: "Name field placeholder" },
+  { kind: "text", key: "email_label", label: "Email field label" },
+  { kind: "text", key: "email_placeholder", label: "Email field placeholder" },
+  { kind: "text", key: "phone_label", label: "Phone field label" },
+  { kind: "text", key: "phone_placeholder", label: "Phone field placeholder" },
+  { kind: "text", key: "subject_label", label: "Subject field label" },
+  {
+    kind: "text",
+    key: "subject_placeholder",
+    label: "Subject default option",
+    help: "The first, empty choice shown in the subject dropdown.",
+  },
+  { kind: "text", key: "message_label", label: "Message field label" },
+  { kind: "textarea", key: "message_placeholder", label: "Message field placeholder", rows: 2 },
+  { kind: "text", key: "submit_label", label: "Submit button label" },
+  { kind: "textarea", key: "success_message", label: "Message shown after sending", rows: 2 },
+  { kind: "text", key: "privacy_note", label: "Small note under the button" },
+  { kind: "text", key: "details_heading", label: "Contact info panel heading" },
+  { kind: "text", key: "socials_heading", label: "Social panel heading" },
+  {
+    kind: "list",
+    key: "details",
+    label: "Contact details",
+    itemLabel: "Detail",
+    fields: [
+      iconField(),
+      { kind: "text", key: "label", label: "Label" },
+      { kind: "text", key: "value", label: "Value" },
+    ],
+  },
+  {
+    kind: "string-list",
+    key: "subjects",
+    label: "Subject dropdown options",
+    itemLabel: "Subject option",
+    help: "The choices in the subject dropdown. Each one is stored on the enquiry.",
+  },
+];
+
 export const CONTACT_SECTION_SPECS: SectionSpec[] = [
   {
     key: "hero",
     label: "Contact Hero",
-    description: "Top of the contact page: headline, the photo and the three quick contact rows.",
+    description: "Top of the contact page: the headline, intro line and the video or image on the right.",
     fields: [
-      eyebrowField,
-      ...headingPair("Highlighted line"),
+      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
       subheadingField,
-      { kind: "image", key: "image_url", column: "image_url", label: "Hero media", full: true },
-      imageAltField,
-      { kind: "text", key: "badge", label: "Floating badge text", placeholder: "We're here to help!" },
       {
-        kind: "list",
-        key: "quick_contacts",
-        label: "Quick contact rows",
-        itemLabel: "Row",
-        fields: [
-          iconField(),
-          { kind: "text", key: "label", label: "Label" },
-          { kind: "text", key: "value", label: "Value" },
-        ],
+        kind: "image",
+        key: "image_url",
+        column: "image_url",
+        label: "Hero video or image",
+        full: true,
+        help: "Leave blank to keep the built-in video.",
       },
+      imageAltField,
     ],
   },
   {
@@ -691,33 +677,7 @@ export const CONTACT_SECTION_SPECS: SectionSpec[] = [
     label: "Contact Form",
     description:
       "The form itself. Anything a visitor submits is saved to the database and shows up under Enquiries.",
-    fields: [
-      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
-      { kind: "text", key: "subheading", column: "subheading", label: "Sub-copy", full: true },
-      { kind: "text", key: "submit_label", label: "Submit button label" },
-      { kind: "textarea", key: "success_message", label: "Message shown after sending", rows: 2 },
-      { kind: "text", key: "privacy_note", label: "Small note under the button" },
-      { kind: "text", key: "details_heading", label: "Contact info panel heading" },
-      { kind: "text", key: "socials_heading", label: "Social panel heading" },
-      {
-        kind: "list",
-        key: "details",
-        label: "Contact details",
-        itemLabel: "Detail",
-        fields: [
-          iconField(),
-          { kind: "text", key: "label", label: "Label" },
-          { kind: "text", key: "value", label: "Value" },
-        ],
-      },
-      {
-        kind: "string-list",
-        key: "subjects",
-        label: "Subject dropdown options",
-        itemLabel: "Subject option",
-        help: "The choices in the subject dropdown. Each one is stored on the enquiry.",
-      },
-    ],
+    fields: contactFormFields,
   },
   {
     key: "location_map",
@@ -730,16 +690,6 @@ export const CONTACT_SECTION_SPECS: SectionSpec[] = [
       { kind: "text", key: "map_query", label: "Map search query", help: "e.g. Colombo Sri Lanka" },
       { kind: "text", key: "directions_label", label: "Directions link label" },
       { kind: "url", key: "directions_href", label: "Directions link" },
-    ],
-  },
-  {
-    key: "cta_banner",
-    label: "CTA Banner",
-    description: "Closing band with both buttons.",
-    fields: [
-      eyebrowField,
-      ...headingPair("Highlighted line"),
-      ...ctaPair("Primary button label"),
     ],
   },
 ];
@@ -767,42 +717,25 @@ export const REQUEST_DEMO_SECTION_SPECS: SectionSpec[] = [
     label: "Demo Request Form",
     description:
       "The form itself. Anything a visitor submits is saved to the database and shows up under Enquiries with source 'request-demo'.",
-    fields: [
-      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
-      { kind: "text", key: "subheading", column: "subheading", label: "Sub-copy", full: true },
-      { kind: "text", key: "submit_label", label: "Submit button label" },
-      { kind: "textarea", key: "success_message", label: "Message shown after sending", rows: 2 },
-      { kind: "text", key: "privacy_note", label: "Small note under the button" },
-      { kind: "text", key: "details_heading", label: "Contact info panel heading" },
-      { kind: "text", key: "socials_heading", label: "Social panel heading" },
-      {
-        kind: "list",
-        key: "details",
-        label: "Contact details",
-        itemLabel: "Detail",
-        fields: [
-          iconField(),
-          { kind: "text", key: "label", label: "Label" },
-          { kind: "text", key: "value", label: "Value" },
-        ],
-      },
-      {
-        kind: "string-list",
-        key: "subjects",
-        label: "Subject dropdown options",
-        itemLabel: "Subject option",
-        help: "The choices in the subject dropdown. Each one is stored on the enquiry.",
-      },
-    ],
+    fields: contactFormFields,
   },
   {
     key: "cta_banner",
     label: "CTA Banner",
-    description: "Closing band with both buttons.",
+    description: "Closing band with the copy, both buttons and an optional image or video.",
     fields: [
       eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
+      {
+        kind: "image",
+        key: "image_url",
+        column: "image_url",
+        label: "Banner video or image",
+        full: true,
+        help: "Leave blank to keep the built-in image.",
+      },
+      imageAltField,
       ...ctaPair("Primary button label"),
     ],
   },
@@ -820,16 +753,27 @@ export const BLOG_SECTION_SPECS: SectionSpec[] = [
     key: "hero",
     label: "Blog Hero",
     description:
-      "Headline, intro copy, search box and the featured article card. The card content comes from whichever post is marked featured on the Blog screen.",
+      "Headline, intro copy, the hero media, the search box and the category dropdown. The dropdown options come from the Categories section below.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
+      {
+        kind: "image",
+        key: "image_url",
+        column: "image_url",
+        label: "Hero video or image",
+        full: true,
+        help: "Leave blank to keep the built-in video.",
+      },
+      {
+        kind: "text",
+        key: "image_alt",
+        label: "Hero media alt text",
+        help: "Describes the hero media for screen readers.",
+        full: true,
+      },
       { kind: "text", key: "search_placeholder", label: "Search box placeholder" },
       { kind: "text", key: "search_label", label: "Category dropdown default option" },
-      { kind: "text", key: "featured_label", label: "Featured article badge text" },
-      { kind: "image", key: "image_url", column: "image_url", label: "Hero media", full: true },
-      imageAltField,
     ],
   },
   {
@@ -838,7 +782,6 @@ export const BLOG_SECTION_SPECS: SectionSpec[] = [
     description:
       "Category filter buttons. Counts are generated from published posts, so only the labels and icons are editable here.",
     fields: [
-      { kind: "text", key: "heading", column: "heading", label: "Section label", full: true },
       {
         kind: "list",
         key: "items",
@@ -857,47 +800,20 @@ export const BLOG_SECTION_SPECS: SectionSpec[] = [
   {
     key: "latest",
     label: "Latest Articles",
-    description: "Heading above the article grid, its filter bar and the empty state message.",
+    description: "Heading above the article grid and the empty state message.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
-      { kind: "text", key: "cta_label", column: "cta_label", label: "Link label" },
-      { kind: "url", key: "cta_href", column: "cta_href", label: "Link target" },
       { kind: "text", key: "empty_message", label: "Shown when no articles match", full: true },
-    ],
-  },
-  {
-    key: "newsletter",
-    label: "Newsletter Signup",
-    description:
-      "Copy and button text for the newsletter box. Subscribers are saved to the Enquiries list as source 'newsletter'.",
-    fields: [
-      { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
-      subheadingField,
-      { kind: "text", key: "email_placeholder", label: "Email field placeholder" },
-      { kind: "text", key: "submit_label", label: "Button label" },
-      { kind: "text", key: "success_message", label: "Success message", full: true },
     ],
   },
   {
     key: "popular",
     label: "Popular Posts",
     description:
-      "Side panel listing the most read articles. The list itself is generated from published posts ordered by views.",
+      "Heading above the three most recent articles. The list itself is generated from published posts.",
     fields: [
       { kind: "text", key: "heading", column: "heading", label: "Heading", full: true },
-      subheadingField,
       { kind: "text", key: "empty_message", label: "Empty state message", full: true },
-    ],
-  },
-  {
-    key: "cta_banner",
-    label: "CTA Banner",
-    description: "Closing band with both buttons.",
-    fields: [
-      eyebrowField,
-      ...headingPair("Highlighted line"),
-      ...ctaPair("Primary button label"),
     ],
   },
 ];
@@ -913,15 +829,28 @@ export const FAQ_SECTION_SPECS: SectionSpec[] = [
   {
     key: "hero",
     label: "FAQ Hero",
-    description: "Top of the FAQ page: eyebrow, headline, intro copy and the media on the right.",
+    description:
+      "Top of the FAQ page: headline, intro copy, the background media and the search box.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
+      {
+        kind: "image",
+        key: "image_url",
+        column: "image_url",
+        label: "Hero video or image",
+        full: true,
+        help: "Leave blank to keep the built-in video.",
+      },
+      {
+        kind: "text",
+        key: "image_alt",
+        label: "Hero media alt text",
+        help: "Describes the hero media for screen readers.",
+        full: true,
+      },
       { kind: "text", key: "search_placeholder", label: "Search box placeholder", placeholder: "Search for answers..." },
       { kind: "text", key: "search_label", label: "Search button label", placeholder: "Search" },
-      { kind: "image", key: "image_url", column: "image_url", label: "Hero image or video", full: true },
-      imageAltField,
     ],
   },
   {
@@ -930,7 +859,6 @@ export const FAQ_SECTION_SPECS: SectionSpec[] = [
     description:
       "Category sidebar plus the intro copy above it. Categories added here appear as the filter tabs under Content → FAQs, where you pick a category and add its questions.",
     fields: [
-      eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       {
@@ -951,12 +879,21 @@ export const FAQ_SECTION_SPECS: SectionSpec[] = [
   {
     key: "cta_banner",
     label: "Support CTA",
-    description: "The closing call to action with the support team message and both buttons.",
+    description: "The closing call to action with the support team message, both buttons and the photo.",
     fields: [
       eyebrowField,
       ...headingPair("Highlighted line"),
       subheadingField,
       ...ctaPair("Primary button label"),
+      {
+        kind: "image",
+        key: "image_url",
+        column: "image_url",
+        label: "Support photo",
+        full: true,
+        help: "Leave blank to keep the built-in image.",
+      },
+      imageAltField,
     ],
   },
 ];
@@ -968,6 +905,14 @@ export const FOOTER_SECTION_SPECS: SectionSpec[] = [
     description:
       "Site-wide footer: brand block, link columns, contact details, socials and the bottom bar.",
     fields: [
+      {
+        kind: "image",
+        key: "logo_url",
+        label: "Footer logo",
+        help: "Replaces the SalonAI wordmark in the footer brand block. Leave blank to keep the wordmark.",
+        imageOnly: true,
+        full: true,
+      },
       {
         kind: "text",
         key: "heading",
