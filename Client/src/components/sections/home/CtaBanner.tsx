@@ -4,7 +4,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import homeCtaVideo from "@/assets/images/images/home-cta.mp4";
-import { defaultHomeContent, type HomeContent } from "@/lib/content";
+import CmsImage from "@/components/ui/CmsImage";
+import { defaultHomeContent, resolveImageUrl, type HomeContent } from "@/lib/content";
 
 type Props = {
   content?: HomeContent["cta_banner"];
@@ -12,6 +13,7 @@ type Props = {
 
 export default function CtaBanner({ content = defaultHomeContent.cta_banner }: Props) {
   const chips = content.features.map((item) => item.title);
+  const mediaUrl = resolveImageUrl(content.image_url);
 
   return (
     <section className="w-full overflow-hidden bg-salon-bg py-16 lg:py-24">
@@ -92,16 +94,28 @@ export default function CtaBanner({ content = defaultHomeContent.cta_banner }: P
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
               }}
             >
-              <video
-                src={homeCtaVideo}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                aria-label={content.image_alt}
-                className="absolute inset-0 h-full w-full object-cover object-center"
-              />
+              {mediaUrl ? (
+                <CmsImage
+                  value={content.image_url}
+                  alt={content.image_alt}
+                  fill
+                  controls={false}
+                  loop
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                />
+              ) : (
+                <video
+                  src={homeCtaVideo}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-label={content.image_alt}
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                />
+              )}
             </div>
           </motion.div>
         </div>

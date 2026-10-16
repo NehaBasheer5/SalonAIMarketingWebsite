@@ -11,10 +11,7 @@ import type { PricingFaq } from "@/lib/content";
 export type PricingFaqCtaProps = {
   heading?: string;
   subheading?: string;
-  link_label?: string;
-  link_href?: string;
   faqs?: PricingFaq[];
-  cta_eyebrow?: string;
   cta_heading?: string;
   cta_heading_accent?: string;
   cta_subheading?: string;
@@ -30,10 +27,7 @@ export type PricingFaqCtaProps = {
 export default function PricingFaqCta({
   heading,
   subheading,
-  link_label = "View All FAQs →",
-  link_href = "/faq",
   faqs = [],
-  cta_eyebrow = "Get Started",
   cta_heading = "Ready to Transform",
   cta_heading_accent = "Your Salon?",
   cta_subheading = "Join thousands of salon owners who are streamlining their operations with SalonAI.",

@@ -9,15 +9,12 @@ import type { PricingPlan } from "@/lib/content";
 
 export type PricingExperienceProps = {
   hero: {
-    eyebrow?: string;
     heading: string;
     heading_accent?: string;
     subheading: string;
     monthly_label?: string;
     annual_label?: string;
     per_month_suffix?: string;
-    image_url?: string;
-    image_alt?: string;
   };
   plans: PricingPlan[];
   /** Message for the case where no packages are published. */
@@ -67,21 +64,6 @@ export default function PricingExperience({
               </p>
             </div>
           </section>
-
-          {hero.image_url ? (
-            <div className="mx-auto max-w-5xl px-5 pt-10 sm:px-8">
-              <div className="relative aspect-video overflow-hidden rounded-2xl border border-salon-card bg-salon-shell-soft">
-                <CmsImage
-                  value={hero.image_url}
-                  alt={hero.image_alt || "SalonAI pricing"}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 1024px"
-                  priority
-                />
-              </div>
-            </div>
-          ) : null}
         </>
       ) : null}
 

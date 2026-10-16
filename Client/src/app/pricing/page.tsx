@@ -1,5 +1,6 @@
 import PricingExperience from "@/components/sections/pricing/PricingExperience";
 import PricingComparison from "@/components/sections/pricing/PricingComparison";
+import PricingCta from "@/components/sections/pricing/PricingCta";
 import PricingBanner from "@/components/sections/pricing/PricingBanner";
 import PricingFaqCta from "@/components/sections/pricing/PricingFaqCta";
 import { getPricingContent } from "@/lib/content";
@@ -32,6 +33,7 @@ export default async function PricingPage() {
         showPlans={!hidden.has("pricing_cards")}
       />
       {!hidden.has("comparison") ? <PricingComparison {...content.comparison} /> : null}
+      {!hidden.has("closing_cta") ? <PricingCta {...content.closing_cta} /> : null}
       {!hidden.has("banner") ? <PricingBanner {...content.banner} /> : null}
       {!hidden.has("faq_cta") ? <PricingFaqCta {...content.faq_cta} /> : null}
     </main>

@@ -9,6 +9,7 @@ type Faq = {
   category: string | null;
   sort_order: number;
   is_published: number | boolean;
+  show_on_home: number | boolean;
 };
 
 type CategoryDef = {
@@ -66,6 +67,7 @@ const empty: Faq = {
   category: "General",
   sort_order: 0,
   is_published: true,
+  show_on_home: false,
 };
 
 const UNCATEGORIZED = "_uncategorized";
@@ -274,7 +276,9 @@ export default function FaqsPage() {
       <div>
         <h2 className="text-2xl font-bold text-[#0D1140]">FAQs</h2>
         <p className="text-sm text-slate-600">
-          Manage the questions shown on the Client home page (newest 5) and the FAQ page. Add or edit the category tabs below.
+          Manage the questions shown on the Client FAQ page. Tick "Show on home page" to feature a
+          question in the home FAQ section (with its category tab); when none are ticked the home
+          section falls back to the newest 5. Add or edit the category tabs below.
         </p>
       </div>
 
@@ -485,6 +489,18 @@ export default function FaqsPage() {
             </button>
           </div>
         </div>
+        <label className="flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={Boolean(form.show_on_home)}
+            onChange={(e) => setForm({ ...form, show_on_home: e.target.checked })}
+            className="h-4 w-4 rounded border-slate-300"
+          />
+          Show on home page
+          <span className="text-xs text-slate-400">
+            — shown in the home page FAQ section (with its category tab).
+          </span>
+        </label>
       </form>
 
       <div className="space-y-3">
@@ -511,6 +527,11 @@ export default function FaqsPage() {
                       >
                         {normalized(faq.category) ? faq.category : "Uncategorized"}
                       </span>
+                      {Boolean(faq.show_on_home) ? (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-700">
+                          Home
+                        </span>
+                      ) : null}
                       order {faq.sort_order}
                     </p>
                   </div>

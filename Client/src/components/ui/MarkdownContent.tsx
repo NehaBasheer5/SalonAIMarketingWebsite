@@ -237,7 +237,7 @@ export default function MarkdownContent({
               return (
                 <h2
                   key={key}
-                  className="mt-10 mb-3 font-display text-3xl tracking-tight text-salon-ink sm:text-4xl lg:text-5xl first:mt-0"
+                  className="mt-10 mb-3 font-display text-2xl tracking-tight text-salon-ink sm:text-3xl first:mt-0"
                 >
                   {text}
                 </h2>

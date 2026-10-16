@@ -4,12 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image, { type StaticImageData } from "next/image";
 import { ArrowRight } from "lucide-react";
-import CmsIcon from "@/components/ui/CmsIcon";
 import bookingImg from "@/assets/images/images/BookingM.jpg";
 import staffImg from "@/assets/images/images/StaffM.jpg";
 import customerImg from "@/assets/images/images/CustomerM.jpg";
 import aiFeaturesImg from "@/assets/images/images/ai features.jpg";
-import { defaultFeaturesContent, type FeaturesContent } from "@/lib/content";
+import { defaultFeaturesContent, resolveImageUrl, type FeaturesContent } from "@/lib/content";
 
 type Props = {
   content?: FeaturesContent["feature_grid"];
@@ -60,7 +59,6 @@ export default function FeaturesGrid({ content = defaultFeaturesContent.feature_
                       : "border border-salon-card bg-white/70 text-salon-muted hover:bg-white hover:text-salon-ink"
                   }`}
                 >
-                  <CmsIcon name={cat.icon} className="h-4 w-4" />
                   <span>{cat.label}</span>
                 </button>
               );
@@ -70,7 +68,20 @@ export default function FeaturesGrid({ content = defaultFeaturesContent.feature_
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {filteredFeatures.map((feature, index) => {
-            const image = FEATURE_IMAGES[feature.title] ?? IMAGE_POOL[index % IMAGE_POOL.length];
+            // A card image set in the CMS wins; otherwise fall back to the
+            // bundled imagery keyed by title, then a rotating pool.
+            const image: string | StaticImageData =
+              resolveImageUrl(feature.image_url) ||
+              FEATURE_IMAGES[feature.title] ||
+              IMAGE_POOL[index % IMAGE_POOL.length];
+            // "Learn more" opens the card's own detail page. Only a full
+            // external URL overrides that, so half-set legacy links such as
+            // /features/booking can never dead-end the visitor.
+            const linkHref = /^https?:\/\//i.test(feature.href || "")
+              ? feature.href
+              : feature.slug
+                ? `/features/${feature.slug}`
+                : feature.href || "/request-demo";
             return (
               <article
                 key={`${feature.title}-${index}`}
@@ -79,7 +90,7 @@ export default function FeaturesGrid({ content = defaultFeaturesContent.feature_
                 <div className="relative aspect-[16/10] w-full overflow-hidden">
                   <Image
                     src={image}
-                    alt={feature.title}
+                    alt={feature.image_alt || feature.title}
                     fill
                     sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -92,7 +103,7 @@ export default function FeaturesGrid({ content = defaultFeaturesContent.feature_
 
                   <div className="mt-auto flex items-center justify-between pt-5">
                     <Link
-                      href={feature.href || "/request-demo"}
+                      href={linkHref || "/request-demo"}
                       className="inline-flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-wider text-salon-brand-dark transition hover:text-salon-brand"
                     >
                       Learn more

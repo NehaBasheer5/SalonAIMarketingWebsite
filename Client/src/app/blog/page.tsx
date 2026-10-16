@@ -41,13 +41,16 @@ export default async function BlogPage() {
   };
   const categories = [allOption, ...options];
 
+  // Popularity is admin-controlled: tick "Show in Popular Posts" per article.
+  const popularPosts = posts.filter((post) => post.is_popular).slice(0, 3);
+
   return (
     <main className="min-h-screen bg-salon-bg">
       {show("hero") ? (
         <BlogHero content={content.hero} categories={categories} />
       ) : null}
       {show("popular") ? (
-        <BlogPopular popular={content.popular} popularPosts={posts.slice(0, 3)} />
+        <BlogPopular popular={content.popular} popularPosts={popularPosts} />
       ) : null}
       {show("categories") || show("latest") ? (
         <BlogCategories

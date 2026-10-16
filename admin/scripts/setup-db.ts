@@ -117,6 +117,485 @@ function parseJsonObject(value: unknown): Record<string, unknown> {
   }
 }
 
+/**
+ * Drops the `icon` key from every entry of a stored list (benefits, category
+ * tabs), since the redesigned layout no longer renders them.
+ */
+function stripIcons(items: unknown): { items: Record<string, unknown>[]; changed: boolean } {
+  if (!Array.isArray(items)) return { items: [], changed: false };
+  let changed = false;
+  const next = (items as Record<string, unknown>[]).map((item) => {
+    if (!item || typeof item !== "object" || !("icon" in item)) return item;
+    changed = true;
+    const copy: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(item)) {
+      if (key === "icon") continue;
+      copy[key] = value;
+    }
+    return copy;
+  });
+  return { items: next, changed };
+}
+
+/**
+ * Keeps the `features` page in step with the redesigned Client page.
+ *
+ * `upsertSection` only ever adds fields, so this removes what the editor no
+ * longer owns: the whole Stats Bar section, the hero image/highlights and the
+ * platform showcase image/icons plus the category tab icons that the Client
+ * stopped rendering.
+ */
+async function cleanupFeaturesSections(conn: Connection) {
+  // The Stats Bar is no longer part of the features page.
+  await conn.query(
+    `DELETE ps FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'features' AND ps.section_key = 'stats_bar'`
+  );
+
+  // The hero and platform showcase no longer render a media image.
+  await conn.query(
+    `UPDATE page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     SET ps.image_url = NULL
+     WHERE p.slug = 'features' AND ps.section_key IN ('hero', 'platform_showcase')`
+  );
+
+  const dropKeys: Record<string, string[]> = {
+    hero: ["eyebrow", "image_alt", "highlights"],
+    feature_grid: ["eyebrow"],
+    platform_showcase: ["eyebrow", "image_alt"],
+  };
+
+  const [rows] = await conn.query<mysql.RowDataPacket[]>(
+    `SELECT ps.id, ps.section_key, ps.extra_json
+     FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'features' AND ps.section_key IN ('hero', 'feature_grid', 'platform_showcase')`
+  );
+
+  for (const row of rows) {
+    const current = parseJsonObject(row.extra_json);
+    let changed = false;
+
+    for (const key of dropKeys[row.section_key] ?? []) {
+      if (key in current) {
+        delete current[key];
+        changed = true;
+      }
+    }
+
+    // Benefits are numbered by the layout now, and the category tabs are labels
+    // only, so the stored icons go too.
+    if (row.section_key === "platform_showcase" && Array.isArray(current.benefits)) {
+      const stripped = stripIcons(current.benefits);
+      current.benefits = stripped.items;
+      changed = stripped.changed || changed;
+    }
+    if (row.section_key === "feature_grid" && Array.isArray(current.categories)) {
+      const stripped = stripIcons(current.categories);
+      current.categories = stripped.items;
+      changed = stripped.changed || changed;
+    }
+
+    if (!changed) continue;
+    await conn.query("UPDATE page_sections SET extra_json = ? WHERE id = ?", [
+      JSON.stringify(current),
+      row.id,
+    ]);
+  }
+
+  console.log("Synced the features page sections with the Client layout.");
+}
+
+/**
+ * Keeps the `about` page in step with the redesigned Client page.
+ *
+ * The hero, mission and journey sections dropped their
+ * eyebrow/highlights/stats/icon fields. `upsertSection` never removes keys, so
+ * this prunes existing rows.
+ */
+async function cleanupAboutSections(conn: Connection) {
+  // The Client now renders the team before the journey, so match that order in
+  // the editor when the rows still carry the old seed order.
+  await conn.query(
+    `UPDATE page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     SET ps.sort_order = CASE ps.section_key
+       WHEN 'team' THEN 3
+       WHEN 'journey' THEN 4
+     END
+     WHERE p.slug = 'about'
+       AND ((ps.section_key = 'team' AND ps.sort_order = 4)
+         OR (ps.section_key = 'journey' AND ps.sort_order = 3))`
+  );
+
+  const dropKeys: Record<string, string[]> = {
+    hero: ["eyebrow", "highlights"],
+    mission_stats: ["eyebrow", "stats"],
+    journey: ["eyebrow"],
+  };
+
+  const [rows] = await conn.query<mysql.RowDataPacket[]>(
+    `SELECT ps.id, ps.section_key, ps.extra_json
+     FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'about' AND ps.section_key IN ('hero', 'mission_stats', 'journey')`
+  );
+
+  for (const row of rows) {
+    const current = parseJsonObject(row.extra_json);
+    let changed = false;
+
+    for (const key of dropKeys[row.section_key] ?? []) {
+      if (key in current) {
+        delete current[key];
+        changed = true;
+      }
+    }
+
+    // Milestones are numbered by the layout now, so the stored icons go too.
+    if (row.section_key === "journey" && Array.isArray(current.milestones)) {
+      const stripped = stripIcons(current.milestones);
+      current.milestones = stripped.items;
+      changed = stripped.changed || changed;
+    }
+
+    if (!changed) continue;
+    await conn.query("UPDATE page_sections SET extra_json = ? WHERE id = ?", [
+      JSON.stringify(current),
+      row.id,
+    ]);
+  }
+
+  console.log("Synced the about page sections with the Client layout.");
+}
+
+/**
+ * Keeps the `pricing` page in step with the redesigned Client page.
+ *
+ * The hero dropped its eyebrow and hero media, the FAQ section no longer
+ * renders its "view all" link or the CTA eyebrow, and the included-items strip
+ * is labels only. `upsertSection` never removes keys, so this prunes existing
+ * rows.
+ */
+async function cleanupPricingSections(conn: Connection) {
+  // The hero no longer renders a media image.
+  await conn.query(
+    `UPDATE page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     SET ps.image_url = NULL
+     WHERE p.slug = 'pricing' AND ps.section_key IN ('hero', 'closing_cta')`
+  );
+
+  const dropKeys: Record<string, string[]> = {
+    hero: ["eyebrow", "image_alt"],
+    banner: ["title", "subtitle", "cta_label", "cta_href", "secondary_cta_label", "secondary_cta_href", "image_alt"],
+    faq_cta: ["link_label", "link_href", "cta_eyebrow"],
+  };
+
+  const [rows] = await conn.query<mysql.RowDataPacket[]>(
+    `SELECT ps.id, ps.section_key, ps.extra_json
+     FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'pricing' AND ps.section_key IN ('hero', 'closing_cta', 'banner', 'faq_cta')`
+  );
+
+  for (const row of rows) {
+    const current = parseJsonObject(row.extra_json);
+    let changed = false;
+
+    for (const key of dropKeys[row.section_key] ?? []) {
+      if (key in current) {
+        delete current[key];
+        changed = true;
+      }
+    }
+
+    // The included-items strip is labels only now, so the stored icons go too.
+    if (row.section_key === "banner" && Array.isArray(current.items)) {
+      const stripped = stripIcons(current.items);
+      current.items = stripped.items;
+      changed = stripped.changed || changed;
+    }
+
+    if (!changed) continue;
+    await conn.query("UPDATE page_sections SET extra_json = ? WHERE id = ?", [
+      JSON.stringify(current),
+      row.id,
+    ]);
+  }
+
+  console.log("Synced the pricing page sections with the Client layout.");
+}
+
+/**
+ * Keeps the `blog` page in step with the redesigned Client blog page.
+ *
+ * The index renders Hero, Popular, Categories and Latest only, and the article
+ * pages dropped their closing CTA, so the Newsletter and CTA Banner sections
+ * (and their orphaned components) are removed. `upsertSection` never removes
+ * keys or clears columns, so this also prunes the fields the Client stopped
+ * rendering: the hero eyebrow/featured badge, the categories heading, the
+ * Latest "view all" link and the Popular subheading.
+ */
+async function cleanupBlogSections(conn: Connection) {
+  // The blog index no longer shows a newsletter box, and the article pages no
+  // longer render a closing CTA banner.
+  await conn.query(
+    `DELETE ps FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'blog' AND ps.section_key IN ('newsletter', 'cta_banner')`
+  );
+
+  // Columns the Client no longer renders.
+  await conn.query(
+    `UPDATE page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     SET ps.heading = NULL
+     WHERE p.slug = 'blog' AND ps.section_key = 'categories'`
+  );
+  await conn.query(
+    `UPDATE page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     SET ps.cta_label = NULL, ps.cta_href = NULL
+     WHERE p.slug = 'blog' AND ps.section_key = 'latest'`
+  );
+  await conn.query(
+    `UPDATE page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     SET ps.subheading = NULL
+     WHERE p.slug = 'blog' AND ps.section_key = 'popular'`
+  );
+
+  const dropKeys: Record<string, string[]> = {
+    hero: ["eyebrow", "featured_label"],
+    latest: ["eyebrow"],
+  };
+
+  const [rows] = await conn.query<mysql.RowDataPacket[]>(
+    `SELECT ps.id, ps.section_key, ps.extra_json
+     FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'blog' AND ps.section_key IN ('hero', 'latest')`
+  );
+
+  for (const row of rows) {
+    const current = parseJsonObject(row.extra_json);
+    let changed = false;
+
+    for (const key of dropKeys[row.section_key] ?? []) {
+      if (key in current) {
+        delete current[key];
+        changed = true;
+      }
+    }
+
+    if (!changed) continue;
+    await conn.query("UPDATE page_sections SET extra_json = ? WHERE id = ?", [
+      JSON.stringify(current),
+      row.id,
+    ]);
+  }
+
+  console.log("Synced the blog page sections with the Client layout.");
+}
+
+/**
+ * Keeps the `contact` page in step with the redesigned Client contact page.
+ *
+ * The page ends at the Location & Map section, so the closing CTA banner is
+ * gone. The hero keeps its heading, intro line and optional image/video (which
+ * falls back to the built-in video), but the eyebrow, badge and quick-contact
+ * rows it no longer renders are dropped. `upsertSection` never removes rows,
+ * columns or keys, so this prunes them.
+ */
+async function cleanupContactSections(conn: Connection) {
+  await conn.query(
+    `DELETE ps FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'contact' AND ps.section_key = 'cta_banner'`
+  );
+
+  const dropKeys: Record<string, string[]> = {
+    hero: ["eyebrow", "heading_accent", "badge", "quick_contacts"],
+  };
+
+  const [rows] = await conn.query<mysql.RowDataPacket[]>(
+    `SELECT ps.id, ps.section_key, ps.extra_json
+     FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'contact' AND ps.section_key = 'hero'`
+  );
+
+  for (const row of rows) {
+    const current = parseJsonObject(row.extra_json);
+    let changed = false;
+
+    for (const key of dropKeys[row.section_key] ?? []) {
+      if (key in current) {
+        delete current[key];
+        changed = true;
+      }
+    }
+
+    if (!changed) continue;
+    await conn.query("UPDATE page_sections SET extra_json = ? WHERE id = ?", [
+      JSON.stringify(current),
+      row.id,
+    ]);
+  }
+
+  console.log("Synced the contact page sections with the Client layout.");
+}
+
+/**
+ * Keeps the `faq` page in step with the reworked Client FAQ page.
+ *
+ * The categories heading dropped its eyebrow and the hero dropped its eyebrow.
+ * The hero keeps its media (image or video) field, so that is left untouched.
+ * `upsertSection` never removes keys or clears columns, so this prunes the
+ * fields the Client stopped rendering.
+ */
+async function cleanupFaqSections(conn: Connection) {
+  const dropKeys: Record<string, string[]> = {
+    hero: ["eyebrow"],
+    categories: ["eyebrow"],
+  };
+
+  const [rows] = await conn.query<mysql.RowDataPacket[]>(
+    `SELECT ps.id, ps.section_key, ps.extra_json
+     FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'faq' AND ps.section_key IN ('hero', 'categories')`
+  );
+
+  for (const row of rows) {
+    const current = parseJsonObject(row.extra_json);
+    let changed = false;
+
+    for (const key of dropKeys[row.section_key] ?? []) {
+      if (key in current) {
+        delete current[key];
+        changed = true;
+      }
+    }
+
+    if (!changed) continue;
+    await conn.query("UPDATE page_sections SET extra_json = ? WHERE id = ?", [
+      JSON.stringify(current),
+      row.id,
+    ]);
+  }
+
+  console.log("Synced the faq page sections with the Client layout.");
+}
+
+/**
+ * Keeps the `home` page in step with the current Client home layout.
+ *
+ * The Client home page no longer renders the eyebrow on most sections (only
+ * the CTA banner keeps it), the features "footer note", the testimonials
+ * header link, the icons inside the hero / feature / checklist list items, or
+ * the CTA banner's secondary button, uploaded image, avatars, trust line and
+ * floating stat cards. `upsertSection` never removes rows, columns, keys or
+ * list-item fields, so this prunes them.
+ */
+async function cleanupHomeSections(conn: Connection) {
+  // Columns the Client no longer renders.
+  await conn.query(
+    `UPDATE page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     SET ps.image_url = NULL
+     WHERE p.slug = 'home' AND ps.section_key = 'cta_banner'`
+  );
+  await conn.query(
+    `UPDATE page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     SET ps.cta_label = NULL, ps.cta_href = NULL
+     WHERE p.slug = 'home' AND ps.section_key = 'testimonials'`
+  );
+
+  const dropKeys: Record<string, string[]> = {
+    hero: ["eyebrow"],
+    features_overview: ["eyebrow", "footer_note"],
+    product_preview: ["eyebrow"],
+    pricing: ["eyebrow"],
+    testimonials: ["eyebrow"],
+    mobile_app: ["eyebrow"],
+    faq: ["eyebrow"],
+    cta_banner: [
+      "secondary_cta_label",
+      "secondary_cta_href",
+      "avatars",
+      "trust_text",
+      "stat_label",
+      "stat_value",
+      "stat_delta",
+      "stat_note_title",
+      "stat_note_body",
+    ],
+  };
+
+  // Keys the Client stopped reading from within list items.
+  const dropItemKeys: Record<string, Record<string, string[]>> = {
+    hero: { highlights: ["icon"] },
+    features_overview: { features: ["icon"] },
+    product_preview: { points: ["icon"] },
+    cta_banner: { features: ["icon", "desc"] },
+  };
+
+  const [rows] = await conn.query<mysql.RowDataPacket[]>(
+    `SELECT ps.id, ps.section_key, ps.extra_json
+     FROM page_sections ps
+     JOIN pages p ON p.id = ps.page_id
+     WHERE p.slug = 'home'
+       AND ps.section_key IN ('hero', 'features_overview', 'product_preview', 'pricing', 'testimonials', 'mobile_app', 'faq', 'cta_banner')`
+  );
+
+  for (const row of rows) {
+    const current = parseJsonObject(row.extra_json);
+    let changed = false;
+
+    for (const key of dropKeys[row.section_key] ?? []) {
+      if (key in current) {
+        delete current[key];
+        changed = true;
+      }
+    }
+
+    for (const [listKey, itemKeys] of Object.entries(dropItemKeys[row.section_key] ?? {})) {
+      const list = current[listKey];
+      if (!Array.isArray(list)) continue;
+      for (const item of list) {
+        if (!item || typeof item !== "object") continue;
+        for (const itemKey of itemKeys) {
+          if (itemKey in item) {
+            delete (item as Record<string, unknown>)[itemKey];
+            changed = true;
+          }
+        }
+      }
+    }
+
+    if (!changed) continue;
+    await conn.query("UPDATE page_sections SET extra_json = ? WHERE id = ?", [
+      JSON.stringify(current),
+      row.id,
+    ]);
+  }
+
+  console.log("Synced the home page sections with the Client layout.");
+}
+
+function slugify(input: string) {
+  return String(input)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 loadEnvLocal();
 
 type Connection = mysql.Connection;
@@ -322,6 +801,511 @@ async function migratePricingPlans(conn: Connection) {
   }
 }
 
+/**
+ * Feature cards shown on the Client features page for a brand new database.
+ * Existing installs are migrated from the in-page list by `migrateFeaturePosts`.
+ */
+const FEATURE_POST_SEED: Array<{
+  title: string;
+  description: string;
+  /** markdown body rendered on the feature's own detail page */
+  content: string;
+  category: string;
+  icon: string;
+  href: string;
+}> = [
+  {
+    title: "Online Booking",
+    description: "Let clients book appointments 24/7 with real-time availability and instant confirmation.",
+    category: "bookings",
+    icon: "Calendar",
+    href: "/features/booking",
+    content: `## A booking page that works while you sleep
+
+Your clients can reserve an appointment at any hour, from any device. SalonAI shows only the slots that are genuinely available, confirms instantly, and drops the booking straight onto the right staff member's calendar.
+
+### What you can do
+
+- Share a branded booking page with your service menu, staff and live prices
+- Offer real-time availability, so no two clients can take the same slot
+- Collect a deposit or full payment up front to lock the appointment in
+- Let clients reschedule or cancel within the rules you control
+- Block time for breaks, holidays and private appointments
+
+### Why it matters
+
+Missed calls and phone tag cost you bookings every day. An always-on booking page captures demand whenever it arrives and turns your calendar into a self-service system.
+
+> Fewer no-shows, less admin and a calendar that fills itself.
+
+### Built for every screen
+
+The booking flow is fully responsive and syncs to the same calendar your team sees at the front desk, so online and walk-in bookings never clash.`,
+  },
+  {
+    title: "Customer Management",
+    description: "Store customer profiles, history, preferences, notes and keep relationships stronger.",
+    category: "customers",
+    icon: "Users",
+    href: "/features/customers",
+    content: `## Every client, remembered for you
+
+SalonAI keeps a complete profile for each client: contact details, visit history, preferences, allergies, notes and past spend. Your team can deliver a personal experience every single time.
+
+### What you can do
+
+- Store contact details, birthdays and communication preferences
+- See a full visit history with services, staff and amounts paid
+- Add private notes and tags your team can act on at the chair
+- Track loyalty points, memberships and outstanding balances
+- Filter clients into segments for targeted marketing
+
+### Why it matters
+
+Clients return to salons that remember them. Having history and preferences one tap away means better recommendations, fewer mistakes and a stronger relationship with every visit.
+
+### Your data, organised
+
+Search, filter and export your client list whenever you need it, and keep everything in sync across branches and devices.`,
+  },
+  {
+    title: "Staff Management",
+    description: "Manage staff roles, schedules, commissions and performance in one place.",
+    category: "staff",
+    icon: "UserCheck",
+    href: "/features/staff",
+    content: `## Manage your whole team in one place
+
+From rotas and attendance to commissions and performance, SalonAI gives you one clear view of every member of staff.
+
+### What you can do
+
+- Build weekly schedules and shifts for each staff member
+- Assign services, working hours and days off
+- Track commissions on services and products with your own rules
+- Monitor performance, retention and revenue per stylist
+- Keep payroll-ready attendance data in one spot
+
+### Why it matters
+
+A well-organised team delivers a better client experience and a healthier bottom line. When everyone knows their schedule and incentives, the whole salon runs smoother.
+
+### Fair, transparent commissions
+
+Set commission structures that match how you reward your team, whether by service, product or revenue tiers, and let SalonAI calculate the rest.`,
+  },
+  {
+    title: "Service Management",
+    description: "Organize services, duration, pricing and resources effortlessly.",
+    category: "business",
+    icon: "Scissors",
+    href: "/features/services",
+    content: `## Your menu, perfectly organised
+
+Group your services, set realistic durations and prices, and connect each one to the right staff and resources.
+
+### What you can do
+
+- Create service categories and individual treatments
+- Set duration, price, tax and buffer time between appointments
+- Assign which staff can perform each service
+- Bundle services into packages and memberships
+- Pause or archive services without losing history
+
+### Why it matters
+
+Accurate durations and pricing keep your calendar honest and your revenue predictable. Clients see exactly what they are booking, and your team never overruns a slot.
+
+### Flexible for every salon
+
+Whether you run quick trims or long colour sessions, services adapt to the way your business actually works.`,
+  },
+  {
+    title: "Payments & Invoices",
+    description: "Accept payments, generate invoices and manage refunds securely.",
+    category: "business",
+    icon: "CreditCard",
+    href: "/features/payments",
+    content: `## Get paid, simply and securely
+
+Take payments in the salon or online, issue professional invoices, and handle refunds without the paperwork.
+
+### What you can do
+
+- Accept card, cash, mobile wallet and online payments
+- Raise invoices and receipts automatically
+- Take deposits and pre-payments against a booking
+- Process partial payments and refunds
+- Track outstanding balances per client
+
+### Why it matters
+
+Smoother payments mean less time at the till and fewer mistakes. Every transaction is recorded, so your daily takings and reports always add up.
+
+### Built-in security
+
+Card data is handled by certified payment providers, so sensitive details never touch your own systems.`,
+  },
+  {
+    title: "Loyalty Programs",
+    description: "Build customer loyalty with points, rewards, memberships and special offers.",
+    category: "marketing",
+    icon: "Gift",
+    href: "/features/loyalty",
+    content: `## Turn one-off visits into regulars
+
+Reward your clients and keep them coming back with points, memberships and special offers.
+
+### What you can do
+
+- Award points on services and products with flexible rules
+- Create tiers, memberships and prepaid packages
+- Run promotions, gift cards and referral offers
+- Redeem rewards right at the point of sale
+- Track which rewards actually drive repeat visits
+
+### Why it matters
+
+Winning a new client costs far more than keeping one. A simple, well-run loyalty programme lifts repeat visits and average spend without extra effort from your team.
+
+### Rewards that feel personal
+
+Because loyalty is tied to each client's profile, your offers always land with the right people.`,
+  },
+  {
+    title: "SMS & Email Notifications",
+    description: "Send automated reminders, promotions and personalized messages.",
+    category: "marketing",
+    icon: "Bell",
+    href: "/features/notifications",
+    content: `## Stay in touch, automatically
+
+Send the right message at the right time: confirmations, reminders, follow-ups and promotions, all without lifting a finger.
+
+### What you can do
+
+- Confirm bookings instantly by SMS and email
+- Send automatic reminders to cut no-shows
+- Follow up after visits for reviews and rebooking
+- Run targeted campaigns to selected client segments
+- Track delivery, opens and responses
+
+### Why it matters
+
+A gentle reminder is often the difference between a full chair and an empty one. Automated messages keep clients informed and engaged around the clock.
+
+### Marketing that respects your clients
+
+Every message is tied to a client's preferences and history, so you reach the people who actually want to hear from you.`,
+  },
+  {
+    title: "Reports & Analytics",
+    description: "Get real-time insights and detailed reports to grow your business.",
+    category: "reports",
+    icon: "BarChart3",
+    href: "/features/analytics",
+    content: `## Know exactly how your salon is doing
+
+Real-time dashboards and detailed reports turn your day-to-day data into decisions you can act on.
+
+### What you can do
+
+- Track revenue, bookings and occupancy at a glance
+- Compare performance by staff, service and branch
+- Monitor retention, no-shows and client lifetime value
+- See your busiest hours and days
+- Export reports for accounting and reviews
+
+### Why it matters
+
+You cannot improve what you cannot measure. Clear insights help you price better, roster smarter and spot problems before they grow.
+
+### Numbers that update live
+
+Reports refresh as your team works, so you always have the current picture instead of yesterday's snapshot.`,
+  },
+  {
+    title: "AI Insights",
+    description: "AI-powered recommendations to optimize bookings, staff and services.",
+    category: "reports",
+    icon: "Sparkles",
+    href: "/features/ai",
+    content: `## Your salon, with a smart advisor
+
+SalonAI studies your bookings, clients and performance, then turns them into plain-language recommendations.
+
+### What you can do
+
+- Get suggestions to fill quiet hours and reduce no-shows
+- Spot clients who are about to drift away
+- Find your most profitable services and staff
+- Forecast demand for smarter rosters and stock
+- Receive timely prompts to rebook and upsell
+
+### Why it matters
+
+Good salons run on intuition; great ones run on insight. AI surfaces the opportunities you would otherwise miss, without adding to your workload.
+
+### Recommendations you can trust
+
+Every insight is based on your own data and explained in simple terms, so you decide what to act on.`,
+  },
+  {
+    title: "Multi-branch Management",
+    description: "Manage multiple branches seamlessly from a single dashboard.",
+    category: "business",
+    icon: "Network",
+    href: "/features/multi-branch",
+    content: `## Run every location from one login
+
+Whether you have two salons or twenty, manage them all from a single dashboard with shared clients, staff and reporting.
+
+### What you can do
+
+- Add and switch between branches in one place
+- Keep client profiles and history shared across locations
+- Move staff between branches with the right access
+- Compare performance across locations
+- Apply consistent pricing and services everywhere
+
+### Why it matters
+
+Growing should not mean juggling separate systems. Unified management keeps standards high and gives you one clear view of the whole business.
+
+### Consistent, yet flexible
+
+Set group-wide defaults, then let each branch fine-tune its own schedule, prices and team.`,
+  },
+  {
+    title: "Roles & Permissions",
+    description: "Set custom roles and permissions to keep your data secure and organized.",
+    category: "staff",
+    icon: "ShieldCheck",
+    href: "/features/permissions",
+    content: `## Give everyone exactly the access they need
+
+Decide who can see and do what. SalonAI's roles and permissions keep your business secure and your team focused.
+
+### What you can do
+
+- Create custom roles such as owner, manager, stylist and reception
+- Grant access per module: bookings, clients, payments, reports and more
+- Restrict sensitive areas like pricing and staff data
+- Control branch-level access for multi-location teams
+- Review and update permissions at any time
+
+### Why it matters
+
+As your team grows, so does the risk of mistakes and data leaks. Clear permissions protect your business while letting each person work without stumbling blocks.
+
+### Secure by design
+
+Every action is tied to a role, so sensitive information stays with the people you trust.`,
+  },
+  {
+    title: "Integrations",
+    description: "Connect with your favorite tools like accounting, marketing and payment gateways.",
+    category: "integrations",
+    icon: "Puzzle",
+    href: "/features/integrations",
+    content: `## Connect the tools you already use
+
+SalonAI plays nicely with the software that keeps your business running: payments, accounting, marketing and more.
+
+### What you can do
+
+- Sync with payment gateways and card terminals
+- Push sales and invoices to your accounting package
+- Connect your marketing and messaging platforms
+- Link calendars, review sites and social channels
+- Use open APIs to build your own connections
+
+### Why it matters
+
+Integration removes double entry and keeps your data consistent everywhere. Your tools work together, so you spend less time copying information and more time serving clients.
+
+### Open and extensible
+
+With a documented API and webhooks, SalonAI grows with your stack rather than holding it back.`,
+  },
+];
+
+/**
+ * Earlier builds stored the feature cards inside the `feature_grid` page
+ * section's `extra_json.features` array instead of a table. Move them into
+ * `feature_posts` once so the CMS can manage cards from `/features-posts`, then
+ * drop the now-duplicated JSON copy so the two screens cannot drift apart.
+ */
+async function migrateFeaturePosts(conn: Connection) {
+  const [sections] = await conn.query<mysql.RowDataPacket[]>(
+    `SELECT ps.id, ps.extra_json
+       FROM page_sections ps
+       JOIN pages p ON p.id = ps.page_id
+      WHERE p.slug = 'features' AND ps.section_key = 'feature_grid'`
+  );
+
+  for (const section of sections) {
+    const extra = parseJsonObject(section.extra_json) as { features?: unknown };
+    if (Array.isArray(extra.features)) {
+      const [existing] = await conn.query<mysql.RowDataPacket[]>(
+        "SELECT COUNT(*) AS c FROM feature_posts"
+      );
+      if (Number(existing[0].c) === 0 && extra.features.length > 0) {
+        const used = await loadUsedFeatureSlugs(conn);
+        for (const [index, raw] of (extra.features as Array<Record<string, unknown>>).entries()) {
+          const title = String(raw.title || `Feature ${index + 1}`);
+          await conn.query(
+            `INSERT INTO feature_posts
+              (title, slug, description, category, icon, href, sort_order, is_published)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+            [
+              title,
+              uniqueSlug(slugify(title) || `feature-${index + 1}`, used),
+              raw.description ? String(raw.description) : null,
+              raw.category ? String(raw.category) : null,
+              raw.icon ? String(raw.icon) : null,
+              raw.href ? String(raw.href) : null,
+              index + 1,
+            ]
+          );
+        }
+        console.log(`Migrated ${extra.features.length} feature post(s) into feature_posts.`);
+      }
+
+      delete extra.features;
+      const rest = Object.keys(extra);
+      await conn.query("UPDATE page_sections SET extra_json = ? WHERE id = ?", [
+        rest.length ? JSON.stringify(extra) : null,
+        section.id,
+      ]);
+      console.log("Removed in-page feature cards from the feature_grid section.");
+    }
+  }
+}
+
+/** Seeds the built-in feature cards for a brand new database. */
+async function seedFeaturePosts(conn: Connection) {
+  const [rows] = await conn.query<mysql.RowDataPacket[]>("SELECT COUNT(*) AS c FROM feature_posts");
+  if (Number(rows[0].c) > 0) {
+    console.log("Feature posts already present, seed skipped.");
+    return;
+  }
+  const used = await loadUsedFeatureSlugs(conn);
+  for (const [index, post] of FEATURE_POST_SEED.entries()) {
+    await conn.query(
+      `INSERT INTO feature_posts (title, slug, description, content, category, icon, href, sort_order, is_published)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      [
+        post.title,
+        uniqueSlug(slugify(post.title) || `feature-${index + 1}`, used),
+        post.description,
+        post.content,
+        post.category,
+        post.icon,
+        post.href,
+        index + 1,
+      ]
+    );
+  }
+  console.log(`Feature posts seeded (${FEATURE_POST_SEED.length}).`);
+}
+
+/**
+ * Fills the detail page body for the built-in features on an existing install.
+ *
+ * The `content` column was added after the first release, so rows seeded by an
+ * earlier run have no detail copy. This backfills anything still empty and never
+ * touches a body an admin has already written.
+ */
+async function backfillFeaturePostContent(conn: Connection) {
+  let updated = 0;
+  for (const post of FEATURE_POST_SEED) {
+    const slug = slugify(post.title);
+    const [result] = await conn.query<mysql.ResultSetHeader>(
+      `UPDATE feature_posts
+          SET content = ?,
+              description = COALESCE(NULLIF(description, ''), ?)
+        WHERE (slug = ? OR title = ?)
+          AND (content IS NULL OR content = '')`,
+      [post.content, post.description, slug, post.title]
+    );
+    updated += result.affectedRows;
+  }
+  if (updated) console.log(`Backfilled detail content for ${updated} feature post(s).`);
+}
+
+/** Slugs already in use, so a new or migrated row cannot collide. */
+async function loadUsedFeatureSlugs(conn: Connection): Promise<Set<string>> {
+  const [rows] = await conn.query<mysql.RowDataPacket[]>("SELECT slug FROM feature_posts");
+  const used = new Set<string>();
+  for (const row of rows) {
+    const slug = String(row.slug ?? "").trim();
+    if (slug) used.add(slug);
+  }
+  return used;
+}
+
+/** First free slug for `base`, appending -2, -3... until it is unused. */
+function uniqueSlug(base: string, used: Set<string>): string {
+  let slug = base;
+  let n = 2;
+  while (used.has(slug)) {
+    slug = `${base}-${n}`;
+    n += 1;
+  }
+  used.add(slug);
+  return slug;
+}
+
+/**
+ * `slug` (the detail page URL) and `content` (the detail body) were added after
+ * the first release of this table, so backfill them on an existing database.
+ */
+async function syncFeaturePostColumns(conn: Connection) {
+  await ensureColumn(conn, "feature_posts", "slug", "VARCHAR(191) NULL AFTER title");
+  await ensureColumn(conn, "feature_posts", "content", "MEDIUMTEXT NULL AFTER description");
+  await ensureColumn(conn, "feature_posts", "is_featured", "TINYINT(1) NOT NULL DEFAULT 0 AFTER sort_order");
+}
+
+/**
+ * Fills any empty slug from the title and then guarantees the column is unique
+ * so `/features/<slug>` always resolves to exactly one row.
+ */
+async function backfillFeaturePostSlugs(conn: Connection) {
+  const [rows] = await conn.query<mysql.RowDataPacket[]>(
+    "SELECT id, title, slug FROM feature_posts"
+  );
+  const used = new Set<string>();
+  for (const row of rows) {
+    const slug = String(row.slug ?? "").trim();
+    if (slug) used.add(slug);
+  }
+
+  let updated = 0;
+  for (const row of rows) {
+    if (String(row.slug ?? "").trim()) continue;
+    const slug = uniqueSlug(slugify(row.title) || `feature-${row.id}`, used);
+    await conn.query("UPDATE feature_posts SET slug = ? WHERE id = ?", [slug, row.id]);
+    updated += 1;
+  }
+  if (updated) console.log(`Backfilled ${updated} feature post slug(s).`);
+
+  // schema.sql already declares `slug UNIQUE` on a fresh database; this only
+  // adds the index for tables created before that line existed.
+  const [idx] = await conn.query<mysql.RowDataPacket[]>(
+    `SELECT COUNT(*) AS c
+       FROM information_schema.STATISTICS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'feature_posts'
+        AND COLUMN_NAME = 'slug'
+        AND NON_UNIQUE = 0`
+  );
+  if (Number(idx[0].c) === 0) {
+    await conn.query("ALTER TABLE feature_posts ADD UNIQUE KEY uq_feature_posts_slug (slug)");
+    console.log("Added unique index on feature_posts.slug.");
+  }
+}
+
 async function main() {
   const host = process.env.DB_HOST || "127.0.0.1";
   const port = Number(process.env.DB_PORT || 3306);
@@ -352,12 +1336,17 @@ async function main() {
     ["tags", "VARCHAR(500) NULL"],
     ["read_time", "VARCHAR(40) NULL"],
     ["is_featured", "TINYINT(1) NOT NULL DEFAULT 0"],
+    ["is_popular", "TINYINT(1) NOT NULL DEFAULT 0"],
     ["view_count", "INT UNSIGNED NOT NULL DEFAULT 0"],
     ["author_image", "VARCHAR(500) NULL"],
   ];
   for (const [column, definition] of blogColumns) {
     await ensureColumn(conn, "blog_posts", column, definition);
   }
+
+  // Feature posts gained their detail page URL (`slug`) and body (`content`)
+  // after the first release, so backfill them on an existing database.
+  await syncFeaturePostColumns(conn);
 
   // Packages live in their own table so `/pricing` manages them; page copy stays
   // in page_sections under Pages -> Pricing.
@@ -422,17 +1411,16 @@ async function main() {
       cta_label: "Get Started Today",
       cta_href: "/request-demo",
       extra: {
-        eyebrow: "All-in-One Salon Management App",
         heading_accent: "Salon Business",
         secondary_cta_label: "Watch Video",
         secondary_cta_href: "#watch-video",
         secondary_cta_sub: "See how it works",
         image_alt: "SalonAI mobile app mockups in a modern salon",
         highlights: [
-          { icon: "CalendarDays", title: "Easy Booking", desc: "24/7 online appointments." },
-          { icon: "Users", title: "Manage Staff", desc: "Save time, work smarter." },
-          { icon: "Sparkles", title: "Grow Revenue", desc: "Insights & reports." },
-          { icon: "ShieldCheck", title: "Secure & Reliable", desc: "Your data is safe." },
+          { title: "Easy Booking", desc: "24/7 online appointments." },
+          { title: "Manage Staff", desc: "Save time, work smarter." },
+          { title: "Grow Revenue", desc: "Insights & reports." },
+          { title: "Secure & Reliable", desc: "Your data is safe." },
         ],
       },
       sort: 1,
@@ -446,31 +1434,25 @@ async function main() {
       cta_label: "See more",
       cta_href: "/features",
       extra: {
-        eyebrow: "Features",
         heading_accent: "Run Your Salon Smarter",
         features: [
           {
-            icon: "CalendarClock",
             title: "Booking Management",
             description: "Manage appointments, schedule and walk-ins effortlessly.",
           },
           {
-            icon: "UsersRound",
             title: "Staff Management",
             description: "Organize staff, roles, commissions and performance.",
           },
           {
-            icon: "UserRoundCog",
             title: "Customer Management",
             description: "Keep customer profiles, history, notes and preferences.",
           },
           {
-            icon: "Cpu",
             title: "AI Features",
             description: "Manage appointments with AI-powered workflows effortlessly.",
           },
         ],
-        footer_note: "Beauty Meets Technology",
       },
       sort: 2,
     },
@@ -483,27 +1465,22 @@ async function main() {
       cta_label: "Book a Demo",
       cta_href: "/request-demo",
       extra: {
-        eyebrow: "Platform",
         heading_accent: "Designed for Salons",
         image_alt: "Modern salon interior",
         points: [
           {
-            icon: "CalendarDays",
             title: "Easy Navigation",
             desc: "A clean and intuitive interface for everyone.",
           },
           {
-            icon: "Zap",
             title: "Real-time Updates",
             desc: "Stay in sync with bookings, staff and customers.",
           },
           {
-            icon: "ChartColumnIncreasing",
             title: "Advanced Analytics",
             desc: "Track performance and grow with clear insights.",
           },
           {
-            icon: "ShieldCheck",
             title: "Secure & Cloud Based",
             desc: "Your salon data stays protected and accessible.",
           },
@@ -520,7 +1497,6 @@ async function main() {
       cta_label: "View Full Pricing →",
       cta_href: "/pricing",
       extra: {
-        eyebrow: "Pricing",
         heading_accent: "Transparent Pricing",
         plans: [
           {
@@ -577,10 +1553,7 @@ async function main() {
       heading: "Loved by",
       subheading:
         "Real stories from salon owners who are growing their business with SalonAI.",
-      cta_label: "View All Testimonials →",
-      cta_href: "/#testimonials",
       extra: {
-        eyebrow: "Testimonials",
         heading_accent: "Salon Owners",
         items: [
           {
@@ -624,7 +1597,6 @@ async function main() {
       subheading:
         "Manage your salon anytime, anywhere with our beautiful mobile apps for you and your customers.",
       extra: {
-        eyebrow: "Mobile App",
         heading_accent: "Always in Control",
         image_alt: "SalonAI mobile apps for owners and customers",
         app_store_url: "#",
@@ -642,7 +1614,6 @@ async function main() {
       // Questions live in the `faqs` table and the category tabs come from the
       // FAQ page's `categories` section, so the home section only owns its copy.
       extra: {
-        eyebrow: "FAQ",
         heading_accent: "Questions",
       },
       sort: 7,
@@ -658,35 +1629,12 @@ async function main() {
       extra: {
         eyebrow: "Get Started",
         heading_accent: "Your Salon Business?",
-        secondary_cta_label: "Contact Sales",
-        secondary_cta_href: "/contact",
         image_alt: "Salon professional at work",
         features: [
-          { icon: "CalendarDays", title: "Easy Setup", desc: "Get started in minutes." },
-          {
-            icon: "Users",
-            title: "Dedicated Support",
-            desc: "Real help when you need it.",
-          },
-          {
-            icon: "ChartColumnIncreasing",
-            title: "Grow Faster",
-            desc: "Insights that drive bookings.",
-          },
+          { title: "Easy Setup" },
+          { title: "Dedicated Support" },
+          { title: "Grow Faster" },
         ],
-        avatars: [
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=80",
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=80",
-          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=80",
-          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=80",
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=80",
-        ],
-        trust_text: "Trusted by 10,000+ salon owners worldwide",
-        stat_label: "Bookings This Month",
-        stat_value: "1,248",
-        stat_delta: "+12.5%",
-        stat_note_title: "More Time For What You Love",
-        stat_note_body: "Spend less time on admin and more time with your clients.",
       },
       sort: 8,
     },
@@ -705,19 +1653,10 @@ async function main() {
         "SalonAI comes with all the tools you need to manage your salon efficiently, delight your clients, and grow your business faster than ever.",
       cta_label: "Book a Demo",
       cta_href: "/request-demo",
-      image_url: "",
       extra: {
-        eyebrow: "Features",
         heading_accent: "Run Your Salon Smarter",
         secondary_cta_label: "Our Story",
         secondary_cta_href: "/about",
-        image_alt: "SalonAI Dashboard Interface",
-        highlights: [
-          { icon: "Sparkles", title: "Easy to Use", desc: "Onboard in minutes." },
-          { icon: "Cpu", title: "AI-Powered", desc: "Smarter workflows." },
-          { icon: "ShieldCheck", title: "Secure & Reliable", desc: "Your data is safe." },
-          { icon: "Cloud", title: "Cloud Based", desc: "Access anywhere." },
-        ],
       },
       sort: 1,
     },
@@ -726,32 +1665,21 @@ async function main() {
       key: "feature_grid",
       heading: "Explore Our",
       extra: {
-        eyebrow: "Everything Included",
         heading_accent: "Powerful Features",
         categories: [
-          { id: "all", label: "All Features", icon: "LayoutGrid" },
-          { id: "bookings", label: "Bookings", icon: "Calendar" },
-          { id: "customers", label: "Customers", icon: "Users" },
-          { id: "staff", label: "Staff", icon: "UserCheck" },
-          { id: "business", label: "Business", icon: "Briefcase" },
-          { id: "marketing", label: "Marketing", icon: "Megaphone" },
-          { id: "reports", label: "Reports", icon: "BarChart3" },
-          { id: "integrations", label: "Integrations", icon: "Puzzle" },
+          { id: "all", label: "All Features" },
+          { id: "bookings", label: "Bookings" },
+          { id: "customers", label: "Customers" },
+          { id: "staff", label: "Staff" },
+          { id: "business", label: "Business" },
+          { id: "marketing", label: "Marketing" },
+          { id: "reports", label: "Reports" },
+          { id: "integrations", label: "Integrations" },
         ],
-        features: [
-          { title: "Online Booking", description: "Let clients book appointments 24/7 with real-time availability and instant confirmation.", category: "bookings", icon: "Calendar", href: "/features/booking" },
-          { title: "Customer Management", description: "Store customer profiles, history, preferences, notes and keep relationships stronger.", category: "customers", icon: "Users", href: "/features/customers" },
-          { title: "Staff Management", description: "Manage staff roles, schedules, commissions and performance in one place.", category: "staff", icon: "UserCheck", href: "/features/staff" },
-          { title: "Service Management", description: "Organize services, duration, pricing and resources effortlessly.", category: "business", icon: "Scissors", href: "/features/services" },
-          { title: "Payments & Invoices", description: "Accept payments, generate invoices and manage refunds securely.", category: "business", icon: "CreditCard", href: "/features/payments" },
-          { title: "Loyalty Programs", description: "Build customer loyalty with points, rewards, memberships and special offers.", category: "marketing", icon: "Gift", href: "/features/loyalty" },
-          { title: "SMS & Email Notifications", description: "Send automated reminders, promotions and personalized messages.", category: "marketing", icon: "Bell", href: "/features/notifications" },
-          { title: "Reports & Analytics", description: "Get real-time insights and detailed reports to grow your business.", category: "reports", icon: "BarChart3", href: "/features/analytics" },
-          { title: "AI Insights", description: "AI-powered recommendations to optimize bookings, staff and services.", category: "reports", icon: "Sparkles", href: "/features/ai" },
-          { title: "Multi-branch Management", description: "Manage multiple branches seamlessly from a single dashboard.", category: "business", icon: "Network", href: "/features/multi-branch" },
-          { title: "Roles & Permissions", description: "Set custom roles and permissions to keep your data secure and organized.", category: "staff", icon: "ShieldCheck", href: "/features/permissions" },
-          { title: "Integrations", description: "Connect with your favorite tools like accounting, marketing and payment gateways.", category: "integrations", icon: "Puzzle", href: "/features/integrations" },
-        ],
+        // Feature cards are not seeded here: they live in the `feature_posts`
+        // table and are managed from Admin -> Features Posts. This section only
+        // wraps the category tabs and the grid, so its is_visible flag toggles
+        // the card grid.
       },
       sort: 2,
     },
@@ -760,35 +1688,18 @@ async function main() {
       key: "platform_showcase",
       heading: "A Powerful Platform",
       body: "SalonAI is more than just software. It's a complete management solution that helps you save time, improve customer experience and grow your salon.",
-      image_url: "",
       extra: {
-        eyebrow: "Platform",
         heading_accent: "Designed for Your Success",
-        image_alt: "SalonAI Laptop and Mobile App Interface",
         benefits: [
-          { icon: "Clock", title: "Save Time", desc: "Automate tasks and focus on what matters most." },
-          { icon: "Globe", title: "Work from Anywhere", desc: "Access your salon data anytime, on any device." },
-          { icon: "Shield", title: "Increase Revenue", desc: "Boost sales with smart insights and retention." },
-          { icon: "Zap", title: "Scalable Solution", desc: "From single salons to large enterprises." },
-          { icon: "Smile", title: "Delight Customers", desc: "Provide exceptional service and experience." },
-          { icon: "RefreshCw", title: "Always Improving", desc: "We innovate and ship new features regularly." },
+          { title: "Save Time", desc: "Automate tasks and focus on what matters most." },
+          { title: "Work from Anywhere", desc: "Access your salon data anytime, on any device." },
+          { title: "Increase Revenue", desc: "Boost sales with smart insights and retention." },
+          { title: "Scalable Solution", desc: "From single salons to large enterprises." },
+          { title: "Delight Customers", desc: "Provide exceptional service and experience." },
+          { title: "Always Improving", desc: "We innovate and ship new features regularly." },
         ],
       },
       sort: 3,
-    },
-    {
-      slug: "features",
-      key: "stats_bar",
-      extra: {
-        stats: [
-          { icon: "Users", value: "10,000+", label: "Salons Worldwide" },
-          { icon: "Smile", value: "500K+", label: "Happy Customers" },
-          { icon: "CalendarCheck", value: "1M+", label: "Appointments Managed" },
-          { icon: "TrendingUp", value: "95%", label: "Customer Satisfaction" },
-          { icon: "Headset", value: "24/7", label: "Customer Support" },
-        ],
-      },
-      sort: 4,
     },
     {
       slug: "about",
@@ -800,17 +1711,10 @@ async function main() {
       cta_href: "/request-demo",
       image_url: "",
       extra: {
-        eyebrow: "About SalonAI",
         heading_accent: "Solutions for Modern Salons",
         secondary_cta_label: "Explore Features",
         secondary_cta_href: "/features",
         image_alt: "SalonAI platform overview",
-        highlights: [
-          { icon: "Sparkles", title: "AI-Powered", desc: "Smarter tools, less admin." },
-          { icon: "Users", title: "10,000+ Salons", desc: "Trusted worldwide." },
-          { icon: "TrendingUp", title: "Proven Growth", desc: "Real results, daily." },
-          { icon: "ShieldCheck", title: "Secure", desc: "Enterprise-grade data safety." },
-        ],
       },
       sort: 1,
     },
@@ -819,7 +1723,6 @@ async function main() {
       key: "mission_stats",
       heading: "Our Mission, Vision",
       extra: {
-        eyebrow: "Our Mission",
         heading_accent: "& Values",
         subheading:
           "We are driven by a purpose to transform the beauty and wellness industry through innovation and technology.",
@@ -829,13 +1732,6 @@ async function main() {
         vision_title: "Our Vision",
         vision_body:
           "To be the leading intelligent salon management platform, powering every salon to achieve excellence and scale effortlessly.",
-        stats: [
-          { value: "10,000+", label: "Salons Worldwide" },
-          { value: "500K+", label: "Happy Customers" },
-          { value: "1M+", label: "Appointments Managed" },
-          { value: "95%", label: "Customer Satisfaction" },
-          { value: "24/7", label: "Customer Support" },
-        ],
       },
       sort: 2,
     },
@@ -844,17 +1740,16 @@ async function main() {
       key: "journey",
       heading: "Milestones That",
       extra: {
-        eyebrow: "Our Journey",
         heading_accent: "Shaped Us",
         milestones: [
-          { icon: "Sparkles", title: "The Beginning", desc: "SalonAI was founded with a vision to modernize salon operations with technology and innovation." },
-          { icon: "Rocket", title: "Early Growth", desc: "We launched our platform and onboarded our first 1,000+ salons, improving bookings and operations." },
-          { icon: "BarChart2", title: "Expanding Features", desc: "AI features, analytics, loyalty programs, and mobile apps were introduced to empower salons even more." },
-          { icon: "Globe", title: "Global Reach", desc: "We reached 10,000+ salons worldwide and continue to grow our global community every day." },
-          { icon: "Star", title: "What's Next", desc: "We're building the future of salon management with smarter AI, more integrations, and limitless possibilities." },
+          { title: "The Beginning", desc: "SalonAI was founded with a vision to modernize salon operations with technology and innovation." },
+          { title: "Early Growth", desc: "We launched our platform and onboarded our first 1,000+ salons, improving bookings and operations." },
+          { title: "Expanding Features", desc: "AI features, analytics, loyalty programs, and mobile apps were introduced to empower salons even more." },
+          { title: "Global Reach", desc: "We reached 10,000+ salons worldwide and continue to grow our global community every day." },
+          { title: "What's Next", desc: "We're building the future of salon management with smarter AI, more integrations, and limitless possibilities." },
         ],
       },
-      sort: 3,
+      sort: 4,
     },
     {
       slug: "about",
@@ -873,12 +1768,15 @@ async function main() {
           { name: "Daniel Osei", role: "Design Lead", image_url: "" },
         ],
       },
-      sort: 4,
+      sort: 3,
     },
     {
       slug: "about",
       key: "why_choose",
       heading: "Why Salons Choose",
+      subheading:
+        "Everything you need to run and grow a modern salon — powerful enough for enterprises, simple enough for a single chair.",
+      image_url: "",
       extra: {
         heading_accent: "SalonAI",
         features: [
@@ -897,7 +1795,6 @@ async function main() {
       heading: "Simple, Transparent",
       subheading: "Choose the perfect plan for your salon. Upgrade, downgrade or cancel anytime.",
       extra: {
-        eyebrow: "Pricing",
         heading_accent: "Pricing for Every Salon",
       },
       sort: 1,
@@ -996,36 +1893,8 @@ async function main() {
     },
     {
       slug: "pricing",
-      key: "banner",
+      key: "closing_cta",
       extra: {
-        strip_heading: "All plans include",
-        items: [
-          {
-            icon: "Cloud",
-            title: "Cloud Based",
-            desc: "Your salon data lives securely in the cloud and stays synced across every device, so you can work from anywhere.",
-          },
-          {
-            icon: "RefreshCw",
-            title: "Automatic Updates",
-            desc: "New features, improvements and fixes are delivered automatically — no manual installs or downtime.",
-          },
-          {
-            icon: "Database",
-            title: "Data Backup",
-            desc: "Automatic daily backups keep your bookings, clients and records safe and recoverable.",
-          },
-          {
-            icon: "Smartphone",
-            title: "Mobile Apps",
-            desc: "Run your salon on the go with dedicated iOS and Android apps for you and your team.",
-          },
-          {
-            icon: "ShieldCheck",
-            title: "GDPR Compliant",
-            desc: "We follow strict data-protection and privacy rules to keep your information secure.",
-          },
-        ],
         title: "Still not sure which plan is right for you?",
         subtitle: "Our team is happy to help you choose the perfect plan for your salon.",
         cta_label: "Talk to Sales",
@@ -1037,12 +1906,40 @@ async function main() {
     },
     {
       slug: "pricing",
+      key: "banner",
+      extra: {
+        strip_heading: "All plans include",
+        items: [
+          {
+            title: "Cloud Based",
+            desc: "Your salon data lives securely in the cloud and stays synced across every device in real time, so you can manage bookings, staff and customers from anywhere — even from home.",
+          },
+          {
+            title: "Automatic Updates",
+            desc: "New features, performance improvements and security fixes are rolled out automatically for everyone. There is nothing to install and no downtime — you always run the latest version.",
+          },
+          {
+            title: "Data Backup",
+            desc: "Automatic daily backups keep your appointments, customer records, payment history and settings safe. If anything goes wrong, your data can be fully restored with no loss.",
+          },
+          {
+            title: "Mobile Apps",
+            desc: "Run your salon on the go with dedicated iOS and Android apps. Check today's schedule, confirm bookings, message customers and track revenue straight from your phone.",
+          },
+          {
+            title: "GDPR Compliant",
+            desc: "We follow strict EU data-protection and privacy rules. Your customers' personal data is encrypted, never sold, and handled with full consent management built in.",
+          },
+        ],
+      },
+      sort: 5,
+    },
+    {
+      slug: "pricing",
       key: "faq_cta",
       heading: "Frequently Asked Questions",
       subheading: "Got questions? We've got answers.",
       extra: {
-        link_label: "View All FAQs →",
-        link_href: "/faq",
         faqs: [
           {
             question: "Can I change my plan later?",
@@ -1067,7 +1964,6 @@ async function main() {
             answer: "Yes, multi-branch management is supported on our Pro and Enterprise plans.",
           },
         ],
-        cta_eyebrow: "Get Started",
         cta_heading: "Ready to Transform",
         cta_heading_accent: "Your Salon?",
         cta_subheading:
@@ -1077,7 +1973,7 @@ async function main() {
         cta_secondary_label: "Contact Sales",
         cta_secondary_href: "/contact",
       },
-      sort: 5,
+      sort: 6,
     },
     {
       slug: "blog",
@@ -1086,19 +1982,15 @@ async function main() {
       subheading:
         "Expert tips, industry trends, and product updates to help you run a smarter, more profitable salon business.",
       extra: {
-        eyebrow: "Our Blog",
         heading_accent: "Your Salon Grow",
-        image_alt: "SalonAI blog",
         search_placeholder: "Search articles...",
         search_label: "All Categories",
-        featured_label: "Featured Article",
       },
       sort: 1,
     },
     {
       slug: "blog",
       key: "categories",
-      heading: "Categories",
       extra: {
         items: [
           { icon: "LayoutGrid", label: "All Posts", slug: "" },
@@ -1115,8 +2007,6 @@ async function main() {
       slug: "blog",
       key: "latest",
       heading: "Latest",
-      cta_label: "View All Articles",
-      cta_href: "/blog",
       extra: {
         heading_accent: "Articles",
         empty_message: "No articles have been published yet. Check back soon.",
@@ -1125,41 +2015,12 @@ async function main() {
     },
     {
       slug: "blog",
-      key: "newsletter",
-      heading: "Stay Updated with the Latest Insights",
-      subheading:
-        "Subscribe to our newsletter and get the latest tips, trends, and product updates straight to your inbox.",
-      extra: {
-        email_placeholder: "Enter your email address",
-        submit_label: "Subscribe",
-        success_message: "Thanks for subscribing! Watch your inbox for the next issue.",
-      },
-      sort: 4,
-    },
-    {
-      slug: "blog",
       key: "popular",
       heading: "Popular Posts",
-      subheading: "Most read articles from the SalonAI blog.",
       extra: {
         empty_message: "Popular articles will show up here once the blog is live.",
       },
-      sort: 5,
-    },
-    {
-      slug: "blog",
-      key: "cta_banner",
-      heading: "Ready to Transform",
-      subheading: "See how SalonAI can run your salon smarter, faster and more profitably.",
-      cta_label: "Book a Demo",
-      cta_href: "/request-demo",
-      extra: {
-        eyebrow: "Get Started",
-        heading_accent: "Your Salon?",
-        secondary_cta_label: "Contact Sales",
-        secondary_cta_href: "/contact",
-      },
-      sort: 6,
+      sort: 4,
     },
     {
       slug: "faq",
@@ -1168,7 +2029,6 @@ async function main() {
       subheading:
         "Find quick answers to the most common questions about SalonAI. Can't find what you're looking for? Feel free to contact our team.",
       extra: {
-        eyebrow: "FAQ",
         heading_accent: "We've Got Answers",
         search_placeholder: "Search for answers...",
         search_label: "Search",
@@ -1181,7 +2041,6 @@ async function main() {
       heading: "Answers",
       subheading: "Browse questions and answers below.",
       extra: {
-        eyebrow: "Browse",
         heading_accent: "by Category",
         categories: [
           { id: "general", label: "General", icon: "BookOpen", slug: "" },
@@ -1216,13 +2075,7 @@ async function main() {
       heading: "Let’s build a better salon business together",
       subheading: "Have a question or want a demo? Reach out and we’ll help.",
       extra: {
-        eyebrow: "Contact Us",
         image_alt: "SalonAI support team",
-        quick_contacts: [
-          { icon: "Mail", label: "Email Us", value: "hello@avenque.com" },
-          { icon: "Phone", label: "Call Us", value: "+94 11 234 5678" },
-          { icon: "MapPin", label: "Visit Our Office", value: "Colombo, Sri Lanka" },
-        ],
       },
       sort: 1,
     },
@@ -1232,6 +2085,16 @@ async function main() {
       heading: "Send Us a Message",
       subheading: "Fill out the form below and we'll get back to you within 24 hours.",
       extra: {
+        name_label: "Full Name *",
+        name_placeholder: "Enter your full name",
+        email_label: "Email Address *",
+        email_placeholder: "Enter your email",
+        phone_label: "Phone Number",
+        phone_placeholder: "Enter your phone number",
+        subject_label: "Subject *",
+        subject_placeholder: "Select a subject",
+        message_label: "Message *",
+        message_placeholder: "Tell us how we can help you...",
         submit_label: "Send Message →",
         success_message: "Thanks! Your message has been sent. We'll get back to you shortly.",
         privacy_note: "Your information is safe with us.",
@@ -1260,21 +2123,6 @@ async function main() {
       sort: 3,
     },
     {
-      slug: "contact",
-      key: "cta_banner",
-      heading: "Ready to Transform",
-      subheading: "Let’s discuss how SalonAI can help your salon grow faster.",
-      cta_label: "Book a Demo",
-      cta_href: "/request-demo",
-      extra: {
-        eyebrow: "Get Started",
-        heading_accent: "Your Salon?",
-        secondary_cta_label: "Start Free Trial",
-        secondary_cta_href: "#",
-      },
-      sort: 4,
-    },
-    {
       slug: "request-demo",
       key: "demo_hero",
       heading: "See SalonAI",
@@ -1292,6 +2140,16 @@ async function main() {
       heading: "Send Us a Message",
       subheading: "Fill out the form below and we'll get back to you within 24 hours.",
       extra: {
+        name_label: "Full Name *",
+        name_placeholder: "Enter your full name",
+        email_label: "Email Address *",
+        email_placeholder: "Enter your email",
+        phone_label: "Phone Number",
+        phone_placeholder: "Enter your phone number",
+        subject_label: "Subject *",
+        subject_placeholder: "Select a subject",
+        message_label: "Message *",
+        message_placeholder: "Tell us how we can help you...",
         submit_label: "Send Message →",
         success_message: "Thanks! Your message has been sent. We'll get back to you shortly.",
         privacy_note: "Your information is safe with us.",
@@ -1318,6 +2176,7 @@ async function main() {
         heading_accent: "Your Salon?",
         secondary_cta_label: "Start Free Trial",
         secondary_cta_href: "#",
+        image_alt: "SalonAI team",
       },
       sort: 3,
     },
@@ -1411,6 +2270,45 @@ async function main() {
      WHERE p.slug = 'features' AND ps.section_key = 'cta_banner'`
   );
 
+  // The features page was redesigned on the Client: drop the Stats Bar section
+  // and the fields the editor no longer owns from existing installs.
+  await cleanupFeaturesSections(conn);
+
+  // The about page was redesigned too: the hero plays a fixed video, and the
+  // stats/highlights/eyebrow fields are gone.
+  await cleanupAboutSections(conn);
+
+  // The pricing page was redesigned too: the hero eyebrow, the FAQ "view all"
+  // link and the included-item icons are no longer rendered.
+  await cleanupPricingSections(conn);
+
+  // The blog index was redesigned: the newsletter box is gone, and the
+  // categories / latest / popular sections dropped the fields it no longer
+  // renders. The article pages no longer render a closing CTA banner either.
+  await cleanupBlogSections(conn);
+
+  // The contact page now ends at the Location & Map section, so the closing
+  // CTA banner is no longer rendered.
+  await cleanupContactSections(conn);
+
+  // The FAQ page dropped the hero eyebrow and the categories eyebrow, which the
+  // reworked Client layout no longer renders.
+  await cleanupFaqSections(conn);
+
+  // The home page dropped the eyebrows on most sections, the features footer
+  // note, the testimonial header link and the CTA banner extras the Client no
+  // longer renders.
+  await cleanupHomeSections(conn);
+
+  // Feature cards live in their own table so `/features-posts` manages them;
+  // only the category tabs stay in page_sections under Pages -> Features.
+  await migrateFeaturePosts(conn);
+  await seedFeaturePosts(conn);
+  // Every row needs a unique slug so its /features/<slug> page resolves.
+  await backfillFeaturePostSlugs(conn);
+  // Newer installs get the detail bodies for the built-in feature cards.
+  await backfillFeaturePostContent(conn);
+
   const [faqCount] = await conn.query<mysql.RowDataPacket[]>("SELECT COUNT(*) AS c FROM faqs");
   if (Number(faqCount[0].c) === 0) {
     // Categories match the labels on the FAQ page (`categories` section) so the
@@ -1462,7 +2360,7 @@ async function main() {
     author: string;
     tags: string;
     read_time: string;
-    is_featured: number;
+    is_popular: number;
     status: string;
   }> = [
     {
@@ -1474,7 +2372,7 @@ async function main() {
       author: "Sarah Johnson",
       tags: "AI,Automation,Salon Management",
       read_time: "5 min read",
-      is_featured: 1,
+      is_popular: 1,
       status: "published",
       content: [
         "Running a salon means juggling bookings, staff schedules, stock and customer relationships at the same time. SalonAI pulls all of that into one place so you can spend your day with clients instead of paperwork.",
@@ -1503,7 +2401,7 @@ async function main() {
       author: "Michael Brown",
       tags: "Efficiency,Workflow,Management",
       read_time: "4 min read",
-      is_featured: 0,
+      is_popular: 1,
       status: "published",
       content: [
         "Most salons lose hours a week to avoidable admin. Here is where that time usually goes, and what to do about it.",
@@ -1531,7 +2429,7 @@ async function main() {
       author: "Emily Roberts",
       tags: "Marketing,Retention,Growth",
       read_time: "6 min read",
-      is_featured: 0,
+      is_popular: 1,
       status: "published",
       content: [
         "You do not need a big budget. You need consistent, trackable ideas.",
@@ -1562,7 +2460,7 @@ async function main() {
       author: "David Wilson",
       tags: "Online Booking,Technology",
       read_time: "5 min read",
-      is_featured: 0,
+      is_popular: 0,
       status: "published",
       content: [
         "Clients book at 11pm, on the commute, and from their phone while waiting for coffee. If you only take bookings while sitting at the desk, you are losing that demand.",
@@ -1586,7 +2484,7 @@ async function main() {
   for (const post of blogPosts) {
     await conn.query(
       `INSERT INTO blog_posts
-         (title, slug, excerpt, content, category, author, tags, read_time, is_featured, status, published_at)
+         (title, slug, excerpt, content, category, author, tags, read_time, is_popular, status, published_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
        ON DUPLICATE KEY UPDATE title = VALUES(title)`,
       [
@@ -1598,7 +2496,7 @@ async function main() {
         post.author,
         post.tags,
         post.read_time,
-        post.is_featured,
+        post.is_popular,
         post.status,
       ]
     );

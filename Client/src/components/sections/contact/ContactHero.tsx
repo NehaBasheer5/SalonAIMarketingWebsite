@@ -1,15 +1,14 @@
 "use client";
 
-import type { IconName } from "@/lib/content";
+import CmsImage from "@/components/ui/CmsImage";
+import { resolveImageUrl } from "@/lib/content";
 import contactVideo from "@/assets/images/images/contact.mp4";
 
 export type ContactHeroProps = {
-  eyebrow?: string;
   heading: string;
   subheading: string;
   image_url?: string;
   image_alt?: string;
-  quick_contacts: { icon: IconName; label: string; value: string }[];
 };
 
 export default function ContactHero({
@@ -18,19 +17,33 @@ export default function ContactHero({
   image_url,
   image_alt,
 }: ContactHeroProps) {
+  const hasCmsMedia = Boolean(resolveImageUrl(image_url));
+
   return (
     <section className="relative min-h-[460px] w-full overflow-hidden bg-salon-bg lg:min-h-[min(420px,100svh)]">
-      {/* Right side video */}
+      {/* Right side media: CMS image/video when set, otherwise the built-in video. */}
       <div className="relative h-[38vh] min-h-[280px] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]">
-        <video
-          src={contactVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="h-full w-full object-cover object-center pointer-events-none select-none"
-        />
+        {hasCmsMedia ? (
+          <CmsImage
+            value={image_url}
+            alt={image_alt ?? ""}
+            fill
+            controls={false}
+            className="h-full w-full object-cover object-center pointer-events-none select-none"
+            sizes="(max-width: 1024px) 100vw, 52vw"
+            priority
+          />
+        ) : (
+          <video
+            src={contactVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="h-full w-full object-cover object-center pointer-events-none select-none"
+          />
+        )}
         <div className="absolute inset-y-0 left-0 hidden w-20 bg-gradient-to-r from-salon-bg to-transparent lg:block" />
       </div>
 

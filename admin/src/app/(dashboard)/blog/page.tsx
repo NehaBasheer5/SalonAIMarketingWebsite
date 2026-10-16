@@ -17,7 +17,7 @@ type Post = {
   author_image: string;
   tags: string;
   read_time: string;
-  is_featured: boolean;
+  is_popular: boolean;
   status: "draft" | "published";
   view_count?: number;
   published_at?: string | null;
@@ -35,7 +35,7 @@ const emptyPost: Post = {
   author_image: "",
   tags: "",
   read_time: "",
-  is_featured: false,
+  is_popular: false,
   status: "draft",
 };
 
@@ -86,6 +86,7 @@ export default function BlogAdminPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [configuredCategories, setConfiguredCategories] = useState<string[]>([]);
+  const [showForm, setShowForm] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -138,8 +139,9 @@ export default function BlogAdminPage() {
     setForm({
       ...post,
       tags: Array.isArray(post.tags) ? post.tags.join(", ") : (post.tags ?? ""),
-      is_featured: Boolean(post.is_featured),
+      is_popular: Boolean(post.is_popular),
     });
+    setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -167,6 +169,7 @@ export default function BlogAdminPage() {
 
       setNotice(form.id ? "Post updated." : "Post created.");
       reset();
+      setShowForm(false);
       await load();
     } catch {
       setError("Could not save the post.");
@@ -193,14 +196,27 @@ export default function BlogAdminPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-[#0D1140]">Blog posts</h2>
-        <p className="text-sm text-slate-600">
-          Create and edit articles for the Client blog page. Everything you save here is written to
-          the database and appears on the marketing site immediately once the post is published.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-[#0D1140]">Blog posts</h2>
+          <p className="text-sm text-slate-600">
+            Create and edit articles for the Client blog page. Everything you save here is written to
+            the database and appears on the marketing site immediately once the post is published.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            reset();
+            setShowForm((open) => !open);
+          }}
+          className="inline-flex shrink-0 items-center justify-center rounded-lg bg-[#0D1140] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1a1f5c]"
+        >
+          {showForm ? "Close" : "Create post"}
+        </button>
       </div>
 
+      {showForm ? (
       <form
         onSubmit={onSubmit}
         className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-5 sm:grid-cols-2"
@@ -355,18 +371,21 @@ export default function BlogAdminPage() {
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input
               type="checkbox"
-              checked={form.is_featured}
-              onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
+              checked={form.is_popular}
+              onChange={(e) => setForm({ ...form, is_popular: e.target.checked })}
               className="h-4 w-4"
             />
-            Feature this article in the blog hero
+            Show this article in Popular Posts
           </label>
 
           <div className="ml-auto flex items-center gap-3">
             {form.id ? (
               <button
                 type="button"
-                onClick={reset}
+                onClick={() => {
+                  reset();
+                  setShowForm(false);
+                }}
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
               >
                 Cancel edit
@@ -385,6 +404,7 @@ export default function BlogAdminPage() {
         {error ? <p className="text-sm text-red-600 sm:col-span-2">{error}</p> : null}
         {notice ? <p className="text-sm text-emerald-600 sm:col-span-2">{notice}</p> : null}
       </form>
+      ) : null}
 
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-slate-700">
@@ -393,7 +413,8 @@ export default function BlogAdminPage() {
 
         {!loading && posts.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
-            No posts yet. Create your first article above, then set it to published.
+            No posts yet. Click “Create post” above to write your first article, then set it to
+            published.
           </p>
         ) : null}
 
@@ -403,9 +424,9 @@ export default function BlogAdminPage() {
               <div className="min-w-0">
                 <p className="font-semibold text-slate-800">
                   {post.title}
-                  {post.is_featured ? (
+                  {post.is_popular ? (
                     <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
-                      featured
+                      popular
                     </span>
                   ) : null}
                 </p>

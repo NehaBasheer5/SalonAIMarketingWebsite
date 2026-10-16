@@ -2,6 +2,8 @@
 
 import React from "react";
 import { Search } from "lucide-react";
+import CmsImage from "@/components/ui/CmsImage";
+import { resolveImageUrl } from "@/lib/content";
 import contactVideo from "@/assets/images/images/contact.mp4";
 
 type Props = {
@@ -25,18 +27,31 @@ export default function FaqHero({ content }: Props) {
     "Find quick answers to the most common questions about SalonAI. Can't find what you're looking for? Feel free to contact our team.";
   const searchPlaceholder = content?.search_placeholder || "Search for answers...";
   const searchLabel = content?.search_label || "Search";
+  const hasCmsMedia = Boolean(resolveImageUrl(content?.image_url));
 
   return (
     <section className="relative flex min-h-[560px] w-full items-center overflow-hidden bg-salon-bg lg:min-h-[min(560px,100svh)]">
-      <video
-        src={contactVideo}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none select-none"
-      />
+      {hasCmsMedia ? (
+        <CmsImage
+          value={content?.image_url}
+          alt={content?.image_alt ?? ""}
+          fill
+          controls={false}
+          className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none select-none"
+          sizes="100vw"
+          priority
+        />
+      ) : (
+        <video
+          src={contactVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none select-none"
+        />
+      )}
       <div className="absolute inset-0 bg-black/55" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_35%,rgba(0,0,0,0.55)_100%)]" />
 

@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import Image, { type StaticImageData } from "next/image";
+import { type StaticImageData } from "next/image";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import CmsImage from "@/components/ui/CmsImage";
 import bookingImg from "@/assets/images/images/BookingM.jpg";
 import staffImg from "@/assets/images/images/StaffM.jpg";
 import customerImg from "@/assets/images/images/CustomerM.jpg";
 import aiFeaturesImg from "@/assets/images/images/ai features.jpg";
-import { defaultHomeContent, type HomeContent } from "@/lib/content";
+import { defaultHomeContent, resolveImageUrl, type HomeContent } from "@/lib/content";
 
 type Props = {
   content?: HomeContent["features_overview"];
@@ -70,6 +71,10 @@ export default function FeaturesOverview({ content = defaultHomeContent.features
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((_, slot) => {
             const feature = features[(slot + tick) % count];
+            const fallback = FEATURE_IMAGES[feature.title];
+            const cardHref = feature.slug
+              ? `/features/${feature.slug}`
+              : content.cta_href || "/features";
             return (
               <article
                 key={slot}
@@ -80,10 +85,11 @@ export default function FeaturesOverview({ content = defaultHomeContent.features
                   className="animate-fade-swap flex h-full flex-col"
                   style={{ animationDelay: `${slot * 0.08}s` }}
                 >
-                  {FEATURE_IMAGES[feature.title] ? (
+                  {resolveImageUrl(feature.image_url) || fallback ? (
                     <div className="relative aspect-[16/10] w-full overflow-hidden">
-                      <Image
-                        src={FEATURE_IMAGES[feature.title]}
+                      <CmsImage
+                        value={feature.image_url}
+                        fallback={fallback}
                         alt={feature.title}
                         fill
                         sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
@@ -100,7 +106,7 @@ export default function FeaturesOverview({ content = defaultHomeContent.features
 
                     <div className="mt-auto flex items-center justify-between pt-5">
                       <Link
-                        href={content.cta_href || "/features"}
+                        href={cardHref}
                         aria-label={`Learn more about ${feature.title}`}
                         className="inline-flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-wider text-salon-brand-dark transition hover:text-salon-brand"
                       >

@@ -2,7 +2,6 @@ import ContactHero from "@/components/sections/contact/ContactHero";
 import ContactFormSection from "@/components/sections/contact/ContactFormSection";
 import LocationMapSection from "@/components/sections/contact/LocationMapSection";
 import { getContactContent } from "@/lib/content";
-import { resolveImageUrl, isVideoPath } from "@/lib/content";
 
 export const metadata = {
   title: "Contact Us - SalonAI by Avenque",

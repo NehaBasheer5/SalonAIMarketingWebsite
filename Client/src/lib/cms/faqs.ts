@@ -6,6 +6,7 @@ export type CmsFaq = {
   answer: string;
   category?: string | null;
   sort_order?: number;
+  show_on_home?: number | boolean;
   created_at?: string;
 };
 
@@ -36,6 +37,32 @@ export async function fetchCmsFaqs(): Promise<CmsFaq[]> {
  */
 export async function fetchRecentCmsFaqs(limit: number): Promise<CmsFaq[]> {
   const faqs = await fetchCmsFaqs();
+  return [...faqs]
+    .sort((a, b) => {
+      const at = a.created_at ? Date.parse(a.created_at) : 0;
+      const bt = b.created_at ? Date.parse(b.created_at) : 0;
+      if (bt !== at) return bt - at;
+      return (b.id ?? 0) - (a.id ?? 0);
+    })
+    .slice(0, Math.max(0, limit));
+}
+
+/**
+ * FAQs that should appear in the home page FAQ section.
+ *
+ * Admins flag individual questions with "Show on home" in the Admin FAQs
+ * screen. When at least one question is flagged we return exactly those (in the
+ * order the FAQ screen lists them); when none are flagged we fall back to the
+ * newest questions so the section is never empty.
+ */
+export async function fetchHomeCmsFaqs(limit: number): Promise<CmsFaq[]> {
+  const faqs = await fetchCmsFaqs();
+  const flagged = faqs.filter((faq) => Boolean(faq.show_on_home));
+  if (flagged.length) {
+    return flagged.sort(
+      (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || (a.id ?? 0) - (b.id ?? 0)
+    );
+  }
   return [...faqs]
     .sort((a, b) => {
       const at = a.created_at ? Date.parse(a.created_at) : 0;
