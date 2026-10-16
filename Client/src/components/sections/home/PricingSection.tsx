@@ -12,14 +12,14 @@ type Props = {
 
 export default function PricingSection({ content = defaultHomeContent.pricing }: Props) {
   return (
-    <section className="w-full overflow-hidden border-t border-salon-card bg-salon-soft py-14 lg:py-16">
+    <section className="w-full overflow-hidden border-t border-salon-card bg-salon-soft pb-14 pt-6 lg:pb-16 lg:pt-8">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-16 xl:max-w-none xl:px-20 2xl:max-w-[1920px] 2xl:px-24">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="font-display text-3xl leading-tight tracking-tight text-salon-ink sm:text-4xl lg:text-5xl">
               {content.heading}
               {content.heading_accent ? (
-                <span className="block bg-gradient-to-r from-salon-ink via-salon-gold to-salon-tile bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-salon-ink via-salon-gold to-salon-accent bg-clip-text pb-[0.12em] text-transparent">
                   {content.heading_accent}
                 </span>
               ) : null}

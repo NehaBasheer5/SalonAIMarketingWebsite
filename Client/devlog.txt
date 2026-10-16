@@ -1,0 +1,15 @@
+
+> avenque-marketing@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by process 25840, using available port 3002 instead.
+▲ Next.js 16.2.12 (Turbopack)
+- Local:         http://localhost:3002
+- Network:       http://192.168.56.1:3002
+- Environments: .env.local
+✓ Ready in 3.8s
+
+○ Compiling / ...
+ GET / 200 in 17.7s (next.js: 14.8s, application-code: 2.9s)
+ GET / 200 in 1221ms (next.js: 8ms, application-code: 1213ms)
+ GET / 200 in 1135ms (next.js: 7ms, application-code: 1127ms)
